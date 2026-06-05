@@ -4,49 +4,48 @@ import Image from "next/image";
 
 /* ---------------- FETCH DATA ---------------- */
 
-async function getFeaturedTrips() {
-  const query = `
-    *[_type == "trip"] | order(startDate desc)[0...3]{
+async function getHomepageData() {
+  return await client.fetch(`
+  {
+    "trips": *[_type == "trip"] | order(startDate desc)[0...3]{
       _id,
       title,
       slug,
       location,
       coverImage{
-        asset->{
-          url
-        }
+        asset->{url}
       }
-    }
-  `;
-  return await client.fetch(query);
-}
+    },
 
-async function getFeaturedBlogs() {
-  const query = `
-    *[_type == "blog"] | order(_createdAt desc)[0...3]{
+    "blogs": *[_type == "blog"] | order(_createdAt desc)[0...3]{
       _id,
       title,
       slug,
       coverImage{
-        asset->{
-          url
-        }
+        asset->{url}
+      }
+    },
+
+    "vlogs": *[_type == "vlog"] | order(_createdAt desc)[0...3]{
+      _id,
+      title,
+      slug,
+      thumbnail{
+        asset->{url}
       }
     }
-  `;
-  return await client.fetch(query);
+  }
+  `);
 }
 
 /* ---------------- PAGE ---------------- */
 
 export default async function HomePage() {
-  const trips = await getFeaturedTrips();
-  const blogs = await getFeaturedBlogs();
+  const { trips, blogs, vlogs } = await getHomepageData();
 
   return (
     <div style={{ fontFamily: "sans-serif" }}>
-
-      {/* ---------------- HERO SECTION ---------------- */}
+      {/* HERO */}
       <section
         style={{
           height: "80vh",
@@ -80,13 +79,14 @@ export default async function HomePage() {
             color: "black",
             borderRadius: "8px",
             fontWeight: "bold",
+            textDecoration: "none",
           }}
         >
           Explore Trips
         </Link>
       </section>
 
-      {/* ---------------- FEATURED TRIPS ---------------- */}
+      {/* TRIPS */}
       <section style={{ padding: "40px" }}>
         <h2>🌍 Featured Trips</h2>
 
@@ -116,7 +116,11 @@ export default async function HomePage() {
                   alt={trip.title}
                   width={400}
                   height={250}
-                  style={{ width: "100%", height: "180px", objectFit: "cover" }}
+                  style={{
+                    width: "100%",
+                    height: "180px",
+                    objectFit: "cover",
+                  }}
                 />
               )}
 
@@ -129,7 +133,54 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ---------------- FEATURED BLOGS ---------------- */}
+      {/* VLOGS */}
+      <section style={{ padding: "40px", background: "#fafafa" }}>
+        <h2>🎥 Latest Vlogs</h2>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+            gap: "20px",
+            marginTop: "20px",
+          }}
+        >
+          {vlogs.map((vlog: any) => (
+            <Link
+              key={vlog._id}
+              href={`/vlogs/${vlog.slug?.current}`}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: "10px",
+                overflow: "hidden",
+                textDecoration: "none",
+                color: "black",
+                background: "white",
+              }}
+            >
+              {vlog.thumbnail?.asset?.url && (
+                <Image
+                  src={vlog.thumbnail.asset.url}
+                  alt={vlog.title}
+                  width={400}
+                  height={250}
+                  style={{
+                    width: "100%",
+                    height: "180px",
+                    objectFit: "cover",
+                  }}
+                />
+              )}
+
+              <div style={{ padding: "10px" }}>
+                <h3>{vlog.title}</h3>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* BLOGS */}
       <section style={{ padding: "40px", background: "#f9f9f9" }}>
         <h2>📝 Latest Blogs</h2>
 
@@ -142,12 +193,15 @@ export default async function HomePage() {
           }}
         >
           {blogs.map((blog: any) => (
-            <div
+            <Link
               key={blog._id}
+              href={`/blogs/${blog.slug?.current}`}
               style={{
                 border: "1px solid #ddd",
                 borderRadius: "10px",
                 overflow: "hidden",
+                textDecoration: "none",
+                color: "black",
                 background: "white",
               }}
             >
@@ -157,19 +211,23 @@ export default async function HomePage() {
                   alt={blog.title}
                   width={400}
                   height={250}
-                  style={{ width: "100%", height: "180px", objectFit: "cover" }}
+                  style={{
+                    width: "100%",
+                    height: "180px",
+                    objectFit: "cover",
+                  }}
                 />
               )}
 
               <div style={{ padding: "10px" }}>
                 <h3>{blog.title}</h3>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
 
-      {/* ---------------- FOOTER ---------------- */}
+      {/* FOOTER */}
       <footer
         style={{
           padding: "30px",
@@ -180,7 +238,6 @@ export default async function HomePage() {
       >
         <p>© 2026 Explorush. All rights reserved.</p>
       </footer>
-
     </div>
   );
 }
