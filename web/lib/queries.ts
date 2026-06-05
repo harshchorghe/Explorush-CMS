@@ -16,3 +16,27 @@ export const tripsQuery = `
   endDate
 }
 `;
+
+export const blogsQuery = `
+*[_type == "blog"] | order(_createdAt desc){
+  _id,
+  title,
+  slug,
+  content
+}
+`;
+
+export const vlogsQuery = `
+*[_type == "vlog"] | order(_createdAt desc){
+  _id,
+  title,
+  slug,
+  videoUrl,
+  thumbnail{
+    asset->{
+      _id,
+      url
+    }
+  }
+}
+`;
