@@ -134,7 +134,7 @@ export default async function HomePage() {
       </section>
 
       {/* VLOGS */}
-      <section style={{ padding: "40px", background: "#fafafa" }}>
+      <section style={{ padding: "40px", background: "#000000" }}>
         <h2>🎥 Latest Vlogs</h2>
 
         <div
@@ -181,7 +181,7 @@ export default async function HomePage() {
       </section>
 
       {/* BLOGS */}
-      <section style={{ padding: "40px", background: "#f9f9f9" }}>
+      <section style={{ padding: "40px", background: "#000000" }}>
         <h2>📝 Latest Blogs</h2>
 
         <div
