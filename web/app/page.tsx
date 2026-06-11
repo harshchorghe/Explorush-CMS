@@ -1,8 +1,40 @@
-"use client";
-
 import { client } from "@/lib/sanity";
+import { HomeCursor } from "../components/HomeCursor";
 import Link from "next/link";
 import Image from "next/image";
+
+type SanityImage = {
+  asset?: {
+    url?: string;
+  };
+};
+
+type HomePreviewItem = {
+  _id: string;
+  title: string;
+  slug?: {
+    current?: string;
+  };
+};
+
+type TripPreviewItem = HomePreviewItem & {
+  location?: string;
+  coverImage?: SanityImage;
+};
+
+type BlogPreviewItem = HomePreviewItem & {
+  coverImage?: SanityImage;
+};
+
+type VlogPreviewItem = HomePreviewItem & {
+  thumbnail?: SanityImage;
+};
+
+type HomePageData = {
+  trips: TripPreviewItem[];
+  blogs: BlogPreviewItem[];
+  vlogs: VlogPreviewItem[];
+};
 
 /* ─────────────────────────────────────────────
    GLOBAL STYLES  (inject once via a <style> tag)
@@ -282,9 +314,9 @@ const GLOBAL_CSS = `
   }
   .hero-bg {
     position: absolute; inset: 0; z-index: 0;
-  }
-  .hero-bg img {
-    width: 100%; height: 100%; object-fit: cover;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     filter: brightness(0.2) saturate(0.6);
   }
   .hero-bg::after {
@@ -515,7 +547,7 @@ const GLOBAL_CSS = `
    DATA FETCH
 ───────────────────────────────────────────────*/
 async function getHomepageData() {
-  return await client.fetch(`{
+  return await client.fetch<HomePageData>(`{
     "trips": *[_type == "trip"] | order(startDate desc)[0...3]{
       _id, title, slug, location,
       coverImage{ asset->{ url } }
@@ -550,32 +582,19 @@ export default async function HomePage() {
       <style dangerouslySetInnerHTML={{ __html: GLOBAL_CSS }} />
 
       {/* Custom cursor */}
-      <div className="cursor-dot" id="cur-dot" />
-      <div className="cursor-ring" id="cur-ring" />
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          const dot = document.getElementById('cur-dot');
-          const ring = document.getElementById('cur-ring');
-          document.addEventListener('mousemove', e => {
-            dot.style.left = e.clientX + 'px';
-            dot.style.top  = e.clientY + 'px';
-            ring.style.left = e.clientX + 'px';
-            ring.style.top  = e.clientY + 'px';
-          });
-        `
-      }} />
+      <HomeCursor />
 
       {/* ── NAV ── */}
       <nav>
-        <a href="/" className="nav-logo">
+        <Link href="/" className="nav-logo">
           <span />
           Explorush
-        </a>
+        </Link>
         <ul className="nav-links">
-          <li><a href="/trips">Trips</a></li>
-          <li><a href="/vlogs">Vlogs</a></li>
-          <li><a href="/blogs">Blogs</a></li>
-          <li><a href="/about">About</a></li>
+          <li><Link href="/trips">Trips</Link></li>
+          <li><Link href="/vlogs">Vlogs</Link></li>
+          <li><Link href="/blogs">Blogs</Link></li>
+          <li><Link href="/about">About</Link></li>
         </ul>
         <Link href="/trips" className="nav-cta">Explore Now</Link>
       </nav>
@@ -583,12 +602,13 @@ export default async function HomePage() {
       {/* ── HERO ── */}
       <section className="hero">
         <div className="grid-lines" />
-        <div className="hero-bg">
-          <img
-            src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1800&q=80"
-            alt="Travel hero"
-          />
-        </div>
+        <div
+          className="hero-bg"
+          style={{
+            backgroundImage:
+              "url(https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1800&q=80)",
+          }}
+        />
 
         <p className="hero-eyebrow">The World Is Calling</p>
 
@@ -652,10 +672,10 @@ export default async function HomePage() {
         </div>
 
         <div className="card-grid">
-          {trips.map((trip: any, i: number) => (
+          {trips.map((trip, i) => (
             <Link
               key={trip._id}
-              href={`/trips/${trip.slug?.current}`}
+              href={trip.slug?.current ? `/trips/${trip.slug.current}` : "/trips"}
               className={`card ${i === 0 ? "trip-featured" : ""}`}
             >
               {trip.coverImage?.asset?.url && (
@@ -663,9 +683,9 @@ export default async function HomePage() {
                   <Image
                     src={trip.coverImage.asset.url}
                     alt={trip.title}
-                    width={800}
-                    height={320}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      fill
+                      sizes="(max-width: 900px) 100vw, 33vw"
+                      style={{ objectFit: "cover" }}
                   />
                 </div>
               )}
@@ -694,10 +714,10 @@ export default async function HomePage() {
           </div>
 
           <div className="card-grid">
-            {vlogs.map((vlog: any) => (
+            {vlogs.map((vlog) => (
               <Link
                 key={vlog._id}
-                href={`/vlogs/${vlog.slug?.current}`}
+                href={vlog.slug?.current ? `/vlogs/${vlog.slug.current}` : "/vlogs"}
                 className="card"
               >
                 {vlog.thumbnail?.asset?.url && (
@@ -705,9 +725,9 @@ export default async function HomePage() {
                     <Image
                       src={vlog.thumbnail.asset.url}
                       alt={vlog.title}
-                      width={600}
-                      height={340}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      fill
+                      sizes="(max-width: 900px) 100vw, 33vw"
+                      style={{ objectFit: "cover" }}
                     />
                     <div className="play-badge">▶</div>
                   </div>
@@ -734,10 +754,10 @@ export default async function HomePage() {
         </div>
 
         <div className="card-grid">
-          {blogs.map((blog: any) => (
+          {blogs.map((blog) => (
             <Link
               key={blog._id}
-              href={`/blogs/${blog.slug?.current}`}
+              href={blog.slug?.current ? `/blogs/${blog.slug.current}` : "/blogs"}
               className="card"
             >
               {blog.coverImage?.asset?.url && (
@@ -745,9 +765,9 @@ export default async function HomePage() {
                   <Image
                     src={blog.coverImage.asset.url}
                     alt={blog.title}
-                    width={600}
-                    height={340}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      fill
+                      sizes="(max-width: 900px) 100vw, 33vw"
+                      style={{ objectFit: "cover" }}
                   />
                 </div>
               )}
@@ -766,10 +786,10 @@ export default async function HomePage() {
         <div className="footer-inner">
           <div className="footer-logo">Explorush<span style={{ color: "var(--accent)" }}>.</span></div>
           <ul className="footer-links">
-            <li><a href="/trips">Trips</a></li>
-            <li><a href="/vlogs">Vlogs</a></li>
-            <li><a href="/blogs">Blogs</a></li>
-            <li><a href="/about">About</a></li>
+            <li><Link href="/trips">Trips</Link></li>
+            <li><Link href="/vlogs">Vlogs</Link></li>
+            <li><Link href="/blogs">Blogs</Link></li>
+            <li><Link href="/about">About</Link></li>
           </ul>
         </div>
         <p className="footer-copy">© 2026 Explorush. All rights reserved. Explore the world, one story at a time.</p>
