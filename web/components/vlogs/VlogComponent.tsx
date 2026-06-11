@@ -29,7 +29,7 @@ export default function VlogComponent({
             fontSize: "14px",
           }}
         >
-          ← Back to Home
+          ← 
         </Link>
 
         <h1
@@ -41,7 +41,7 @@ export default function VlogComponent({
             fontFamily: "Syne, sans-serif",
           }}
         >
-          Vlogs 🎥
+          Vlogs 
         </h1>
 
         <p
