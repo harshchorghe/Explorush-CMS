@@ -10,6 +10,14 @@ export async function GET() {
         location,
         type,
         slug,
+        startDate,
+        endDate,
+        coverImage {
+          asset -> {
+            _id,
+            url
+          }
+        },
         _createdAt
       }
     `);

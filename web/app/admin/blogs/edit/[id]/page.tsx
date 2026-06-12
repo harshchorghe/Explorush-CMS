@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, Upload, Trash2, Plus, User, Tag, Check, AlertCircle, RefreshCw } from "lucide-react";
+import { client } from "@/lib/sanity";
+import { ArrowLeft, BookOpen, Upload, Trash2, User, Tag, Check, AlertCircle, RefreshCw } from "lucide-react";
 import Image from "next/image";
 
 type Author = {
@@ -16,9 +17,13 @@ type Category = {
   title: string;
 };
 
-export default function CreateBlogPage() {
+export default function EditBlogPage() {
+  const params = useParams();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const id = params?.id as string;
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,29 +50,69 @@ export default function CreateBlogPage() {
   const [newCategoryTitle, setNewCategoryTitle] = useState("");
   const [categoryCreating, setCategoryCreating] = useState(false);
 
-  // Fetch authors and categories
-  async function fetchLists() {
-    try {
-      setFetchingLists(true);
-      const [authorsRes, categoriesRes] = await Promise.all([
-        fetch("/api/admin/authors"),
-        fetch("/api/admin/categories")
-      ]);
-      const authorsData = await authorsRes.json();
-      const categoriesData = await categoriesRes.json();
-
-      if (authorsData.success) setAuthors(authorsData.authors);
-      if (categoriesData.success) setCategories(categoriesData.categories);
-    } catch (err) {
-      console.error("Failed to load lists:", err);
-    } finally {
-      setFetchingLists(false);
-    }
-  }
-
+  // Fetch lists and blog details
   useEffect(() => {
-    fetchLists();
-  }, []);
+    if (!id) return;
+
+    async function fetchData() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // 1. Fetch metadata lists
+        const [authorsRes, categoriesRes] = await Promise.all([
+          fetch("/api/admin/authors"),
+          fetch("/api/admin/categories")
+        ]);
+        const authorsData = await authorsRes.json();
+        const categoriesData = await categoriesRes.json();
+
+        if (authorsData.success) setAuthors(authorsData.authors);
+        if (categoriesData.success) setCategories(categoriesData.categories);
+
+        // 2. Fetch specific blog
+        const blogData = await client.fetch(
+          `*[_id == $id][0] {
+            _id,
+            title,
+            content,
+            author -> { _id },
+            category -> { _id },
+            coverImage {
+              asset -> {
+                _id,
+                url
+              }
+            }
+          }`,
+          { id }
+        );
+
+        if (blogData) {
+          setTitle(blogData.title || "");
+          setContent(blogData.content || "");
+          setAuthorId(blogData.author?._id || "");
+          setCategoryId(blogData.category?._id || "");
+          if (blogData.coverImage?.asset) {
+            setCoverImage({
+              id: blogData.coverImage.asset._id,
+              url: blogData.coverImage.asset.url,
+            });
+          }
+        } else {
+          setError("Blog not found");
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to fetch blog details");
+      } finally {
+        setLoading(false);
+        setFetchingLists(false);
+      }
+    }
+
+    fetchData();
+  }, [id]);
 
   // Handle Cover Upload
   async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -171,19 +216,20 @@ export default function CreateBlogPage() {
     }
 
     try {
-      setLoading(true);
+      setSaving(true);
       setError(null);
 
       const payload = {
+        id,
         title,
         content,
-        authorId: authorId || undefined,
-        categoryId: categoryId || undefined,
-        coverImageAssetId: coverImage?.id || undefined,
+        authorId: authorId || null,
+        categoryId: categoryId || null,
+        coverImageAssetId: coverImage ? coverImage.id : null,
       };
 
-      const res = await fetch("/api/admin/blogs/create", {
-        method: "POST",
+      const res = await fetch("/api/admin/blogs/update", {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -195,14 +241,23 @@ export default function CreateBlogPage() {
           router.push("/admin/blogs");
         }, 1500);
       } else {
-        setError(data.error || "Failed to create blog");
+        setError(data.error || "Failed to update blog");
       }
     } catch (err) {
       console.error(err);
       setError("An unexpected error occurred");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+        <RefreshCw className="w-8 h-8 text-purple-550 animate-spin" />
+        <p className="text-slate-400">Loading blog details...</p>
+      </div>
+    );
   }
 
   return (
@@ -218,9 +273,9 @@ export default function CreateBlogPage() {
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
             <BookOpen className="w-7 h-7 text-purple-400" />
-            Write New Blog
+            Edit Blog
           </h1>
-          <p className="text-slate-400 mt-1">Publish an editorial story to the site.</p>
+          <p className="text-slate-400 mt-1">Make changes to your published article.</p>
         </div>
       </div>
 
@@ -228,7 +283,7 @@ export default function CreateBlogPage() {
       {success && (
         <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl">
           <Check className="w-5 h-5 shrink-0" />
-          <span>Blog Created Successfully! Redirecting...</span>
+          <span>Blog Updated Successfully! Redirecting...</span>
         </div>
       )}
 
@@ -377,10 +432,16 @@ export default function CreateBlogPage() {
           <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-3">
             <button
               type="submit"
-              disabled={loading || success}
-              className="w-full py-3 bg-purple-600 hover:bg-purple-500 disabled:opacity-55 disabled:hover:bg-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-600/15 hover:shadow-purple-500/25 transition duration-200"
+              disabled={saving || success}
+              className="w-full py-3 bg-purple-600 hover:bg-purple-500 disabled:opacity-55 disabled:hover:bg-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-600/15 hover:shadow-purple-500/25 transition duration-200 flex items-center justify-center gap-2"
             >
-              {loading ? "Publishing Blog..." : "Publish Blog Post"}
+              {saving ? (
+                <>
+                  <RefreshCw className="w-5 h-5 animate-spin" /> Saving Changes...
+                </>
+              ) : (
+                "Save Changes"
+              )}
             </button>
             <Link
               href="/admin/blogs"
@@ -406,7 +467,7 @@ export default function CreateBlogPage() {
                   placeholder="e.g. John Doe"
                   value={newAuthorName}
                   onChange={(e) => setNewAuthorName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 focus:outline-none focus:border-purple-500 transition-colors"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 focus:outline-none focus:border-purple-550 transition-colors"
                 />
               </div>
 
@@ -417,7 +478,7 @@ export default function CreateBlogPage() {
                   value={newAuthorBio}
                   onChange={(e) => setNewAuthorBio(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 focus:outline-none focus:border-purple-500 transition-colors resize-none"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 focus:outline-none focus:border-purple-550 transition-colors resize-none"
                 />
               </div>
 
@@ -460,7 +521,7 @@ export default function CreateBlogPage() {
                   placeholder="e.g. Camping Guides"
                   value={newCategoryTitle}
                   onChange={(e) => setNewCategoryTitle(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 focus:outline-none focus:border-purple-500 transition-colors"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 focus:outline-none focus:border-purple-550 transition-colors"
                 />
               </div>
 

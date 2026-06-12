@@ -1,14 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Tv, Upload, Trash2, Check, AlertCircle } from "lucide-react";
+import { client } from "@/lib/sanity";
+import { ArrowLeft, Tv, Upload, Trash2, Check, AlertCircle, RefreshCw } from "lucide-react";
 import Image from "next/image";
 
-export default function CreateVlogPage() {
+export default function EditVlogPage() {
+  const params = useParams();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const id = params?.id as string;
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,9 +23,54 @@ export default function CreateVlogPage() {
   const [thumbnail, setThumbnail] = useState<{ id: string; url: string } | null>(null);
   const [thumbnailUploading, setThumbnailUploading] = useState(false);
 
+  // Fetch Vlog Details
+  useEffect(() => {
+    if (!id) return;
+
+    async function fetchVlogDetails() {
+      try {
+        setLoading(true);
+        const data = await client.fetch(
+          `*[_id == $id][0] {
+            _id,
+            title,
+            videoUrl,
+            thumbnail {
+              asset -> {
+                _id,
+                url
+              }
+            }
+          }`,
+          { id }
+        );
+
+        if (data) {
+          setTitle(data.title || "");
+          setVideoUrl(data.videoUrl || "");
+          if (data.thumbnail?.asset) {
+            setThumbnail({
+              id: data.thumbnail.asset._id,
+              url: data.thumbnail.asset.url,
+            });
+          }
+        } else {
+          setError("Vlog not found");
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load vlog details");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchVlogDetails();
+  }, [id]);
+
   // Helper validation for YouTube URL
   function validateYoutubeUrl(url: string) {
-    if (!url) return true; // Optional field in some schemas, but recommended
+    if (!url) return true;
     const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
     return regex.test(url);
   }
@@ -73,17 +123,18 @@ export default function CreateVlogPage() {
     }
 
     try {
-      setLoading(true);
+      setSaving(true);
       setError(null);
 
       const payload = {
+        id,
         title,
         videoUrl,
-        thumbnailAssetId: thumbnail?.id || undefined,
+        thumbnailAssetId: thumbnail ? thumbnail.id : null,
       };
 
-      const res = await fetch("/api/admin/vlogs/create", {
-        method: "POST",
+      const res = await fetch("/api/admin/vlogs/update", {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -95,14 +146,23 @@ export default function CreateVlogPage() {
           router.push("/admin/vlogs");
         }, 1500);
       } else {
-        setError(data.error || "Failed to create vlog");
+        setError(data.error || "Failed to update vlog");
       }
     } catch (err) {
       console.error(err);
       setError("An unexpected error occurred");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+        <RefreshCw className="w-8 h-8 text-rose-500 animate-spin" />
+        <p className="text-slate-400">Loading vlog details...</p>
+      </div>
+    );
   }
 
   return (
@@ -117,10 +177,10 @@ export default function CreateVlogPage() {
         </Link>
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
-            <Tv className="w-7 h-7 text-rose-450" />
-            Publish New Vlog
+            <Tv className="w-7 h-7 text-rose-500" />
+            Edit Vlog
           </h1>
-          <p className="text-slate-400 mt-1">Add a new YouTube vlog link to the video gallery.</p>
+          <p className="text-slate-400 mt-1">Make changes to your published video link.</p>
         </div>
       </div>
 
@@ -128,7 +188,7 @@ export default function CreateVlogPage() {
       {success && (
         <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl">
           <Check className="w-5 h-5 shrink-0" />
-          <span>Vlog Created Successfully! Redirecting...</span>
+          <span>Vlog Updated Successfully! Redirecting...</span>
         </div>
       )}
 
@@ -191,7 +251,7 @@ export default function CreateVlogPage() {
               </div>
             ) : (
               <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-800 hover:border-rose-500 rounded-xl cursor-pointer hover:bg-slate-900/20 transition group">
-                <div className="text-center space-y-2 text-slate-500 group-hover:text-rose-450 transition">
+                <div className="text-center space-y-2 text-slate-500 group-hover:text-rose-455 transition">
                   <Upload className="w-8 h-8 mx-auto" />
                   <span className="text-xs font-semibold block">
                     {thumbnailUploading ? "Uploading..." : "Upload Thumbnail Image"}
@@ -213,10 +273,16 @@ export default function CreateVlogPage() {
           <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-3">
             <button
               type="submit"
-              disabled={loading || success}
-              className="w-full py-3 bg-rose-600 hover:bg-rose-500 disabled:opacity-55 disabled:hover:bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-600/15 hover:shadow-rose-500/25 transition duration-200"
+              disabled={saving || success}
+              className="w-full py-3 bg-rose-600 hover:bg-rose-500 disabled:opacity-55 disabled:hover:bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-600/15 hover:shadow-rose-500/25 transition duration-200 flex items-center justify-center gap-2"
             >
-              {loading ? "Publishing Vlog..." : "Publish Vlog Link"}
+              {saving ? (
+                <>
+                  <RefreshCw className="w-5 h-5 animate-spin" /> Saving Changes...
+                </>
+              ) : (
+                "Save Changes"
+              )}
             </button>
             <Link
               href="/admin/vlogs"
