@@ -32,7 +32,7 @@ export default function AdminBlogsPage() {
   async function fetchBlogs() {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/blogs/get-all");
+      const res = await fetch("/api/admin/blogs/get-all", { cache: "no-store" });
       const data = await res.json();
       if (data.success) {
         setBlogs(data.blogs);

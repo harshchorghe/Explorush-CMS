@@ -30,7 +30,7 @@ export default function AdminTripsPage() {
   async function fetchTrips() {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/trips/get-all");
+      const res = await fetch("/api/admin/trips/get-all", { cache: "no-store" });
       const data = await res.json();
       if (data.success) {
         setTrips(data.trips);

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { client } from "@/lib/sanity";
 
+// Force dynamic — never cache this API route
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const blogs = await client.fetch(`

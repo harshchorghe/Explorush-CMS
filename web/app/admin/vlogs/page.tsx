@@ -27,7 +27,7 @@ export default function AdminVlogsPage() {
   async function fetchVlogs() {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/vlogs/get-all");
+      const res = await fetch("/api/admin/vlogs/get-all", { cache: "no-store" });
       const data = await res.json();
       if (data.success) {
         setVlogs(data.vlogs);

@@ -3,6 +3,9 @@ import { HomeCursor } from "../components/HomeCursor";
 import Link from "next/link";
 import Image from "next/image";
 
+// Never cache this page — always fetch fresh data from Sanity
+export const revalidate = 0;
+
 type SanityImage = {
   asset?: {
     url?: string;
@@ -547,20 +550,24 @@ const GLOBAL_CSS = `
    DATA FETCH
 ───────────────────────────────────────────────*/
 async function getHomepageData() {
-  return await client.fetch<HomePageData>(`{
-    "trips": *[_type == "trip"] | order(startDate desc)[0...3]{
-      _id, title, slug, location,
-      coverImage{ asset->{ url } }
-    },
-    "blogs": *[_type == "blog"] | order(_createdAt desc)[0...3]{
-      _id, title, slug,
-      coverImage{ asset->{ url } }
-    },
-    "vlogs": *[_type == "vlog"] | order(_createdAt desc)[0...3]{
-      _id, title, slug,
-      thumbnail{ asset->{ url } }
-    }
-  }`);
+  return await client.fetch<HomePageData>(
+    `{
+      "trips": *[_type == "trip"] | order(startDate desc)[0...6]{
+        _id, title, slug, location,
+        coverImage{ asset->{ url } }
+      },
+      "blogs": *[_type == "blog"] | order(_createdAt desc)[0...6]{
+        _id, title, slug,
+        coverImage{ asset->{ url } }
+      },
+      "vlogs": *[_type == "vlog"] | order(_createdAt desc)[0...6]{
+        _id, title, slug,
+        thumbnail{ asset->{ url } }
+      }
+    }`,
+    {},
+    { cache: "no-store" }
+  );
 }
 
 /* ─────────────────────────────────────────────

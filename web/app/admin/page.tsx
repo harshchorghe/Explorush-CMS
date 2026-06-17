@@ -2,19 +2,27 @@ import { client } from "@/lib/sanity";
 import Link from "next/link";
 import { Compass, BookOpen, Tv, Plus } from "lucide-react";
 
+// Never cache this page — always fetch fresh data from Sanity
+export const revalidate = 0;
+
 async function getDashboardData() {
+  const fetchOpts = { cache: "no-store" as const };
   const [tripsCount, blogsCount, vlogsCount, recentItems] = await Promise.all([
-    client.fetch(`count(*[_type == "trip"])`),
-    client.fetch(`count(*[_type == "blog"])`),
-    client.fetch(`count(*[_type == "vlog"])`),
-    client.fetch(`
+    client.fetch(`count(*[_type == "trip"])`, {}, fetchOpts),
+    client.fetch(`count(*[_type == "blog"])`, {}, fetchOpts),
+    client.fetch(`count(*[_type == "vlog"])`, {}, fetchOpts),
+    client.fetch(
+      `
       *[_type in ["trip", "blog", "vlog"]] | order(_createdAt desc)[0...5] {
         _id,
         _type,
         title,
         _createdAt
       }
-    `),
+    `,
+      {},
+      fetchOpts
+    ),
   ]);
 
   return {

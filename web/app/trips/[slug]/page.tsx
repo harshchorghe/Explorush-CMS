@@ -1,6 +1,9 @@
 import { client } from "@/lib/sanity";
 import TripDetailsComponent from "@/components/trips/TripDetailsComponent";
 
+// Never cache this page — always fetch fresh data from Sanity
+export const revalidate = 0;
+
 export default async function TripDetailsPage({
   params,
 }: {
@@ -27,7 +30,7 @@ export default async function TripDetailsPage({
     }
   `;
 
-  const trip = await client.fetch(query, { slug });
+  const trip = await client.fetch(query, { slug }, { cache: "no-store" });
 
   return <TripDetailsComponent trip={trip} />;
 }
