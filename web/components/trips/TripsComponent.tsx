@@ -1,187 +1,146 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { MapPin, Tag, Compass } from "lucide-react";
 
-export default function TripsComponent({
-  trips,
-}: {
-  trips: any[];
-}) {
+type Trip = {
+  _id: string;
+  title: string;
+  slug?: { current?: string };
+  location?: string;
+  type?: string;
+  description?: string;
+  coverImage?: { asset?: { url?: string } };
+};
+
+export default function TripsComponent({ trips }: { trips: Trip[] }) {
+  const [selectedType, setSelectedType] = useState<string>("all");
+
+  const tripTypes = ["all", "trek", "city", "road", "international"];
+
+  const filteredTrips = selectedType === "all" 
+    ? trips 
+    : trips.filter(t => t.type?.toLowerCase() === selectedType);
+
   return (
-    <main
-      style={{
-        background: "#050810",
-        minHeight: "100vh",
-        color: "#e8eaf6",
-      }}
-    >
-      {/* Back Button */}
-      <div
-        style={{
-          maxWidth: "1400px",
-          margin: "0 auto",
-          padding: "24px 24px 0",
-        }}
-      >
-        <Link
-          href="/"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            color: "#00ffe0",
-            textDecoration: "none",
-            fontSize: "14px",
-            padding: "10px 18px",
-            border: "1px solid rgba(0,255,224,0.3)",
-            borderRadius: "12px",
-            background: "rgba(0,255,224,0.05)",
-          }}
-        >
-          ←
-        </Link>
-      </div>
+    <>
+      <Navbar />
 
-      {/* Hero */}
-      <section
-        style={{
-          padding: "80px 24px",
-          textAlign: "center",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(circle at center, rgba(0,255,224,0.08), transparent 60%)",
-          }}
-        />
+      <main className="bg-cream text-charcoal min-h-screen font-sans">
+        {/* HERO HEADER */}
+        <section className="max-w-7xl mx-auto px-6 pt-16 pb-12 text-center space-y-4">
+          <span className="text-xs uppercase tracking-widest text-secondary font-bold font-sans">
+            Journeys
+          </span>
+          <h1 className="text-4xl md:text-6xl font-serif font-bold text-primary">
+            Explore Trips & Expeditions
+          </h1>
+          <p className="text-sm md:text-base text-charcoal/70 max-w-xl mx-auto leading-relaxed">
+            Detailed routes, daily plans, gear recommendations, and reflections from custom-mapped trekking trails, road trips, and city expeditions.
+          </p>
+        </section>
 
-        <p
-          style={{
-            color: "#00ffe0",
-            letterSpacing: "4px",
-            textTransform: "uppercase",
-            fontSize: "12px",
-            marginBottom: "16px",
-          }}
-        >
-          Adventures Await
-        </p>
-
-        <h1
-          style={{
-            fontSize: "clamp(48px,8vw,100px)",
-            fontWeight: 600,
-            fontFamily: "Syne, sans-serif",
-          }}
-        >
-          Explore Trips
-        </h1>
-
-        <p
-          style={{
-            maxWidth: "650px",
-            margin: "24px auto 0",
-            color: "rgba(232,234,246,0.65)",
-            lineHeight: 1.8,
-          }}
-        >
-          Discover unforgettable destinations, hidden gems,
-          mountain roads, beaches, local culture and real travel
-          stories from every journey.
-        </p>
-      </section>
-
-      {/* Trips Grid */}
-      <section
-        style={{
-          maxWidth: "1400px",
-          margin: "0 auto",
-          padding: "80px 24px",
-        }}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit,minmax(320px,1fr))",
-            gap: "28px",
-          }}
-        >
-          {trips.map((trip: any) => (
-            <Link
-              key={trip._id}
-              href={`/trips/${trip.slug?.current}`}
-              style={{
-                textDecoration: "none",
-                color: "#fff",
-              }}
-            >
-              <div
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: "20px",
-                  overflow: "hidden",
-                }}
+        {/* FILTERS */}
+        <section className="max-w-7xl mx-auto px-6 mb-12">
+          <div className="flex flex-wrap justify-center items-center gap-3">
+            {tripTypes.map((type) => (
+              <button
+                key={type}
+                onClick={() => setSelectedType(type)}
+                className={`px-5 py-2.5 rounded-full text-xs font-sans font-bold uppercase tracking-wider transition-all duration-300 border ${
+                  selectedType === type
+                    ? "bg-primary text-cream border-primary shadow-md"
+                    : "bg-white text-primary border-primary/10 hover:border-primary/30"
+                }`}
               >
-                {trip.coverImage?.asset?.url && (
-                  <div
-                    style={{
-                      position: "relative",
-                      height: "250px",
-                    }}
-                  >
-                    <Image
-                      src={trip.coverImage.asset.url}
-                      alt={trip.title}
-                      fill
-                      style={{
-                        objectFit: "cover",
-                      }}
-                    />
+                {type === "all" ? "All Expeditions" : `${type}s`}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* TRIPS GRID */}
+        <section className="max-w-7xl mx-auto px-6 pb-24">
+          {filteredTrips.length === 0 ? (
+            <div className="text-center py-20 bg-white rounded-3xl border border-primary/5 p-12 max-w-md mx-auto space-y-4">
+              <Compass className="w-12 h-12 text-secondary/30 mx-auto animate-pulse" />
+              <h3 className="text-xl font-serif font-bold text-primary">No Trips Logged</h3>
+              <p className="text-xs text-charcoal/60 leading-relaxed font-sans">
+                We haven't indexed any travel journals matching the "{selectedType}" filter category in the database yet. Check back soon!
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredTrips.map((trip) => (
+                <div
+                  key={trip._id}
+                  className="bg-white rounded-2xl overflow-hidden border border-primary/5 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 flex flex-col justify-between group"
+                >
+                  <div>
+                    {/* Image */}
+                    <div className="relative h-60 overflow-hidden bg-primary/10">
+                      {trip.coverImage?.asset?.url ? (
+                        <Image
+                          src={trip.coverImage.asset.url}
+                          alt={trip.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 380px"
+                          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Compass className="w-12 h-12 text-secondary/20" />
+                        </div>
+                      )}
+                      
+                      {trip.type && (
+                        <span className="absolute top-4 left-4 bg-primary/95 text-accent text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                          <Tag className="w-2.5 h-2.5" />
+                          {trip.type}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6 space-y-3">
+                      {trip.location && (
+                        <div className="flex items-center gap-1 text-secondary text-[10px] font-bold uppercase tracking-widest font-sans">
+                          <MapPin className="w-3 h-3 text-accent" />
+                          {trip.location}
+                        </div>
+                      )}
+                      <h3 className="text-xl font-serif font-bold text-primary line-clamp-1 group-hover:text-accent transition-colors duration-200">
+                        {trip.title}
+                      </h3>
+                      {trip.description && (
+                        <p className="text-sm text-charcoal/70 line-clamp-3 leading-relaxed font-sans">
+                          {trip.description}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                )}
 
-                <div style={{ padding: "22px" }}>
-                  <h3
-                    style={{
-                      fontSize: "24px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {trip.title}
-                  </h3>
-
-                  <p
-                    style={{
-                      color: "#9aa0b4",
-                      marginTop: "10px",
-                    }}
-                  >
-                    📍 {trip.location}
-                  </p>
-
-                  <p
-                    style={{
-                      marginTop: "15px",
-                      color: "rgba(232,234,246,0.7)",
-                    }}
-                  >
-                    {trip.description?.slice(0, 120)}...
-                  </p>
+                  {/* Footer Link */}
+                  <div className="p-6 pt-0 border-t border-primary/5 mt-4">
+                    <Link
+                      href={trip.slug?.current ? `/trips/${trip.slug.current}` : "/trips"}
+                      className="inline-flex items-center gap-2 text-primary font-serif font-bold text-sm hover:text-accent transition-colors duration-200 mt-4 group"
+                    >
+                      Open Travel Journal <span className="transform group-hover:translate-x-1 transition-transform duration-300">→</span>
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-    </main>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+
+      <Footer />
+    </>
   );
 }

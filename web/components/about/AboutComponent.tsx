@@ -1,324 +1,144 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { Compass, ShieldCheck, Heart, Award, ArrowLeft } from "lucide-react";
 
 export default function AboutComponent() {
   return (
-    <main
-      style={{
-        background: "#050810",
-        color: "#e8eaf6",
-        minHeight: "100vh",
-      }}
-    >
-      {/* BACK BUTTON */}
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "30px 24px 0",
-        }}
-      >
-        <Link
-          href="/"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "46px",
-            height: "46px",
-            borderRadius: "12px",
-            background: "rgba(0,255,224,.05)",
-            border: "1px solid rgba(0,255,224,.3)",
-            color: "#00ffe0",
-            textDecoration: "none",
-            fontSize: "20px",
-          }}
-        >
-          ←
-        </Link>
-      </div>
+    <>
+      <Navbar />
 
-      {/* HERO */}
-      <section
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "80px 24px 120px",
-          textAlign: "center",
-        }}
-      >
-        <p
-          style={{
-            color: "#00ffe0",
-            letterSpacing: "4px",
-            textTransform: "uppercase",
-            fontSize: "12px",
-            marginBottom: "20px",
-          }}
-        >
-          About Explorush
-        </p>
+      <main className="bg-cream text-charcoal min-h-screen font-sans">
+        {/* HERO SECTION */}
+        <section className="max-w-7xl mx-auto px-6 pt-16 pb-20 text-center space-y-6">
+          <span className="text-xs uppercase tracking-widest text-secondary font-bold font-sans">
+            Our Story & Philosophy
+          </span>
+          
+          <h1 className="text-5xl md:text-7xl font-serif font-bold text-primary leading-tight tracking-tight max-w-4xl mx-auto">
+            Travel Beyond <br />
+            <span className="text-accent italic">The Ordinary.</span>
+          </h1>
 
-        <h1
-          style={{
-            fontFamily: "Syne, sans-serif",
-            fontSize: "clamp(48px,8vw,100px)",
-            lineHeight: 1,
-            marginBottom: "30px",
-          }}
-        >
-          Travel Beyond
-          <br />
-          The Ordinary
-        </h1>
-
-        <p
-          style={{
-            maxWidth: "750px",
-            margin: "0 auto",
-            color: "#9aa0b4",
-            fontSize: "18px",
-            lineHeight: 1.9,
-          }}
-        >
-          Explorush is more than a travel website. It is a collection of
-          journeys, stories, experiences, adventures, and memories captured
-          from roads less traveled.
-        </p>
-      </section>
-
-      {/* STORY */}
-      <section
-        style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          padding: "0 24px 100px",
-        }}
-      >
-        <div
-          style={{
-            background: "rgba(255,255,255,.03)",
-            border: "1px solid rgba(255,255,255,.08)",
-            borderRadius: "24px",
-            padding: "50px",
-          }}
-        >
-          <p
-            style={{
-              color: "#00ffe0",
-              letterSpacing: "3px",
-              textTransform: "uppercase",
-              fontSize: "12px",
-              marginBottom: "15px",
-            }}
-          >
-            Our Story
+          <p className="max-w-2xl mx-auto text-charcoal/80 text-base md:text-lg leading-relaxed font-sans font-medium">
+            Explorush is a curation of raw expeditions, photography journals, and slow-travel guides designed to inspire deep cultural appreciation and off-the-beaten-path voyages.
           </p>
+        </section>
 
-          <h2
-            style={{
-              fontFamily: "Syne, sans-serif",
-              fontSize: "42px",
-              marginBottom: "25px",
-            }}
-          >
-            Every Journey Has A Story
-          </h2>
-
-          <p
-            style={{
-              color: "#d4d9e5",
-              lineHeight: 2,
-              fontSize: "17px",
-            }}
-          >
-            What started as a passion for travel and content creation slowly
-            evolved into Explorush. Through mountain treks, coastal drives,
-            hidden villages, and unforgettable sunsets, we discovered that
-            every destination has a unique story waiting to be told.
-            <br />
-            <br />
-            Explorush was created to document those experiences and inspire
-            others to step outside their comfort zone and explore the world
-            differently.
-          </p>
-        </div>
-      </section>
-
-      {/* FEATURES */}
-      <section
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "0 24px 100px",
-        }}
-      >
-        <h2
-          style={{
-            textAlign: "center",
-            fontFamily: "Syne, sans-serif",
-            fontSize: "52px",
-            marginBottom: "50px",
-          }}
-        >
-          What You'll Find Here
-        </h2>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit,minmax(280px,1fr))",
-            gap: "24px",
-          }}
-        >
-          {[
-            {
-              title: "🌍 Travel Guides",
-              text: "Detailed destination guides and travel itineraries.",
-            },
-            {
-              title: "🎥 Vlogs",
-              text: "Visual storytelling through immersive travel videos.",
-            },
-            {
-              title: "📖 Blogs",
-              text: "Experiences, tips, lessons and travel insights.",
-            },
-            {
-              title: "🥾 Adventures",
-              text: "Treks, road trips and offbeat explorations.",
-            },
-          ].map((item, index) => (
-            <div
-              key={index}
-              style={{
-                background: "rgba(255,255,255,.03)",
-                border: "1px solid rgba(255,255,255,.08)",
-                borderRadius: "20px",
-                padding: "30px",
-              }}
-            >
-              <h3
-                style={{
-                  marginBottom: "15px",
-                  fontSize: "24px",
-                }}
-              >
-                {item.title}
-              </h3>
-
-              <p
-                style={{
-                  color: "#9aa0b4",
-                  lineHeight: 1.8,
-                }}
-              >
-                {item.text}
-              </p>
+        {/* DETAILED STORY SECTION */}
+        <section className="max-w-6xl mx-auto px-6 pb-24">
+          <div className="bg-white border border-primary/10 rounded-3xl p-8 md:p-16 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Col: Photo */}
+            <div className="lg:col-span-5 relative aspect-[3/4] w-full rounded-2xl overflow-hidden shadow-md">
+              <Image
+                src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80"
+                alt="Travel journal and camera on map"
+                fill
+                sizes="(max-width: 1024px) 100vw, 30vw"
+                className="object-cover animate-fadeIn"
+              />
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* STATS */}
-      <section
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "0 24px 100px",
-        }}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit,minmax(200px,1fr))",
-            gap: "24px",
-          }}
-        >
-          {[
-            ["20+", "Trips"],
-            ["50+", "Blogs"],
-            ["25+", "Vlogs"],
-            ["∞", "Memories"],
-          ].map(([number, label], index) => (
-            <div
-              key={index}
-              style={{
-                textAlign: "center",
-                padding: "40px",
-                border: "1px solid rgba(255,255,255,.08)",
-                borderRadius: "20px",
-              }}
-            >
-              <h2
-                style={{
-                  fontSize: "48px",
-                  color: "#00ffe0",
-                }}
-              >
-                {number}
+            {/* Right Col: Details */}
+            <div className="lg:col-span-7 space-y-6">
+              <span className="text-xs uppercase tracking-widest text-accent font-bold bg-primary px-3 py-1 rounded">
+                Our Genesis
+              </span>
+              <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary">
+                Every Journey Has A Story
               </h2>
-
-              <p
-                style={{
-                  color: "#9aa0b4",
-                  marginTop: "10px",
-                }}
-              >
-                {label}
+              <p className="text-charcoal/80 text-sm md:text-base leading-relaxed font-sans">
+                What began as a pure passion for capturing landscapes through a camera lens slowly evolved into the Explorush platform. Across alpine treks, remote coastal settlements, and bustling ancient alleyways, we realized that the best paths are those that teach us to slow down.
+              </p>
+              <p className="text-charcoal/80 text-sm md:text-base leading-relaxed font-sans">
+                Explorush was built to share detailed, field-tested travel blueprints, high-definition vlogs, and reflective blog journals, helping travelers wander mindfully, respect local communities, and create their own lifelong stories.
               </p>
             </div>
-          ))}
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* CTA */}
-      <section
-        style={{
-          textAlign: "center",
-          padding: "0 24px 120px",
-        }}
-      >
-        <h2
-          style={{
-            fontFamily: "Syne, sans-serif",
-            fontSize: "52px",
-            marginBottom: "20px",
-          }}
-        >
-          The Journey Continues
-        </h2>
+        {/* VALUES / WHAT YOU FIND HERE */}
+        <section className="bg-primary text-cream py-24 border-y border-secondary/30 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-5 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:40px_40px]" />
+          
+          <div className="max-w-7xl mx-auto px-6 relative z-10">
+            <h2 className="text-center text-4xl md:text-5xl font-serif font-bold mb-16 text-white">
+              What You'll Find Here
+            </h2>
 
-        <p
-          style={{
-            color: "#9aa0b4",
-            maxWidth: "650px",
-            margin: "0 auto 40px",
-            lineHeight: 1.8,
-          }}
-        >
-          Join us as we continue exploring new destinations,
-          discovering hidden gems and sharing stories from the road.
-        </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[
+                {
+                  title: "Detailed Guides",
+                  text: "Comprehensive itineraries, budgeting maps, and transit blueprints.",
+                  icon: Compass,
+                },
+                {
+                  title: "Video Journals",
+                  text: "Cinematic travel vlogs that transport you directly to the location.",
+                  icon: Award,
+                },
+                {
+                  title: "Personal Diaries",
+                  text: "Authentic, raw essays on the philosophies of slow-travel.",
+                  icon: Heart,
+                },
+                {
+                  title: "Local Experiences",
+                  text: "Guides to regional food, cultural meetups, and local guides.",
+                  icon: ShieldCheck,
+                },
+              ].map((val, idx) => {
+                const Icon = val.icon;
+                return (
+                  <div
+                    key={idx}
+                    className="bg-secondary/15 border border-secondary/20 rounded-2xl p-8 hover:bg-secondary/25 transition-all duration-300 flex flex-col items-center text-center space-y-4 shadow-lg group"
+                  >
+                    <div className="p-4 bg-accent text-primary rounded-full group-hover:scale-110 transition-transform duration-300">
+                      <Icon className="w-6 h-6 stroke-[2]" />
+                    </div>
+                    <h3 className="text-xl font-serif font-bold text-white">{val.title}</h3>
+                    <p className="text-cream/70 text-xs md:text-sm font-sans leading-relaxed">
+                      {val.text}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-        <Link
-          href="/trips"
-          style={{
-            display: "inline-block",
-            padding: "14px 30px",
-            borderRadius: "12px",
-            background: "#00ffe0",
-            color: "#050810",
-            textDecoration: "none",
-            fontWeight: 600,
-          }}
-        >
-          Explore Trips
-        </Link>
-      </section>
-    </main>
+        {/* BIO STATS & CALL TO ACTION */}
+        <section className="py-24 max-w-5xl mx-auto px-6 text-center space-y-8">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary">
+            The Journey Continues
+          </h2>
+          <p className="text-charcoal/80 text-sm md:text-base leading-relaxed max-w-xl mx-auto font-sans">
+            We are constantly mapping new valleys, detailing new travel routes, and booking upcoming group tours. Join us as we explore the world, one story at a time.
+          </p>
+
+          <div className="flex justify-center gap-4 pt-4">
+            <Link
+              href="/trips"
+              className="px-6 py-3 bg-accent hover:bg-accent/90 text-primary font-sans font-semibold text-xs tracking-widest uppercase rounded-lg shadow transition-colors duration-300"
+            >
+              Explore Trips
+            </Link>
+            <Link
+              href="/"
+              className="px-6 py-3 border border-primary/20 hover:border-primary text-primary font-sans font-semibold text-xs tracking-widest uppercase rounded-lg transition-colors duration-300"
+            >
+              Back to Home
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
+    </>
   );
 }

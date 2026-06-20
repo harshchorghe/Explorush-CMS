@@ -1,112 +1,143 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { ArrowLeft, Clock, Calendar, User, Tag } from "lucide-react";
 
-export default function BlogDetailsComponent({
-  blog,
-}: {
-  blog: any;
-}) {
+type Author = {
+  name: string;
+  image?: { asset?: { url?: string } };
+};
+
+type Category = {
+  title: string;
+};
+
+type BlogDetails = {
+  title: string;
+  content: string;
+  coverImage?: { asset?: { url?: string } };
+  _createdAt?: string;
+  category?: Category;
+  author?: Author;
+};
+
+export default function BlogDetailsComponent({ blog }: { blog: BlogDetails }) {
   if (!blog) {
     return (
-      <main
-        style={{
-          minHeight: "100vh",
-          background: "#050810",
-          color: "#fff",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <h2>Blog Not Found </h2>
+      <main className="min-h-screen bg-cream flex flex-col justify-center items-center font-sans space-y-4">
+        <h2 className="text-2xl font-serif font-bold text-primary">Blog Not Found ❌</h2>
+        <Link href="/blogs" className="text-accent underline text-sm">
+          Return to Blogs
+        </Link>
       </main>
     );
   }
 
+  const getReadingTime = (text?: string) => {
+    if (!text) return "3 min read";
+    const words = text.split(/\s+/).length;
+    const minutes = Math.ceil(words / 200);
+    return `${minutes} min read`;
+  };
+
   return (
-    <main
-      style={{
-        background: "#050810",
-        minHeight: "100vh",
-        color: "#e8eaf6",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-          padding: "40px 24px 100px",
-        }}
-      >
-        <Link
-          href="/blogs"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "46px",
-            height: "46px",
-            borderRadius: "12px",
-            background: "rgba(0,255,224,.05)",
-            border: "1px solid rgba(0,255,224,.3)",
-            color: "#00ffe0",
-            textDecoration: "none",
-            fontSize: "20px",
-          }}
-        >
-          ←
-        </Link>
+    <>
+      <Navbar />
 
-        <div
-          style={{
-            marginTop: "50px",
-          }}
-        >
-          <p
-            style={{
-              color: "#00ffe0",
-              letterSpacing: "4px",
-              textTransform: "uppercase",
-              fontSize: "12px",
-              marginBottom: "15px",
-            }}
+      <main className="bg-cream text-charcoal min-h-screen font-sans pb-24">
+        {/* HEADER AREA */}
+        <div className="max-w-4xl mx-auto px-6 pt-12">
+          {/* Back button */}
+          <Link
+            href="/blogs"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-primary hover:text-cream border border-primary/10 rounded-lg text-xs font-sans font-bold uppercase tracking-wider transition-all duration-300 text-primary mb-12 shadow-sm"
           >
-            Travel Blog
-          </p>
+            <ArrowLeft className="w-4 h-4" />
+            Blogs
+          </Link>
 
-          <h1
-            style={{
-              fontFamily: "Syne, sans-serif",
-              fontSize: "clamp(38px,6vw,70px)",
-              lineHeight: 1.1,
-              marginBottom: "40px",
-            }}
-          >
-            {blog.title}
-          </h1>
+          {/* Metadata */}
+          <div className="space-y-4">
+            {blog.category?.title && (
+              <span className="bg-accent/10 border border-accent/30 text-primary text-[10px] md:text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider w-max shadow-sm inline-flex items-center gap-1">
+                <Tag className="w-3.5 h-3.5" />
+                {blog.category.title}
+              </span>
+            )}
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-primary leading-tight tracking-tight drop-shadow-sm">
+              {blog.title}
+            </h1>
 
-          <div
-            style={{
-              background: "rgba(255,255,255,.03)",
-              border: "1px solid rgba(255,255,255,.08)",
-              borderRadius: "24px",
-              padding: "40px",
-            }}
-          >
-            <p
-              style={{
-                lineHeight: 2,
-                fontSize: "17px",
-                color: "#d4d9e5",
-                whiteSpace: "pre-wrap",
-              }}
-            >
+            {/* Author and Date Meta */}
+            <div className="flex flex-wrap items-center gap-6 text-xs md:text-sm text-charcoal/60 pt-4 border-t border-primary/5 pb-4 font-sans font-medium">
+              {blog.author && (
+                <span className="flex items-center gap-2">
+                  {blog.author.image?.asset?.url ? (
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden border border-accent">
+                      <Image
+                        src={blog.author.image.asset.url}
+                        alt={blog.author.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <User className="w-4 h-4 text-accent" />
+                  )}
+                  <span>By {blog.author.name}</span>
+                </span>
+              )}
+
+              {blog._createdAt && (
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-accent" />
+                  {new Date(blog._createdAt).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
+              )}
+
+              <span className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-accent" />
+                {getReadingTime(blog.content)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* COVER IMAGE */}
+        {blog.coverImage?.asset?.url && (
+          <div className="max-w-5xl mx-auto px-6 py-8">
+            <div className="relative h-[40vh] md:h-[55vh] rounded-3xl overflow-hidden shadow-xl border border-primary/10">
+              <Image
+                src={blog.coverImage.asset.url}
+                alt={blog.title}
+                fill
+                priority
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-black/5" />
+            </div>
+          </div>
+        )}
+
+        {/* READING CONTAINER */}
+        <article className="max-w-3xl mx-auto px-6 pt-8">
+          <div className="bg-white border border-primary/10 rounded-3xl p-8 md:p-12 shadow-xl">
+            <p className="text-charcoal/80 text-base md:text-lg leading-relaxed font-sans whitespace-pre-line select-text selection:bg-accent selection:text-primary">
               {blog.content}
             </p>
           </div>
-        </div>
-      </div>
-    </main>
+        </article>
+      </main>
+
+      <Footer />
+    </>
   );
 }

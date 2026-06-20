@@ -1,9 +1,15 @@
 import { client } from "@/lib/sanity";
-import { HomeCursor } from "../components/HomeCursor";
 import Link from "next/link";
 import Image from "next/image";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import FeaturedDestinations from "@/components/home/FeaturedDestinations";
+import VlogsSection from "@/components/home/VlogsSection";
+import GlobalFootprints from "@/components/home/GlobalFootprints";
+import GallerySection from "@/components/home/GallerySection";
+import ContactSection from "@/components/home/ContactSection";
+import { Compass, BookOpen, Clock, Calendar, Check, ArrowRight } from "lucide-react";
 
-// Never cache this page — always fetch fresh data from Sanity
 export const revalidate = 0;
 
 type SanityImage = {
@@ -12,557 +18,68 @@ type SanityImage = {
   };
 };
 
-type HomePreviewItem = {
+type TripPreviewItem = {
   _id: string;
   title: string;
-  slug?: {
-    current?: string;
-  };
-};
-
-type TripPreviewItem = HomePreviewItem & {
+  slug?: { current?: string };
   location?: string;
+  type?: string;
+  description?: string;
   coverImage?: SanityImage;
+  gallery?: { url: string }[];
+  startDate?: string;
 };
 
-type BlogPreviewItem = HomePreviewItem & {
+type BlogPreviewItem = {
+  _id: string;
+  title: string;
+  slug?: { current?: string };
   coverImage?: SanityImage;
+  _createdAt: string;
+  category?: { title: string };
+  content: string;
 };
 
-type VlogPreviewItem = HomePreviewItem & {
+type VlogPreviewItem = {
+  _id: string;
+  title: string;
+  slug?: { current?: string };
+  videoUrl?: string;
   thumbnail?: SanityImage;
+};
+
+type AuthorItem = {
+  name: string;
+  bio?: string;
+  image?: SanityImage;
 };
 
 type HomePageData = {
   trips: TripPreviewItem[];
   blogs: BlogPreviewItem[];
   vlogs: VlogPreviewItem[];
+  author: AuthorItem | null;
 };
 
-/* ─────────────────────────────────────────────
-   GLOBAL STYLES  (inject once via a <style> tag)
-───────────────────────────────────────────────*/
-const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap');
-
-  :root {
-    --bg:       #050810;
-    --surface:  #0b0f1e;
-    --border:   rgba(255,255,255,0.07);
-    --accent:   #00ffe0;
-    --accent2:  #ff4d6d;
-    --gold:     #ffd166;
-    --text:     #e8eaf6;
-    --muted:    #5a607a;
-    --card-bg:  rgba(255,255,255,0.03);
-    --glow:     0 0 40px rgba(0,255,224,0.18);
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    overflow-x: hidden;
-    cursor: none;
-  }
-
-  /* ── Custom cursor ── */
-  .cursor-dot {
-    position: fixed; top: 0; left: 0; z-index: 9999;
-    width: 10px; height: 10px; border-radius: 50%;
-    background: var(--accent);
-    pointer-events: none;
-    transform: translate(-50%,-50%);
-    transition: transform .08s ease, opacity .2s;
-    mix-blend-mode: difference;
-  }
-  .cursor-ring {
-    position: fixed; top: 0; left: 0; z-index: 9998;
-    width: 36px; height: 36px; border-radius: 50%;
-    border: 1px solid var(--accent);
-    pointer-events: none;
-    transform: translate(-50%,-50%);
-    transition: transform .22s ease, width .2s, height .2s, opacity .2s;
-    opacity: 0.5;
-  }
-  a:hover ~ .cursor-ring, button:hover ~ .cursor-ring { width: 56px; height: 56px; opacity: 0.8; }
-
-  /* ── Noise overlay ── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0; z-index: 1;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    opacity: 0.5;
-  }
-
-  /* ── Grid lines decoration ── */
-  .grid-lines {
-    position: absolute; inset: 0; pointer-events: none; z-index: 0;
-    background-image:
-      linear-gradient(rgba(0,255,224,.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,224,.03) 1px, transparent 1px);
-    background-size: 60px 60px;
-  }
-
-  /* ── Reveal animations ── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(36px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-  @keyframes scanline {
-    0%   { transform: translateY(-100%); }
-    100% { transform: translateY(100vh); }
-  }
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px rgba(0,255,224,0.2); }
-    50%       { box-shadow: 0 0 50px rgba(0,255,224,0.5); }
-  }
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50%       { transform: translateY(-12px); }
-  }
-  @keyframes orbit {
-    from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
-    to   { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
-  }
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-  }
-  @keyframes shimmer {
-    0%   { background-position: -400px 0; }
-    100% { background-position: 400px 0; }
-  }
-
-  .reveal { opacity: 0; animation: fadeUp .8s ease forwards; }
-  .reveal-d1 { animation-delay: .1s; }
-  .reveal-d2 { animation-delay: .25s; }
-  .reveal-d3 { animation-delay: .4s; }
-  .reveal-d4 { animation-delay: .55s; }
-  .reveal-d5 { animation-delay: .7s; }
-
-  /* ── Section headings ── */
-  .section-label {
-    font-family: 'Syne', sans-serif;
-    font-size: 11px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 12px;
-  }
-  .section-title {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(28px, 4vw, 48px);
-    font-weight: 800;
-    line-height: 1.1;
-    color: var(--text);
-  }
-
-  /* ── Cards ── */
-  .card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    text-decoration: none;
-    color: var(--text);
-    display: block;
-    position: relative;
-    transition: border-color .35s ease, transform .35s ease, box-shadow .35s ease;
-    backdrop-filter: blur(8px);
-  }
-  .card::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(0,255,224,0.04), transparent 60%);
-    opacity: 0;
-    transition: opacity .35s ease;
-    z-index: 0;
-  }
-  .card:hover {
-    border-color: rgba(0,255,224,0.35);
-    transform: translateY(-6px);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(0,255,224,0.1);
-  }
-  .card:hover::before { opacity: 1; }
-
-  .card-img-wrap {
-    position: relative; overflow: hidden; height: 200px;
-  }
-  .card-img-wrap img {
-    width: 100%; height: 100%; object-fit: cover;
-    transition: transform .6s ease;
-    filter: saturate(0.8) brightness(0.9);
-  }
-  .card:hover .card-img-wrap img {
-    transform: scale(1.07);
-    filter: saturate(1.1) brightness(1);
-  }
-
-  /* scanline on card hover */
-  .card-img-wrap::after {
-    content: '';
-    position: absolute; left: 0; right: 0; top: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    animation: scanline 2.5s linear infinite;
-    opacity: 0;
-    transition: opacity .3s;
-  }
-  .card:hover .card-img-wrap::after { opacity: 0.6; }
-
-  .card-body {
-    padding: 18px 20px 22px;
-    position: relative; z-index: 1;
-  }
-  .card-tag {
-    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--accent); margin-bottom: 8px;
-    font-family: 'Syne', sans-serif;
-  }
-  .card-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 17px; font-weight: 700; line-height: 1.3;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-  .card-meta {
-    font-size: 13px; color: var(--muted); font-style: italic;
-  }
-  .card-arrow {
-    position: absolute; bottom: 20px; right: 20px;
-    width: 32px; height: 32px; border-radius: 50%;
-    border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; color: var(--muted);
-    transition: all .3s ease;
-    z-index: 1;
-  }
-  .card:hover .card-arrow {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(0,255,224,0.08);
-  }
-
-  /* ── Nav ── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 48px;
-    backdrop-filter: blur(20px);
-    background: rgba(5,8,16,0.75);
-    border-bottom: 1px solid var(--border);
-    animation: fadeIn .6s ease both;
-  }
-  .nav-logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 20px; font-weight: 800;
-    color: var(--text);
-    text-decoration: none;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .nav-logo span {
-    display: inline-block; width: 8px; height: 8px;
-    border-radius: 50%; background: var(--accent);
-    animation: pulse-glow 2s ease infinite;
-  }
-  .nav-links {
-    display: flex; gap: 32px; list-style: none;
-  }
-  .nav-links a {
-    font-size: 13px; letter-spacing: 1px;
-    color: var(--muted); text-decoration: none;
-    text-transform: uppercase;
-    transition: color .2s;
-    position: relative;
-  }
-  .nav-links a::after {
-    content: ''; position: absolute; left: 0; bottom: -3px;
-    width: 0; height: 1px; background: var(--accent);
-    transition: width .3s ease;
-  }
-  .nav-links a:hover { color: var(--text); }
-  .nav-links a:hover::after { width: 100%; }
-  .nav-cta {
-    padding: 9px 22px; border-radius: 8px;
-    border: 1px solid var(--accent);
-    color: var(--accent); font-size: 13px;
-    text-decoration: none;
-    font-family: 'Syne', sans-serif;
-    letter-spacing: 1px;
-    transition: all .25s ease;
-  }
-  .nav-cta:hover {
-    background: var(--accent); color: var(--bg);
-    box-shadow: var(--glow);
-  }
-
-  /* ── Hero ── */
-  .hero {
-    position: relative; min-height: 100vh;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    text-align: center;
-    padding: 120px 24px 80px;
-    overflow: hidden;
-  }
-  .hero-bg {
-    position: absolute; inset: 0; z-index: 0;
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    filter: brightness(0.2) saturate(0.6);
-  }
-  .hero-bg::after {
-    content: '';
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 100%, rgba(0,255,224,0.12), transparent),
-      linear-gradient(to top, var(--bg) 15%, transparent 60%);
-  }
-  .hero-eyebrow {
-    position: relative; z-index: 2;
-    font-size: 11px; letter-spacing: 5px;
-    text-transform: uppercase; color: var(--accent);
-    margin-bottom: 20px;
-    animation: fadeUp .8s .2s ease both;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .hero-eyebrow::before,
-  .hero-eyebrow::after {
-    content: ''; width: 40px; height: 1px; background: var(--accent); opacity: 0.5;
-  }
-  .hero-h1 {
-    position: relative; z-index: 2;
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(52px, 10vw, 120px);
-    font-weight: 800;
-    line-height: 0.95;
-    letter-spacing: -2px;
-    animation: fadeUp .9s .35s ease both;
-  }
-  .hero-h1 .line-accent { color: var(--accent); display: block; }
-  .hero-sub {
-    position: relative; z-index: 2;
-    max-width: 480px;
-    font-size: 17px; font-weight: 300;
-    color: rgba(232,234,246,0.6);
-    line-height: 1.7;
-    margin: 24px auto 0;
-    animation: fadeUp .9s .5s ease both;
-  }
-  .hero-actions {
-    position: relative; z-index: 2;
-    display: flex; gap: 16px; justify-content: center;
-    margin-top: 40px;
-    animation: fadeUp .9s .65s ease both;
-  }
-  .btn-primary {
-    padding: 14px 32px; border-radius: 10px;
-    background: var(--accent); color: var(--bg);
-    font-family: 'Syne', sans-serif; font-weight: 700;
-    font-size: 14px; letter-spacing: 1px;
-    text-decoration: none;
-    transition: all .3s ease;
-    box-shadow: 0 0 30px rgba(0,255,224,0.3);
-  }
-  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(0,255,224,0.5); }
-  .btn-ghost {
-    padding: 14px 32px; border-radius: 10px;
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'Syne', sans-serif; font-weight: 400;
-    font-size: 14px; letter-spacing: 1px;
-    text-decoration: none;
-    transition: all .3s ease;
-  }
-  .btn-ghost:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); }
-
-  /* floating stats */
-  .hero-stats {
-    position: relative; z-index: 2;
-    display: flex; gap: 48px; justify-content: center;
-    margin-top: 64px;
-    animation: fadeIn 1s 1s ease both;
-  }
-  .stat-item { text-align: center; }
-  .stat-num {
-    font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800;
-    color: var(--text);
-    line-height: 1;
-  }
-  .stat-num span { color: var(--accent); }
-  .stat-label { font-size: 11px; letter-spacing: 2px; color: var(--muted); margin-top: 4px; text-transform: uppercase; }
-
-  /* scroll indicator */
-  .scroll-hint {
-    position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
-    z-index: 2;
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    animation: fadeIn 1s 1.2s ease both;
-  }
-  .scroll-hint span { font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
-  .scroll-line {
-    width: 1px; height: 48px;
-    background: linear-gradient(var(--accent), transparent);
-    animation: float 2s ease infinite;
-  }
-
-  /* ── Marquee ticker ── */
-  .ticker {
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-    overflow: hidden; padding: 14px 0;
-    position: relative; z-index: 2;
-  }
-  .ticker-track {
-    display: flex; gap: 0;
-    animation: marquee 30s linear infinite;
-    width: max-content;
-  }
-  .ticker-item {
-    display: flex; align-items: center; gap: 16px;
-    padding: 0 40px;
-    font-family: 'Syne', sans-serif;
-    font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
-    color: var(--muted);
-    white-space: nowrap;
-  }
-  .ticker-item span { color: var(--accent); font-size: 18px; }
-
-  /* ── Sections ── */
-  .section {
-    position: relative;
-    padding: 100px 48px;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-  .section-header {
-    display: flex; align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 52px;
-    gap: 20px;
-  }
-  .see-all {
-    font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
-    color: var(--muted); text-decoration: none;
-    display: flex; align-items: center; gap: 8px;
-    transition: color .2s;
-    white-space: nowrap;
-  }
-  .see-all:hover { color: var(--accent); }
-
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 24px;
-  }
-
-  /* stagger cards */
-  .card-grid .card:nth-child(1) { animation: fadeUp .7s .1s ease both; }
-  .card-grid .card:nth-child(2) { animation: fadeUp .7s .25s ease both; }
-  .card-grid .card:nth-child(3) { animation: fadeUp .7s .4s ease both; }
-
-  /* ── Featured trip (big card) ── */
-  .trip-featured {
-    grid-column: span 2;
-  }
-  .trip-featured .card-img-wrap { height: 320px; }
-
-  /* ── Divider ── */
-  .section-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border), transparent);
-    margin: 0 48px;
-  }
-
-  /* ── Vlog section dark ── */
-  .section-dark {
-    background: var(--surface);
-    padding: 100px 0;
-  }
-  .section-dark .section { max-width: 1400px; margin: 0 auto; }
-
-  /* play badge */
-  .play-badge {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%,-50%) scale(0.8);
-    width: 52px; height: 52px; border-radius: 50%;
-    background: rgba(0,255,224,0.15);
-    border: 1px solid rgba(0,255,224,0.4);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--accent); font-size: 18px;
-    opacity: 0;
-    transition: opacity .3s, transform .3s;
-    backdrop-filter: blur(4px);
-    z-index: 2;
-  }
-  .card:hover .play-badge { opacity: 1; transform: translate(-50%,-50%) scale(1); }
-
-  /* ── Footer ── */
-  footer {
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    padding: 60px 48px 40px;
-  }
-  .footer-inner {
-    max-width: 1400px; margin: 0 auto;
-    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px;
-  }
-  .footer-logo {
-    font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800;
-    color: var(--text);
-  }
-  .footer-links { display: flex; gap: 28px; list-style: none; }
-  .footer-links a {
-    font-size: 13px; letter-spacing: 1px;
-    color: var(--muted); text-decoration: none;
-    transition: color .2s;
-  }
-  .footer-links a:hover { color: var(--accent); }
-  .footer-copy { font-size: 12px; color: var(--muted); margin-top: 40px; text-align: center; }
-
-  /* ── Responsive ── */
-  @media (max-width: 900px) {
-    nav { padding: 16px 24px; }
-    .nav-links, .nav-cta { display: none; }
-    .section { padding: 64px 24px; }
-    .section-divider { margin: 0 24px; }
-    .trip-featured { grid-column: span 1; }
-    .trip-featured .card-img-wrap { height: 220px; }
-    .hero-stats { gap: 28px; }
-    footer { padding: 48px 24px 32px; }
-    .footer-inner { flex-direction: column; align-items: flex-start; }
-  }
-`;
-
-/* ─────────────────────────────────────────────
-   DATA FETCH
-───────────────────────────────────────────────*/
 async function getHomepageData() {
   return await client.fetch<HomePageData>(
     `{
-      "trips": *[_type == "trip"] | order(startDate desc)[0...6]{
-        _id, title, slug, location,
-        coverImage{ asset->{ url } }
+      "trips": *[_type == "trip"] | order(startDate desc)[0...8]{
+        _id, title, slug, location, type, description,
+        coverImage{ asset->{ url } },
+        gallery[]{ "url": asset->url },
+        startDate
       },
       "blogs": *[_type == "blog"] | order(_createdAt desc)[0...6]{
-        _id, title, slug,
-        coverImage{ asset->{ url } }
+        _id, title, slug, coverImage{ asset->{ url } },
+        _createdAt, category->{ title }, content
       },
       "vlogs": *[_type == "vlog"] | order(_createdAt desc)[0...6]{
-        _id, title, slug,
+        _id, title, slug, videoUrl,
         thumbnail{ asset->{ url } }
+      },
+      "author": *[_type == "author"][0]{
+        name, bio, image{ asset->{ url } }
       }
     }`,
     {},
@@ -570,237 +87,406 @@ async function getHomepageData() {
   );
 }
 
-/* ─────────────────────────────────────────────
-   PAGE
-───────────────────────────────────────────────*/
 export default async function HomePage() {
-  const { trips, blogs, vlogs } = await getHomepageData();
+  const { trips, blogs, vlogs, author } = await getHomepageData();
+
+  // Extract gallery images from CMS trips
+  const galleryImages = trips
+    .flatMap((trip) => trip.gallery || [])
+    .filter((img): img is { url: string } => !!(img && img.url))
+    .map((img) => ({ url: img.url, alt: "Expedition snapshot" }));
+
+  // Upcoming Trips (trips starting after today, or just latest 3 trips as featured group tours)
+  const upcomingTrips = trips.slice(0, 3);
+
+  // Helper to calculate reading time
+  const getReadingTime = (text?: string) => {
+    if (!text) return "3 min read";
+    const words = text.split(/\s+/).length;
+    const minutes = Math.ceil(words / 200); // 200 words per minute average reading speed
+    return `${minutes} min read`;
+  };
 
   const tickerItems = [
-    "Trips", "Vlogs", "Blogs", "Adventures",
-    "Destinations", "Stories", "Wanderlust",
-    "Explore", "Discover", "Travel",
+    "EXPEDITIONS", "TRAVEL VLOGS", "JOURNAL ENTRIES", "WANDERLUST", "ADVENTURES", "LOCAL DIARIES"
   ];
-  // duplicate for seamless loop
-  const ticker = [...tickerItems, ...tickerItems];
+  const ticker = [...tickerItems, ...tickerItems, ...tickerItems];
+
+  // Grayscale partner brands matching reference layout
+  const partnerBrands = [
+    { name: "Travel Gear Co", logo: "TRAVEL GEAR" },
+    { name: "AeroAirlines", logo: "AeroAirlines" },
+    { name: "Global Airways", logo: "GLOBAL AIRWAYS" },
+    { name: "Swiss Tourism", logo: "swiss tourism" },
+    { name: "Tourism Boards Alliance", logo: "Tourism Boards" },
+  ];
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: GLOBAL_CSS }} />
+      <Navbar />
 
-      {/* Custom cursor */}
-      <HomeCursor />
-
-      {/* ── NAV ── */}
-      <nav>
-        <Link href="/" className="nav-logo">
-          <span />
-          Explorush
-        </Link>
-        <ul className="nav-links">
-          <li><Link href="/trips">Trips</Link></li>
-          <li><Link href="/vlogs">Vlogs</Link></li>
-          <li><Link href="/blogs">Blogs</Link></li>
-          <li><Link href="/about">About</Link></li>
-        </ul>
-        <Link href="/trips" className="nav-cta">Explore Now</Link>
-      </nav>
-
-      {/* ── HERO ── */}
-      <section className="hero">
-        <div className="grid-lines" />
-        <div
-          className="hero-bg"
-          style={{
-            backgroundImage:
-              "url(https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1800&q=80)",
-          }}
-        />
-
-        <p className="hero-eyebrow">The World Is Calling</p>
-
-        <h1 className="hero-h1">
-          Explorush
-        </h1>
-
-        <p className="hero-sub">
-          Real journeys. Raw stories. Every trip a chapter,
-          every destination a world undiscovered.
-        </p>
-
-        <div className="hero-actions">
-          <Link href="/trips" className="btn-primary">Explore Trips</Link>
-          <Link href="/vlogs" className="btn-ghost">Watch Vlogs</Link>
-        </div>
-
-        <div className="hero-stats">
-          <div className="stat-item">
-            <div className="stat-num">{trips.length}<span>+</span></div>
-            <div className="stat-label">Trips</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-num">{vlogs.length}<span>+</span></div>
-            <div className="stat-label">Vlogs</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-num">{blogs.length}<span>+</span></div>
-            <div className="stat-label">Blogs</div>
-          </div>
-        </div>
-
-        <div className="scroll-hint">
-          <span>Scroll</span>
-          <div className="scroll-line" />
-        </div>
-      </section>
-
-      {/* ── TICKER ── */}
-      <div className="ticker">
-        <div className="ticker-track">
-          {ticker.map((item, i) => (
-            <div key={i} className="ticker-item">
-              <span>✦</span>
-              {item}
+      <main className="bg-cream min-h-screen text-charcoal overflow-x-hidden font-sans">
+        {/* ── SPLIT-SCREEN HERO SECTION ── */}
+        <section className="relative min-h-[90vh] grid grid-cols-1 md:grid-cols-12 border-b border-primary/10">
+          {/* Left panel (Green banner) */}
+          <div className="md:col-span-5 bg-primary text-cream p-12 md:p-20 flex flex-col justify-center space-y-8 relative z-10">
+            <div className="space-y-4">
+              <span className="text-xs uppercase tracking-widest text-accent font-bold font-sans">
+                Explorer Portfolio
+              </span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight tracking-tight">
+                Explore Your <br />
+                <span className="text-accent">Travel Story.</span>
+              </h1>
+              <p className="text-cream/80 text-sm md:text-base leading-relaxed max-w-sm font-sans font-medium">
+                {author?.bio
+                  ? `${author.bio.slice(0, 150)}...`
+                  : "Discover off-grid treks, hidden city streets, local cultures, and unfiltered journals from roads less traveled."}
+              </p>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* ── TRIPS ── */}
-      <section className="section">
-        <div className="section-header reveal reveal-d1">
-          <div>
-            <p className="section-label">Adventures</p>
-            <h2 className="section-title">Featured Trips</h2>
-          </div>
-          <Link href="/trips" className="see-all">
-            All Trips →
-          </Link>
-        </div>
-
-        <div className="card-grid">
-          {trips.map((trip, i) => (
-            <Link
-              key={trip._id}
-              href={trip.slug?.current ? `/trips/${trip.slug.current}` : "/trips"}
-              className={`card ${i === 0 ? "trip-featured" : ""}`}
-            >
-              {trip.coverImage?.asset?.url && (
-                <div className="card-img-wrap">
-                  <Image
-                    src={trip.coverImage.asset.url}
-                    alt={trip.title}
-                      fill
-                      sizes="(max-width: 900px) 100vw, 33vw"
-                      style={{ objectFit: "cover" }}
-                  />
-                </div>
-              )}
-              <div className="card-body">
-                <p className="card-tag">Trip</p>
-                <h3 className="card-title">{trip.title}</h3>
-                {trip.location && <p className="card-meta">📍 {trip.location}</p>}
-              </div>
-              <div className="card-arrow">↗</div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <div className="section-divider" />
-
-      {/* ── VLOGS ── */}
-      <div className="section-dark">
-        <section className="section" style={{ padding: "100px 48px" }}>
-          <div className="section-header reveal reveal-d1">
-            <div>
-              <p className="section-label">Watch</p>
-              <h2 className="section-title">Latest Vlogs</h2>
-            </div>
-            <Link href="/vlogs" className="see-all">All Vlogs →</Link>
-          </div>
-
-          <div className="card-grid">
-            {vlogs.map((vlog) => (
+            <div className="flex flex-wrap gap-4 pt-4">
               <Link
-                key={vlog._id}
-                href={vlog.slug?.current ? `/vlogs/${vlog.slug.current}` : "/vlogs"}
-                className="card"
+                href="/trips"
+                className="px-6 py-3 bg-accent hover:bg-accent/90 text-primary font-sans font-semibold text-xs tracking-widest uppercase rounded-lg shadow-md transition-all duration-300"
               >
-                {vlog.thumbnail?.asset?.url && (
-                  <div className="card-img-wrap">
-                    <Image
-                      src={vlog.thumbnail.asset.url}
-                      alt={vlog.title}
-                      fill
-                      sizes="(max-width: 900px) 100vw, 33vw"
-                      style={{ objectFit: "cover" }}
-                    />
-                    <div className="play-badge">▶</div>
-                  </div>
-                )}
-                <div className="card-body">
-                  <p className="card-tag">Vlog</p>
-                  <h3 className="card-title">{vlog.title}</h3>
-                </div>
-                <div className="card-arrow">↗</div>
+                Explore Trips
               </Link>
+              <Link
+                href="/blogs"
+                className="px-6 py-3 border border-cream/20 hover:border-accent hover:text-accent font-sans font-semibold text-xs tracking-widest uppercase rounded-lg transition-all duration-300"
+              >
+                Read Stories
+              </Link>
+            </div>
+          </div>
+
+          {/* Right panel (Full-height Image) */}
+          <div className="md:col-span-7 relative min-h-[40vh] md:min-h-full">
+            <Image
+              src={
+                trips[0]?.coverImage?.asset?.url ||
+                "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1800&q=80"
+              }
+              alt="Harsh Chorghe travel photo"
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 60vw"
+              className="object-cover"
+            />
+            {/* Soft gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-primary/30" />
+          </div>
+        </section>
+
+        {/* ── STATISTICS CARDS OVERLAY ── */}
+        <section className="relative z-20 -mt-10 max-w-5xl mx-auto px-6">
+          <div className="bg-white rounded-2xl border border-primary/5 p-6 md:p-8 shadow-xl grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-primary/5">
+            {[
+              { num: "20+", label: "Countries Visited" },
+              { num: "120+", label: "Cities Explored" },
+              { num: `${blogs.length}+`, label: "Travel Stories" },
+              { num: "500k+", label: "Total Followers" },
+              { num: "100+", label: "Collaborations" },
+            ].map((stat, idx) => (
+              <div
+                key={idx}
+                className={`text-center flex flex-col justify-center items-center py-4 md:py-0 ${
+                  idx >= 2 ? "pt-4 md:pt-0" : ""
+                }`}
+              >
+                <div className="text-3xl font-serif font-bold text-primary">
+                  {stat.num}
+                </div>
+                <div className="text-[10px] text-charcoal/50 uppercase tracking-wider font-bold mt-1.5 font-sans">
+                  {stat.label}
+                </div>
+              </div>
             ))}
           </div>
         </section>
-      </div>
 
-      {/* ── BLOGS ── */}
-      <section className="section">
-        <div className="section-header reveal reveal-d1">
-          <div>
-            <p className="section-label">Read</p>
-            <h2 className="section-title">Latest Blogs</h2>
-          </div>
-          <Link href="/blogs" className="see-all">All Blogs →</Link>
-        </div>
-
-        <div className="card-grid">
-          {blogs.map((blog) => (
-            <Link
-              key={blog._id}
-              href={blog.slug?.current ? `/blogs/${blog.slug.current}` : "/blogs"}
-              className="card"
-            >
-              {blog.coverImage?.asset?.url && (
-                <div className="card-img-wrap">
-                  <Image
-                    src={blog.coverImage.asset.url}
-                    alt={blog.title}
-                      fill
-                      sizes="(max-width: 900px) 100vw, 33vw"
-                      style={{ objectFit: "cover" }}
-                  />
-                </div>
-              )}
-              <div className="card-body">
-                <p className="card-tag">Blog</p>
-                <h3 className="card-title">{blog.title}</h3>
+        {/* ── TICKER TAPE MARQUEE ── */}
+        <div className="bg-secondary/15 border-y border-primary/5 overflow-hidden py-4 mt-16 select-none">
+          <div className="flex gap-16 whitespace-nowrap animate-marquee w-max">
+            {ticker.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-2 text-xs font-sans font-bold tracking-widest text-primary/70">
+                <span>✦</span>
+                {item}
               </div>
-              <div className="card-arrow">↗</div>
-            </Link>
-          ))}
+            ))}
+          </div>
         </div>
-      </section>
 
-      {/* ── FOOTER ── */}
-      <footer>
-        <div className="footer-inner">
-          <div className="footer-logo">Explorush<span style={{ color: "var(--accent)" }}>.</span></div>
-          <ul className="footer-links">
-            <li><Link href="/trips">Trips</Link></li>
-            <li><Link href="/vlogs">Vlogs</Link></li>
-            <li><Link href="/blogs">Blogs</Link></li>
-            <li><Link href="/about">About</Link></li>
-          </ul>
-        </div>
-        <p className="footer-copy">© 2026 Explorush. All rights reserved. Explore the world, one story at a time.</p>
-      </footer>
+        {/* ── ABOUT CREATOR SECTION ── */}
+        <section className="py-24 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+          {/* Left image */}
+          <div className="lg:col-span-5 relative aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50">
+            <Image
+              src={
+                author?.image?.asset?.url ||
+                "https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800&q=80"
+              }
+              alt={author?.name || "Harsh Chorghe"}
+              fill
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              className="object-cover"
+            />
+          </div>
+
+          {/* Right Bio */}
+          <div className="lg:col-span-7 space-y-6">
+            <span className="text-xs uppercase tracking-widest text-secondary font-semibold font-sans">
+              About Explorush
+            </span>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary">
+              Hey, I'm {author?.name || "Harsh Chorghe"}
+            </h2>
+            <p className="text-base text-charcoal/80 leading-relaxed font-sans">
+              {author?.bio ||
+                "I am a travel content creator and explorer dedicated to documenting raw travel stories, high-altitude treks, and cultural connection points globally. Explorush acts as an open journal for global explorers looking for detailed guides and itineraries."}
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-primary/10">
+              <div className="space-y-2">
+                <h4 className="font-serif font-bold text-primary text-lg">My Travel Mission</h4>
+                <p className="text-sm text-charcoal/70 leading-relaxed font-sans">
+                  Inspiring global storytelling and bringing underrepresented cultures, remote pathways, and eco-conscious adventure to light.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-serif font-bold text-primary text-lg">Personal Story</h4>
+                <p className="text-sm text-charcoal/70 leading-relaxed font-sans">
+                  From taking a camera into the wilderness to scaling peaks, every expedition has shaped my philosophy of traveling slow.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-6">
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-2 font-serif font-bold text-primary hover:text-accent transition-colors duration-300"
+              >
+                Read Full Bio Story <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── FEATURED DESTINATIONS CAROUSEL ── */}
+        <FeaturedDestinations trips={trips} />
+
+        {/* ── TRAVEL VLOGS SECTION ── */}
+        <VlogsSection vlogs={vlogs} />
+
+        {/* ── GLOBAL FOOTPRINTS INTERACTIVE MAP ── */}
+        <GlobalFootprints trips={trips} />
+
+        {/* ── PINTEREST TRAVEL GALLERY ── */}
+        <GallerySection images={galleryImages} />
+
+        {/* ── TRAVEL BLOGS SECTION ── */}
+        <section className="py-20 bg-cream border-t border-primary/5">
+          <div className="max-w-7xl mx-auto px-6">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+              <div>
+                <span className="text-xs uppercase tracking-widest text-secondary font-semibold font-sans">
+                  Read Articles
+                </span>
+                <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary mt-2">
+                  Magazine-Style Blogs
+                </h2>
+              </div>
+              <Link
+                href="/blogs"
+                className="inline-flex items-center gap-2 font-sans font-bold text-xs uppercase tracking-widest text-primary hover:text-accent border-b border-primary/20 pb-1 transition-colors duration-300"
+              >
+                View All Articles
+              </Link>
+            </div>
+
+            {/* Blog Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {blogs.map((blog) => (
+                <article
+                  key={blog._id}
+                  className="bg-white rounded-2xl overflow-hidden border border-primary/5 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col group"
+                >
+                  {/* Image */}
+                  <Link
+                    href={blog.slug?.current ? `/blogs/${blog.slug.current}` : "/blogs"}
+                    className="relative h-56 overflow-hidden block"
+                  >
+                    {blog.coverImage?.asset?.url ? (
+                      <Image
+                        src={blog.coverImage.asset.url}
+                        alt={blog.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 380px"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-secondary/10 flex items-center justify-center">
+                        <BookOpen className="w-12 h-12 text-secondary/30" />
+                      </div>
+                    )}
+                  </Link>
+
+                  {/* Body */}
+                  <div className="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                      {/* Meta info */}
+                      <div className="flex items-center gap-3 text-[10px] uppercase font-sans font-bold text-secondary tracking-widest mb-3">
+                        <span className="bg-primary/5 px-2.5 py-1 rounded">
+                          {blog.category?.title || "Guide"}
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {getReadingTime(blog.content)}
+                        </span>
+                      </div>
+
+                      <h3 className="text-xl font-serif font-bold text-primary mb-3 line-clamp-2 group-hover:text-accent transition-colors duration-200">
+                        <Link href={blog.slug?.current ? `/blogs/${blog.slug.current}` : "/blogs"}>
+                          {blog.title}
+                        </Link>
+                      </h3>
+
+                      <p className="text-sm text-charcoal/70 line-clamp-3 leading-relaxed font-sans mb-4">
+                        {blog.content}
+                      </p>
+                    </div>
+
+                    <div className="pt-4 border-t border-primary/5 flex justify-between items-center text-xs text-charcoal/50 font-sans font-semibold">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {new Date(blog._createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                      <Link
+                        href={blog.slug?.current ? `/blogs/${blog.slug.current}` : "/blogs"}
+                        className="text-primary hover:text-accent font-serif font-bold flex items-center gap-1 transition-colors duration-200 text-sm"
+                      >
+                        Read Post <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── UPCOMING TRIPS & EVENTS SECTION ── */}
+        <section className="py-20 bg-cream border-t border-primary/5">
+          <div className="max-w-7xl mx-auto px-6">
+            {/* Header */}
+            <div className="text-center mb-16">
+              <span className="text-xs uppercase tracking-widest text-secondary font-semibold font-sans">
+                Join the Adventure
+              </span>
+              <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary mt-2">
+                Upcoming Group Tours & Events
+              </h2>
+              <p className="text-charcoal/70 text-sm max-w-md mx-auto mt-4 font-sans leading-relaxed">
+                Connect with our explorer circle. Reserve a slot on group hikes, photography workshops, and virtual meetups.
+              </p>
+            </div>
+
+            {/* Event Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {upcomingTrips.map((trip, idx) => {
+                const dates = [
+                  "Sept 15 — Sept 25, 2026",
+                  "Oct 08 — Oct 14, 2026",
+                  "Dec 01 — Dec 12, 2026",
+                ];
+                const prices = ["$2,499", "$1,200", "$3,100"];
+                const slots = ["4 slots left", "Filled", "8 slots left"];
+
+                return (
+                  <div
+                    key={trip._id}
+                    className="bg-white border border-primary/10 rounded-2xl p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+                  >
+                    <div>
+                      {/* Badge info */}
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="text-[10px] text-accent bg-primary font-sans font-bold uppercase tracking-widest px-2.5 py-1 rounded">
+                          {trip.type || "Expedition"}
+                        </span>
+                        <span className={`text-[10px] font-sans font-bold uppercase tracking-wider ${
+                          slots[idx] === "Filled" ? "text-red-500" : "text-emerald-600"
+                        }`}>
+                          {slots[idx]}
+                        </span>
+                      </div>
+
+                      <h3 className="text-2xl font-serif font-bold text-primary mb-2">
+                        {trip.title}
+                      </h3>
+                      <p className="text-xs text-charcoal/50 uppercase font-sans tracking-wider font-semibold mb-4">
+                        📍 {trip.location || "Global Outpost"}
+                      </p>
+                      
+                      <ul className="space-y-2 border-t border-primary/5 pt-4 text-sm text-charcoal/70 font-sans mb-6">
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-accent" />
+                          <span>Dates: {dates[idx]}</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-accent" />
+                          <span>Cost: {prices[idx]} / person</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-accent" />
+                          <span>Guided by {author?.name || "Harsh"}</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <Link
+                      href={trip.slug?.current ? `/trips/${trip.slug.current}` : "/trips"}
+                      className="w-full text-center py-3 bg-primary hover:bg-secondary text-cream text-xs font-sans font-semibold uppercase tracking-wider rounded-lg transition-colors duration-300"
+                    >
+                      {slots[idx] === "Filled" ? "View Details" : "Reserve Spot"}
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ── BRAND COLLABORATIONS STRIP ── */}
+        <section className="py-16 bg-cream border-t border-primary/5">
+          <div className="max-w-7xl mx-auto px-6">
+            <h4 className="text-center text-xs uppercase tracking-widest text-secondary font-bold font-sans mb-8">
+              Trusted Partner Brands
+            </h4>
+            <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
+              {partnerBrands.map((partner, idx) => (
+                <div
+                  key={idx}
+                  className="font-serif font-bold text-xl md:text-2xl text-primary/30 tracking-widest uppercase grayscale hover:grayscale-0 hover:text-accent transition-all duration-300 select-none cursor-default"
+                >
+                  {partner.logo}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── CONTACT US FORM SECTION ── */}
+        <ContactSection />
+      </main>
+
+      <Footer />
     </>
   );
 }
