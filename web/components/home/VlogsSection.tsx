@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Play, Eye, Clock } from "lucide-react";
+import { Play, Eye, Clock, Tv } from "lucide-react";
 
 type Vlog = {
   _id: string;
@@ -15,6 +15,7 @@ type Vlog = {
 
 export default function VlogsSection({ vlogs }: { vlogs: Vlog[] }) {
   const [activeVlog, setActiveVlog] = useState<Vlog | null>(vlogs[0] || null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   if (!vlogs || vlogs.length === 0) return null;
 
@@ -67,7 +68,7 @@ export default function VlogsSection({ vlogs }: { vlogs: Vlog[] }) {
           {activeVlog && (
             <div className="lg:col-span-2 space-y-4">
               <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-primary shadow-lg border border-primary/10">
-                {activeVlog.videoUrl ? (
+                {isPlaying && activeVlog.videoUrl ? (
                   <iframe
                     src={getYoutubeEmbedUrl(activeVlog.videoUrl)}
                     title={activeVlog.title}
@@ -75,14 +76,30 @@ export default function VlogsSection({ vlogs }: { vlogs: Vlog[] }) {
                     allowFullScreen
                     className="w-full h-full border-none"
                   />
-                ) : activeVlog.thumbnail?.asset?.url ? (
-                  <Image
-                    src={activeVlog.thumbnail.asset.url}
-                    alt={activeVlog.title}
-                    fill
-                    className="object-cover"
-                  />
-                ) : null}
+                ) : (
+                  <div 
+                    className="relative w-full h-full cursor-pointer group"
+                    onClick={() => setIsPlaying(true)}
+                  >
+                    {activeVlog.thumbnail?.asset?.url ? (
+                      <Image
+                        src={activeVlog.thumbnail.asset.url}
+                        alt={activeVlog.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-primary flex items-center justify-center">
+                        <Tv className="w-16 h-16 text-cream/20 animate-pulse" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-primary/20 flex items-center justify-center group-hover:bg-primary/35 transition-colors duration-300">
+                      <div className="p-4 bg-accent text-primary rounded-full shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                        <Play className="w-8 h-8 fill-primary" />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-between items-start gap-4">
@@ -123,7 +140,10 @@ export default function VlogsSection({ vlogs }: { vlogs: Vlog[] }) {
                 return (
                   <button
                     key={vlog._id}
-                    onClick={() => setActiveVlog(vlog)}
+                    onClick={() => {
+                      setActiveVlog(vlog);
+                      setIsPlaying(true);
+                    }}
                     className={`flex gap-4 p-3 rounded-xl border text-left transition-all duration-300 w-full group ${
                       isActive
                         ? "bg-white border-accent shadow-md"
