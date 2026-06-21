@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ArrowLeft, MapPin, Calendar, Clock, Tag, Share2, Check, XCircle, AlertCircle, User, Info } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Clock, Tag, Share2, Check, XCircle, AlertCircle, User, Info, X, Loader2 } from "lucide-react";
 
 type ItineraryItem = {
   day: string;
@@ -17,6 +17,7 @@ type GalleryItem = {
 };
 
 type UpcomingTourDetails = {
+  _id?: string;
   title: string;
   location?: string;
   type?: string;
@@ -37,6 +38,18 @@ type UpcomingTourDetails = {
 
 export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingTourDetails }) {
   const [copied, setCopied] = useState(false);
+  const [localBookedSlots, setLocalBookedSlots] = useState(tour?.bookedSlots || 0);
+
+  // Modal & Form States
+  const [showModal, setShowModal] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [parentPhone, setParentPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
 
   if (!tour) {
     return (
@@ -49,7 +62,7 @@ export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingT
     );
   }
 
-  const slotsLeft = (tour.totalSlots || 0) - (tour.bookedSlots || 0);
+  const slotsLeft = (tour.totalSlots || 0) - localBookedSlots;
   const isFilled = slotsLeft <= 0;
   const hasGallery = tour.gallery && tour.gallery.length > 0;
   const hasItinerary = tour.itinerary && tour.itinerary.length > 0;
@@ -64,6 +77,48 @@ export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingT
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy link:", err);
+    }
+  }
+
+  async function handleBookingSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!tour._id) return;
+
+    try {
+      setSubmitting(true);
+      setBookingError(null);
+
+      const res = await fetch("/api/upcoming-tours/book-slot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tourId: tour._id,
+          name,
+          email,
+          phone,
+          parentPhone,
+          address,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setBookingSuccess(true);
+        setLocalBookedSlots(data.updatedBookedSlots);
+        // Clear form values
+        setName("");
+        setEmail("");
+        setPhone("");
+        setParentPhone("");
+        setAddress("");
+      } else {
+        setBookingError(data.error || "Failed to reserve spot");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setBookingError("An unexpected error occurred. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -309,7 +364,7 @@ export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingT
                   </div>
                   <div className="flex justify-between font-medium">
                     <span className="text-charcoal/60">Booked Slots</span>
-                    <span className="text-primary font-semibold">{tour.bookedSlots || 0}</span>
+                    <span className="text-primary font-semibold">{localBookedSlots}</span>
                   </div>
                   <div className="flex justify-between font-medium border-t border-primary/5 pt-3">
                     <span className="text-charcoal/80 font-bold">Remaining Slots</span>
@@ -321,12 +376,16 @@ export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingT
 
                 <div className="space-y-3 pt-2">
                   {!isFilled ? (
-                    <a
-                      href="mailto:bookings@explorush.com?subject=Tour Inquiry"
-                      className="w-full block text-center py-3.5 bg-primary hover:bg-secondary text-cream text-xs font-sans font-bold uppercase tracking-wider rounded-xl transition-colors duration-300 shadow-sm"
+                    <button
+                      onClick={() => {
+                        setShowModal(true);
+                        setBookingSuccess(false);
+                        setBookingError(null);
+                      }}
+                      className="w-full py-3.5 bg-primary hover:bg-secondary text-cream text-xs font-sans font-bold uppercase tracking-wider rounded-xl transition-colors duration-300 shadow-sm"
                     >
                       Reserve A Spot
-                    </a>
+                    </button>
                   ) : (
                     <button
                       disabled
@@ -381,6 +440,138 @@ export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingT
           </div>
         </section>
       </main>
+
+      {/* SLOT BOOKING MODAL POPUP */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white border border-primary/10 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-4 right-4 p-2 text-charcoal/40 hover:text-charcoal/70 bg-cream/50 hover:bg-cream rounded-xl transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {bookingSuccess ? (
+              <div className="text-center py-6 space-y-4 font-sans">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-primary">
+                  <Check className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl font-serif font-bold text-primary">Booking Successful!</h3>
+                <p className="text-sm text-charcoal/70 leading-relaxed max-w-sm mx-auto">
+                  Your spot has been successfully reserved. Our team will contact you shortly with the final itinerary and payment details.
+                </p>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="mt-4 px-6 py-2.5 bg-primary hover:bg-secondary text-cream text-xs font-sans font-bold uppercase tracking-wider rounded-xl transition-all duration-300"
+                >
+                  Awesome
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6 font-sans">
+                <div>
+                  <h3 className="text-2xl font-serif font-bold text-primary">Reserve Your Spot</h3>
+                  <p className="text-xs text-charcoal/50 mt-1 font-medium leading-relaxed">
+                    Join the expedition to <span className="text-primary font-bold">{tour.title}</span>. Fill in the fields below.
+                  </p>
+                </div>
+
+                {bookingError && (
+                  <div className="flex items-center gap-2.5 bg-rose-50 border border-rose-200 text-rose-600 p-3.5 rounded-xl text-xs font-semibold">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{bookingError}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleBookingSubmit} className="space-y-4">
+                  {/* Name */}
+                  <div className="space-y-1">
+                    <label className="text-xs text-charcoal/70 font-semibold uppercase tracking-wider">Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. John Doe"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-cream/10 border border-primary/10 rounded-xl text-sm text-charcoal placeholder-charcoal/30 focus:outline-none focus:border-primary transition font-medium"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div className="space-y-1">
+                    <label className="text-xs text-charcoal/70 font-semibold uppercase tracking-wider">Email Address *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="john@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-cream/10 border border-primary/10 rounded-xl text-sm text-charcoal placeholder-charcoal/30 focus:outline-none focus:border-primary transition font-medium"
+                    />
+                  </div>
+
+                  {/* Phone */}
+                  <div className="space-y-1">
+                    <label className="text-xs text-charcoal/70 font-semibold uppercase tracking-wider">Phone Number *</label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="e.g. +91 98765 43210"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-cream/10 border border-primary/10 rounded-xl text-sm text-charcoal placeholder-charcoal/30 focus:outline-none focus:border-primary transition font-medium"
+                    />
+                  </div>
+
+                  {/* Parent / Emergency Phone */}
+                  <div className="space-y-1">
+                    <label className="text-xs text-charcoal/70 font-semibold uppercase tracking-wider">Parent / Emergency Contact Phone *</label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="e.g. +91 99999 88888"
+                      value={parentPhone}
+                      onChange={(e) => setParentPhone(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-cream/10 border border-primary/10 rounded-xl text-sm text-charcoal placeholder-charcoal/30 focus:outline-none focus:border-primary transition font-medium"
+                    />
+                  </div>
+
+                  {/* Address */}
+                  <div className="space-y-1">
+                    <label className="text-xs text-charcoal/70 font-semibold uppercase tracking-wider">Home Address *</label>
+                    <textarea
+                      required
+                      placeholder="Flat No, Apartment, Street name, City, Zipcode..."
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      rows={3}
+                      className="w-full px-4 py-2.5 bg-cream/10 border border-primary/10 rounded-xl text-sm text-charcoal placeholder-charcoal/30 focus:outline-none focus:border-primary transition resize-none font-medium"
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full py-3 mt-2 bg-primary hover:bg-secondary text-cream text-xs font-sans font-bold uppercase tracking-wider rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-sm disabled:opacity-60"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-cream" />
+                        <span>Reserving Slot...</span>
+                      </>
+                    ) : (
+                      <span>Submit Booking</span>
+                    )}
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <Footer />
     </>

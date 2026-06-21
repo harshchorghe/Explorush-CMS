@@ -5,5 +5,6 @@ import author from './author'
 import category from './category'
 import hero from './hero'
 import upcomingTour from './upcomingTour'
+import booking from './booking'
 
-export const schemaTypes = [trip, vlog, blog, author, category, hero, upcomingTour]
+export const schemaTypes = [trip, vlog, blog, author, category, hero, upcomingTour, booking]
