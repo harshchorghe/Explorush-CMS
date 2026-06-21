@@ -58,6 +58,21 @@ type AuthorItem = {
   image?: SanityImage;
 };
 
+type UpcomingTourPreviewItem = {
+  _id: string;
+  title: string;
+  slug?: { current?: string };
+  location?: string;
+  type?: string;
+  price?: string;
+  totalSlots?: number;
+  bookedSlots?: number;
+  startDate?: string;
+  endDate?: string;
+  coverImage?: SanityImage;
+  author?: { name: string };
+};
+
 type HomePageData = {
   trips: TripPreviewItem[];
   blogs: BlogPreviewItem[];
@@ -71,6 +86,7 @@ type HomePageData = {
       image?: SanityImage;
     }[];
   } | null;
+  upcomingTours: UpcomingTourPreviewItem[];
 };
 
 async function getHomepageData() {
@@ -102,6 +118,11 @@ async function getHomepageData() {
           subtitle,
           image{ asset->{ url } }
         }
+      },
+      "upcomingTours": *[_type == "upcomingTour"] | order(startDate asc)[0...3]{
+        _id, title, slug, location, type, price, totalSlots, bookedSlots, startDate, endDate,
+        coverImage{ asset->{ url } },
+        author->{ name }
       }
     }`,
     {},
@@ -113,7 +134,7 @@ async function getHomepageData() {
 }
 
 export default async function HomePage() {
-  const { trips, blogs, vlogs, author, hero } = await getHomepageData();
+  const { trips, blogs, vlogs, author, hero, upcomingTours } = await getHomepageData();
   console.log("HOMEPAGE HERO DATA FETCHED:", JSON.stringify(hero, null, 2));
 
   // Calculate dynamic statistics based on actual CMS content
@@ -391,65 +412,80 @@ export default async function HomePage() {
 
             {/* Event Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {upcomingTrips.map((trip, idx) => {
-                const dates = [
-                  "Sept 15 — Sept 25, 2026",
-                  "Oct 08 — Oct 14, 2026",
-                  "Dec 01 — Dec 12, 2026",
-                ];
-                const prices = ["$2,499", "$1,200", "$3,100"];
-                const slots = ["4 slots left", "Filled", "8 slots left"];
+              {upcomingTours.length === 0 ? (
+                <div className="col-span-3 text-center py-12 text-charcoal/60 font-sans font-medium bg-white/50 border border-primary/5 rounded-2xl">
+                  No upcoming group tours scheduled at the moment. Check back soon or contact us to plan a custom trip!
+                </div>
+              ) : (
+                upcomingTours.map((tour) => {
+                  const slotsLeft = (tour.totalSlots || 0) - (tour.bookedSlots || 0);
+                  const isFilled = slotsLeft <= 0;
+                  const slotsLabel = isFilled ? "Filled" : `${slotsLeft} slots left`;
 
-                return (
-                  <div
-                    key={trip._id}
-                    className="bg-white border border-primary/10 rounded-2xl p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
-                  >
-                    <div>
-                      {/* Badge info */}
-                      <div className="flex justify-between items-center mb-4">
-                        <span className="text-[10px] text-accent bg-primary font-sans font-bold uppercase tracking-widest px-2.5 py-1 rounded">
-                          {trip.type || "Expedition"}
-                        </span>
-                        <span className={`text-[10px] font-sans font-bold uppercase tracking-wider ${
-                          slots[idx] === "Filled" ? "text-red-500" : "text-emerald-600"
-                        }`}>
-                          {slots[idx]}
-                        </span>
+                  const dateLabel = tour.startDate
+                    ? `${new Date(tour.startDate).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })} — ${new Date(tour.endDate || tour.startDate).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}`
+                    : "Flexible dates";
+
+                  const priceLabel = tour.price ? `${tour.price} / person` : "Contact Us";
+
+                  return (
+                    <div
+                      key={tour._id}
+                      className="bg-white border border-primary/10 rounded-2xl p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+                    >
+                      <div>
+                        {/* Badge info */}
+                        <div className="flex justify-between items-center mb-4">
+                          <span className="text-[10px] text-accent bg-primary font-sans font-bold uppercase tracking-widest px-2.5 py-1 rounded capitalize">
+                            {tour.type || "Expedition"}
+                          </span>
+                          <span className={`text-[10px] font-sans font-bold uppercase tracking-wider ${
+                            isFilled ? "text-red-500" : "text-emerald-600"
+                          }`}>
+                            {slotsLabel}
+                          </span>
+                        </div>
+
+                        <h3 className="text-2xl font-serif font-bold text-primary mb-2 line-clamp-2 leading-tight min-h-[3.5rem]">
+                          {tour.title}
+                        </h3>
+                        <p className="text-xs text-charcoal/50 uppercase font-sans tracking-wider font-semibold mb-4 truncate">
+                          📍 {tour.location || "Online / Flexible"}
+                        </p>
+                        
+                        <ul className="space-y-2 border-t border-primary/5 pt-4 text-sm text-charcoal/70 font-sans mb-6">
+                          <li className="flex items-center gap-2">
+                            <Check className="w-4 h-4 text-accent" />
+                            <span>Dates: {dateLabel}</span>
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="w-4 h-4 text-accent" />
+                            <span>Cost: {priceLabel}</span>
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="w-4 h-4 text-accent" />
+                            <span>Guided by {tour.author?.name || author?.name || "Harsh"}</span>
+                          </li>
+                        </ul>
                       </div>
 
-                      <h3 className="text-2xl font-serif font-bold text-primary mb-2">
-                        {trip.title}
-                      </h3>
-                      <p className="text-xs text-charcoal/50 uppercase font-sans tracking-wider font-semibold mb-4">
-                        📍 {trip.location || "Global Outpost"}
-                      </p>
-                      
-                      <ul className="space-y-2 border-t border-primary/5 pt-4 text-sm text-charcoal/70 font-sans mb-6">
-                        <li className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-accent" />
-                          <span>Dates: {dates[idx]}</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-accent" />
-                          <span>Cost: {prices[idx]} / person</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-accent" />
-                          <span>Guided by {author?.name || "Harsh"}</span>
-                        </li>
-                      </ul>
+                      <Link
+                        href={tour.slug?.current ? `/upcoming-tours/${tour.slug.current}` : "/upcoming-tours"}
+                        className="w-full text-center py-3 bg-primary hover:bg-secondary text-cream text-xs font-sans font-semibold uppercase tracking-wider rounded-lg transition-colors duration-300"
+                      >
+                        {isFilled ? "View Details" : "Reserve Spot"}
+                      </Link>
                     </div>
-
-                    <Link
-                      href={trip.slug?.current ? `/trips/${trip.slug.current}` : "/trips"}
-                      className="w-full text-center py-3 bg-primary hover:bg-secondary text-cream text-xs font-sans font-semibold uppercase tracking-wider rounded-lg transition-colors duration-300"
-                    >
-                      {slots[idx] === "Filled" ? "View Details" : "Reserve Spot"}
-                    </Link>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
         </section>

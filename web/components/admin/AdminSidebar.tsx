@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Compass, BookOpen, Tv, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Compass, BookOpen, Tv, ArrowLeft, Calendar } from "lucide-react";
 
 const links = [
   {
@@ -14,6 +14,11 @@ const links = [
     title: "Trips",
     href: "/admin/trips",
     icon: Compass,
+  },
+  {
+    title: "Upcoming Tours",
+    href: "/admin/upcoming-tours",
+    icon: Calendar,
   },
   {
     title: "Blogs",

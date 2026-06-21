@@ -1,19 +1,20 @@
 import { client } from "@/lib/sanity";
 import Link from "next/link";
-import { Compass, BookOpen, Tv, Plus } from "lucide-react";
+import { Compass, BookOpen, Tv, Plus, Calendar } from "lucide-react";
 
 // Never cache this page — always fetch fresh data from Sanity
 export const revalidate = 0;
 
 async function getDashboardData() {
   const fetchOpts = { cache: "no-store" as const };
-  const [tripsCount, blogsCount, vlogsCount, recentItems] = await Promise.all([
+  const [tripsCount, upcomingToursCount, blogsCount, vlogsCount, recentItems] = await Promise.all([
     client.fetch(`count(*[_type == "trip"])`, {}, fetchOpts),
+    client.fetch(`count(*[_type == "upcomingTour"])`, {}, fetchOpts),
     client.fetch(`count(*[_type == "blog"])`, {}, fetchOpts),
     client.fetch(`count(*[_type == "vlog"])`, {}, fetchOpts),
     client.fetch(
       `
-      *[_type in ["trip", "blog", "vlog"]] | order(_createdAt desc)[0...5] {
+      *[_type in ["trip", "upcomingTour", "blog", "vlog"]] | order(_createdAt desc)[0...5] {
         _id,
         _type,
         title,
@@ -27,6 +28,7 @@ async function getDashboardData() {
 
   return {
     tripsCount,
+    upcomingToursCount,
     blogsCount,
     vlogsCount,
     recentItems,
@@ -34,7 +36,7 @@ async function getDashboardData() {
 }
 
 export default async function AdminDashboard() {
-  const { tripsCount, blogsCount, vlogsCount, recentItems } = await getDashboardData();
+  const { tripsCount, upcomingToursCount, blogsCount, vlogsCount, recentItems } = await getDashboardData();
 
   const cards = [
     {
@@ -45,6 +47,15 @@ export default async function AdminDashboard() {
       glowBg: "bg-primary",
       link: "/admin/trips",
       createLink: "/admin/trips/create",
+    },
+    {
+      title: "Upcoming Tours",
+      count: upcomingToursCount,
+      icon: Calendar,
+      bgClass: "bg-emerald-600 text-cream shadow-md",
+      glowBg: "bg-emerald-600",
+      link: "/admin/upcoming-tours",
+      createLink: "/admin/upcoming-tours/create",
     },
     {
       title: "Blogs",
@@ -85,7 +96,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
@@ -147,6 +158,8 @@ export default async function AdminDashboard() {
                   badgeColor = "bg-accent/25 text-primary border-accent/40";
                 if (item._type === "vlog")
                   badgeColor = "bg-secondary/15 text-primary border-secondary/30";
+                if (item._type === "upcomingTour")
+                  badgeColor = "bg-emerald-500/10 text-emerald-700 border-emerald-500/20";
 
                 return (
                   <div
@@ -162,7 +175,7 @@ export default async function AdminDashboard() {
                     <span
                       className={`text-xs px-2.5 py-1 rounded-full border ${badgeColor} capitalize font-semibold`}
                     >
-                      {item._type}
+                      {item._type === "upcomingTour" ? "Upcoming Tour" : item._type}
                     </span>
                   </div>
                 );
@@ -181,6 +194,13 @@ export default async function AdminDashboard() {
                 className="w-full flex items-center justify-between p-3 rounded-xl bg-cream/40 border border-primary/5 hover:border-primary/15 hover:bg-cream/70 text-sm text-charcoal hover:text-primary transition font-semibold"
               >
                 <span>Add New Trip Adventure</span>
+                <Plus className="w-4 h-4 text-primary" />
+              </Link>
+              <Link
+                href="/admin/upcoming-tours/create"
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-cream/40 border border-primary/5 hover:border-primary/15 hover:bg-cream/70 text-sm text-charcoal hover:text-primary transition font-semibold"
+              >
+                <span>Add Upcoming Tour / Event</span>
                 <Plus className="w-4 h-4 text-primary" />
               </Link>
               <Link
