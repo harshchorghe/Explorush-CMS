@@ -22,7 +22,7 @@ type Trip = {
   startDate?: string;
 };
 
-// Fallback coordinate dictionary for automated geocoding based on location name
+// Fallback coordinate dictionary for instant local geocoding
 const GEODIC: Record<string, { lat: number; lng: number }> = {
   "varanasi": { lat: 25.3176, lng: 82.9739 },
   "banaras": { lat: 25.3176, lng: 82.9739 },
@@ -45,53 +45,122 @@ const GEODIC: Record<string, { lat: number; lng: number }> = {
 };
 
 export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
-  // Map coordinates dynamically from either CMS inputs or automated local geocoding
-  const displayPins = trips
-    .map((trip) => {
-      // 1. Prioritize manual coordinates if they exist in Sanity
+  const [resolvedPins, setResolvedPins] = useState<any[]>([]);
+
+  // Asynchronous coordinate resolution effect (Hybrid local + public Nominatim geocoder)
+  useEffect(() => {
+    // 1. Resolve what we can immediately (manual inputs or standard coordinates from local dictionary)
+    const initialPins = trips
+      .map((trip) => {
+        let lat = trip.latitude;
+        let lng = trip.longitude;
+
+        if (typeof lat !== "number" || typeof lng !== "number") {
+          const locLower = trip.location?.toLowerCase().trim() || "";
+          const matchedKey = Object.keys(GEODIC).find(
+            (key) => locLower.includes(key) || key.includes(locLower)
+          );
+          if (matchedKey) {
+            lat = GEODIC[matchedKey].lat;
+            lng = GEODIC[matchedKey].lng;
+          }
+        }
+
+        if (typeof lat === "number" && typeof lng === "number") {
+          const country = trip.location?.split(",").pop()?.trim() || "Destination";
+          return {
+            _id: trip._id,
+            name: trip.location || trip.title,
+            title: trip.title,
+            country,
+            lat,
+            lng,
+            coverImageUrl: trip.coverImage?.asset?.url,
+            slug: trip.slug?.current || "",
+            startDate: trip.startDate,
+          };
+        }
+        return null;
+      })
+      .filter((pin): pin is NonNullable<typeof pin> => pin !== null);
+
+    setResolvedPins(initialPins);
+
+    // 2. Identify trips that require dynamic geocoding (no coordinates and not in local dictionary)
+    const unresolvedTrips = trips.filter((trip) => {
       let lat = trip.latitude;
       let lng = trip.longitude;
+      if (typeof lat === "number" && typeof lng === "number") return false;
 
-      // 2. Fall back to local geocoding coordinate lookup if fields are empty
-      if (typeof lat !== "number" || typeof lng !== "number") {
-        const locLower = trip.location?.toLowerCase().trim() || "";
-        const matchedKey = Object.keys(GEODIC).find(
-          (key) => locLower.includes(key) || key.includes(locLower)
-        );
-        if (matchedKey) {
-          lat = GEODIC[matchedKey].lat;
-          lng = GEODIC[matchedKey].lng;
+      const locLower = trip.location?.toLowerCase().trim() || "";
+      const isMatched = Object.keys(GEODIC).some(
+        (key) => locLower.includes(key) || key.includes(locLower)
+      );
+      return !isMatched && !!trip.location;
+    });
+
+    if (unresolvedTrips.length === 0) return;
+
+    // 3. Resolve coordinates asynchronously using OpenStreetMap's Nominatim geocoder
+    const geocodeUnresolved = async () => {
+      const newPins: any[] = [];
+
+      for (let i = 0; i < unresolvedTrips.length; i++) {
+        const trip = unresolvedTrips[i];
+        try {
+          // Delay requests by 1.1 seconds to respect Nominatim API rate limits
+          if (i > 0) {
+            await new Promise((resolve) => setTimeout(resolve, 1100));
+          }
+
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+              trip.location!
+            )}&limit=1`,
+            {
+              headers: {
+                "User-Agent": "Explorush-Travel-App",
+              },
+            }
+          );
+          const data = await response.json();
+
+          if (data && data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lng = parseFloat(data[0].lon);
+            const country = trip.location?.split(",").pop()?.trim() || "Destination";
+
+            newPins.push({
+              _id: trip._id,
+              name: trip.location || trip.title,
+              title: trip.title,
+              country,
+              lat,
+              lng,
+              coverImageUrl: trip.coverImage?.asset?.url,
+              slug: trip.slug?.current || "",
+              startDate: trip.startDate,
+            });
+          }
+        } catch (error) {
+          console.error("OSM Geocoding failed for location:", trip.location, error);
         }
       }
 
-      // Skip trips that have no valid coordinate resolution
-      if (typeof lat !== "number" || typeof lng !== "number") {
-        return null;
+      if (newPins.length > 0) {
+        setResolvedPins((prev) => [...prev, ...newPins]);
       }
+    };
 
-      const country = trip.location?.split(",").pop()?.trim() || "Destination";
-
-      return {
-        _id: trip._id,
-        name: trip.location || trip.title,
-        title: trip.title,
-        country,
-        lat,
-        lng,
-        coverImageUrl: trip.coverImage?.asset?.url,
-        slug: trip.slug?.current || "",
-        startDate: trip.startDate,
-      };
-    })
-    .filter((pin): pin is NonNullable<typeof pin> => pin !== null);
+    geocodeUnresolved();
+  }, [trips]);
 
   useEffect(() => {
     let mapInstance: any = null;
 
-    // Only load Leaflet on the client side
     import("leaflet").then((L) => {
       const container = document.getElementById("map");
-      if (!container || displayPins.length === 0) return;
+      if (!container || resolvedPins.length === 0) return;
 
       // Clean up previous map if it was already initialized
       if (container.hasChildNodes() && (container as any)._leaflet_id) {
@@ -99,22 +168,22 @@ export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
       }
 
       // Center the map around the coordinates of the first pin, or default [20, 77] (India-centric)
-      const baseLat = displayPins[0]?.lat || 20;
-      const baseLng = displayPins[0]?.lng || 77;
+      const baseLat = resolvedPins[0]?.lat || 20;
+      const baseLng = resolvedPins[0]?.lng || 77;
 
       mapInstance = L.map("map", {
         zoomControl: true,
         scrollWheelZoom: false,
       }).setView([baseLat, baseLng], 3);
 
-      // Add a beautiful cream-colored light Voyager tile theme that matches the Explorush cream/sage aesthetic perfectly!
+      // Add cream-colored Light Voyager map tiles
       L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: "abcd",
         maxZoom: 20
       }).addTo(mapInstance);
 
-      // Custom Marker divIcon matching our MapPin design perfectly
+      // Custom divIcon matching MapPin design
       const markerIcon = L.divIcon({
         className: "custom-leaflet-marker",
         html: `
@@ -133,15 +202,14 @@ export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
         iconAnchor: [16, 16]
       });
 
-      // Place pins and bind interactive tooltips/popups
-      displayPins.forEach((pin) => {
+      // Place pins and bind hover popups
+      resolvedPins.forEach((pin) => {
         const marker = L.marker([pin.lat, pin.lng], { icon: markerIcon }).addTo(mapInstance);
 
         const dateString = pin.startDate
           ? new Date(pin.startDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })
           : "";
 
-        // Premium HTML layout for the hover tooltip/popup
         const popupContent = `
           <div class="custom-popup-card p-1 flex flex-col gap-2 font-sans text-primary">
             ${pin.coverImageUrl ? `<img src="${pin.coverImageUrl}" alt="${pin.title}" class="w-full h-24 object-cover rounded-lg shadow-sm" style="display:block;" />` : ""}
@@ -160,18 +228,16 @@ export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
           minWidth: 200,
         });
 
-        // Open popup on hover
         marker.on("mouseover", () => {
           marker.openPopup();
         });
       });
 
-      // Connect locations using animated polyline paths
-      if (displayPins.length > 1) {
-        // Connect them back to the first pin (e.g. your starting/base location)
-        displayPins.slice(1).forEach((pin) => {
-          L.polyline([[displayPins[0].lat, displayPins[0].lng], [pin.lat, pin.lng]], {
-            color: "#D8B47A", // Warm gold color
+      // Connect locations using animated paths
+      if (resolvedPins.length > 1) {
+        resolvedPins.slice(1).forEach((pin) => {
+          L.polyline([[resolvedPins[0].lat, resolvedPins[0].lng], [pin.lat, pin.lng]], {
+            color: "#D8B47A",
             weight: 1.5,
             dashArray: "6, 5",
             className: "animate-leaflet-route"
@@ -185,7 +251,7 @@ export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
         mapInstance.remove();
       }
     };
-  }, [displayPins.length]);
+  }, [resolvedPins]);
 
   return (
     <section className="py-20 bg-primary text-cream relative overflow-hidden">
@@ -209,7 +275,7 @@ export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
 
         {/* Leaflet Map Container */}
         <div className="relative bg-secondary/15 rounded-3xl border border-secondary/20 p-2 shadow-2xl overflow-hidden min-h-[400px] md:min-h-[500px]">
-          {displayPins.length === 0 ? (
+          {resolvedPins.length === 0 ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 bg-secondary/10">
               <Globe className="w-12 h-12 text-accent/50 animate-pulse mb-3" />
               <p className="text-sm text-cream/70 font-sans">No travel pins found in database.</p>
