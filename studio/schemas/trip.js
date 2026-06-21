@@ -24,6 +24,20 @@ export default {
     },
 
     {
+      name: "latitude",
+      title: "Latitude",
+      type: "number",
+      description: "Latitude coordinate for the world map (e.g. 25.3176 for Varanasi)",
+    },
+
+    {
+      name: "longitude",
+      title: "Longitude",
+      type: "number",
+      description: "Longitude coordinate for the world map (e.g. 82.9739 for Varanasi)",
+    },
+
+    {
       name: "type",
       title: "Trip Type",
       type: "string",

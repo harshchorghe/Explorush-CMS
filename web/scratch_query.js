@@ -9,15 +9,14 @@ const client = createClient({
 
 async function run() {
   try {
-    const data = await client.fetch(`*[_type == "hero"]{
+    const data = await client.fetch(`*[_type == "trip"]{
       _id,
       title,
-      "imageCount": count(images),
-      images[]{
-        image{ asset->{ url } }
-      }
+      location,
+      latitude,
+      longitude
     }`);
-    console.log("ALL HERO DOCUMENTS IN CMS:", JSON.stringify(data, null, 2));
+    console.log("ALL TRIP DOCUMENTS IN SANITY:", JSON.stringify(data, null, 2));
   } catch (error) {
     console.error("Sanity query failed:", error);
   }

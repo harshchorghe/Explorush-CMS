@@ -1,61 +1,191 @@
 "use client";
 
-import { useState } from "react";
-import { MapPin, Globe } from "lucide-react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Globe } from "lucide-react";
+import "leaflet/dist/leaflet.css";
 
 type Trip = {
   _id: string;
   title: string;
   location?: string;
-  type?: string;
+  latitude?: number;
+  longitude?: number;
+  coverImage?: {
+    asset?: {
+      url?: string;
+    };
+  };
+  slug?: {
+    current?: string;
+  };
+  startDate?: string;
 };
 
-// Coordinate dictionary to place pins on our stylized SVG world map
-const COORDINATE_MAP: Record<string, { x: number; y: number; country: string }> = {
-  "kyoto": { x: 82, y: 40, country: "Japan" },
-  "machu picchu": { x: 31, y: 70, country: "Peru" },
-  "santorini": { x: 55, y: 39, country: "Greece" },
-  "serengeti": { x: 58, y: 61, country: "Tanzania" },
-  "london": { x: 48, y: 26, country: "United Kingdom" },
-  "cape town": { x: 53, y: 77, country: "South Africa" },
-  "tokyo": { x: 83, y: 39, country: "Japan" },
-  "paris": { x: 49, y: 29, country: "France" },
-  "new york": { x: 28, y: 32, country: "United States" },
-  "sydney": { x: 88, y: 80, country: "Australia" },
+// Fallback coordinate dictionary for automated geocoding based on location name
+const GEODIC: Record<string, { lat: number; lng: number }> = {
+  "varanasi": { lat: 25.3176, lng: 82.9739 },
+  "banaras": { lat: 25.3176, lng: 82.9739 },
+  "kashi": { lat: 25.3176, lng: 82.9739 },
+  "goa": { lat: 15.2993, lng: 74.1240 },
+  "mahabaleshwar": { lat: 17.9258, lng: 73.6548 },
+  "tokyo": { lat: 35.6762, lng: 139.6503 },
+  "kyoto": { lat: 35.0116, lng: 135.7681 },
+  "london": { lat: 51.5074, lng: -0.1278 },
+  "paris": { lat: 48.8566, lng: 2.3522 },
+  "new york": { lat: 40.7128, lng: -74.0060 },
+  "sydney": { lat: -33.8688, lng: 151.2093 },
+  "machu picchu": { lat: -13.1631, lng: -72.5450 },
+  "santorini": { lat: 36.4166, lng: 25.4324 },
+  "serengeti": { lat: -2.1540, lng: 34.6857 },
+  "cape town": { lat: -33.9249, lng: 18.4241 },
+  "delhi": { lat: 28.6139, lng: 77.2090 },
+  "mumbai": { lat: 19.0760, lng: 72.8777 },
+  "bangalore": { lat: 12.9716, lng: 77.5946 },
 };
 
 export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
-  const [hoveredPin, setHoveredPin] = useState<{ name: string; country: string; x: number; y: number } | null>(null);
-
-  // Extract unique locations from CMS trips that exist in our coordinate dictionary
-  const activePins = trips
+  // Map coordinates dynamically from either CMS inputs or automated local geocoding
+  const displayPins = trips
     .map((trip) => {
-      const locLower = trip.location?.toLowerCase().trim() || "";
-      // Match exact or contains
-      const matchedKey = Object.keys(COORDINATE_MAP).find(
-        (key) => locLower.includes(key) || key.includes(locLower)
-      );
-      if (matchedKey) {
-        return {
-          name: trip.location || "",
-          ...COORDINATE_MAP[matchedKey],
-        };
-      }
-      return null;
-    })
-    .filter((pin): pin is { name: string; x: number; y: number; country: string } => pin !== null)
-    // De-duplicate pins
-    .filter((pin, index, self) => self.findIndex((p) => p.name === pin.name) === index);
+      // 1. Prioritize manual coordinates if they exist in Sanity
+      let lat = trip.latitude;
+      let lng = trip.longitude;
 
-  // Add default pins if the CMS database is empty/uncoded
-  const displayPins = activePins.length > 0 ? activePins : [
-    { name: "Kyoto", x: 82, y: 40, country: "Japan" },
-    { name: "Machu Picchu", x: 31, y: 70, country: "Peru" },
-    { name: "Santorini", x: 55, y: 39, country: "Greece" },
-    { name: "Serengeti", x: 58, y: 61, country: "Tanzania" },
-    { name: "London", x: 48, y: 26, country: "United Kingdom" },
-    { name: "Cape Town", x: 53, y: 77, country: "South Africa" },
-  ];
+      // 2. Fall back to local geocoding coordinate lookup if fields are empty
+      if (typeof lat !== "number" || typeof lng !== "number") {
+        const locLower = trip.location?.toLowerCase().trim() || "";
+        const matchedKey = Object.keys(GEODIC).find(
+          (key) => locLower.includes(key) || key.includes(locLower)
+        );
+        if (matchedKey) {
+          lat = GEODIC[matchedKey].lat;
+          lng = GEODIC[matchedKey].lng;
+        }
+      }
+
+      // Skip trips that have no valid coordinate resolution
+      if (typeof lat !== "number" || typeof lng !== "number") {
+        return null;
+      }
+
+      const country = trip.location?.split(",").pop()?.trim() || "Destination";
+
+      return {
+        _id: trip._id,
+        name: trip.location || trip.title,
+        title: trip.title,
+        country,
+        lat,
+        lng,
+        coverImageUrl: trip.coverImage?.asset?.url,
+        slug: trip.slug?.current || "",
+        startDate: trip.startDate,
+      };
+    })
+    .filter((pin): pin is NonNullable<typeof pin> => pin !== null);
+
+  useEffect(() => {
+    let mapInstance: any = null;
+
+    // Only load Leaflet on the client side
+    import("leaflet").then((L) => {
+      const container = document.getElementById("map");
+      if (!container || displayPins.length === 0) return;
+
+      // Clean up previous map if it was already initialized
+      if (container.hasChildNodes() && (container as any)._leaflet_id) {
+        return;
+      }
+
+      // Center the map around the coordinates of the first pin, or default [20, 77] (India-centric)
+      const baseLat = displayPins[0]?.lat || 20;
+      const baseLng = displayPins[0]?.lng || 77;
+
+      mapInstance = L.map("map", {
+        zoomControl: true,
+        scrollWheelZoom: false,
+      }).setView([baseLat, baseLng], 3);
+
+      // Add a beautiful cream-colored light Voyager tile theme that matches the Explorush cream/sage aesthetic perfectly!
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: "abcd",
+        maxZoom: 20
+      }).addTo(mapInstance);
+
+      // Custom Marker divIcon matching our MapPin design perfectly
+      const markerIcon = L.divIcon({
+        className: "custom-leaflet-marker",
+        html: `
+          <div class="relative w-8 h-8 -left-2 -top-2 flex items-center justify-center">
+            <span class="absolute inset-0 w-8 h-8 rounded-full bg-accent/30 animate-ping"></span>
+            <span class="absolute inset-0 w-12 h-12 -left-2 -top-2 rounded-full bg-accent/10 animate-pulse"></span>
+            <div class="relative p-1.5 bg-accent text-primary rounded-full shadow-md border border-primary/20 hover:scale-125 transition-transform duration-300">
+              <svg class="w-4 h-4 fill-primary stroke-accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+          </div>
+        `,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+
+      // Place pins and bind interactive tooltips/popups
+      displayPins.forEach((pin) => {
+        const marker = L.marker([pin.lat, pin.lng], { icon: markerIcon }).addTo(mapInstance);
+
+        const dateString = pin.startDate
+          ? new Date(pin.startDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+          : "";
+
+        // Premium HTML layout for the hover tooltip/popup
+        const popupContent = `
+          <div class="custom-popup-card p-1 flex flex-col gap-2 font-sans text-primary">
+            ${pin.coverImageUrl ? `<img src="${pin.coverImageUrl}" alt="${pin.title}" class="w-full h-24 object-cover rounded-lg shadow-sm" style="display:block;" />` : ""}
+            <div class="flex flex-col gap-0.5" style="margin-top:2px;">
+              <h4 class="font-serif font-bold text-xs leading-snug m-0 text-primary" style="font-size:11px;">${pin.title}</h4>
+              <p class="text-[10px] text-charcoal/60 m-0 flex items-center gap-1" style="font-size:9px;">📍 ${pin.name}</p>
+              ${dateString ? `<p class="text-[9px] text-accent font-bold uppercase tracking-wider m-0 mt-0.5" style="font-size:8px;">📅 ${dateString}</p>` : ""}
+            </div>
+            <a href="/trips/${pin.slug}" class="text-center py-2 mt-1 bg-primary hover:bg-secondary text-cream text-[10px] font-sans font-semibold uppercase tracking-wider rounded-lg block transition-all duration-300 hover:shadow-md" style="font-size:9px; text-decoration:none; color:#F8F4EC;">View Trip Details →</a>
+          </div>
+        `;
+
+        marker.bindPopup(popupContent, {
+          className: "custom-leaflet-popup",
+          closeButton: false,
+          minWidth: 200,
+        });
+
+        // Open popup on hover
+        marker.on("mouseover", () => {
+          marker.openPopup();
+        });
+      });
+
+      // Connect locations using animated polyline paths
+      if (displayPins.length > 1) {
+        // Connect them back to the first pin (e.g. your starting/base location)
+        displayPins.slice(1).forEach((pin) => {
+          L.polyline([[displayPins[0].lat, displayPins[0].lng], [pin.lat, pin.lng]], {
+            color: "#D8B47A", // Warm gold color
+            weight: 1.5,
+            dashArray: "6, 5",
+            className: "animate-leaflet-route"
+          }).addTo(mapInstance);
+        });
+      }
+    });
+
+    return () => {
+      if (mapInstance) {
+        mapInstance.remove();
+      }
+    };
+  }, [displayPins.length]);
 
   return (
     <section className="py-20 bg-primary text-cream relative overflow-hidden">
@@ -77,111 +207,15 @@ export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
           </p>
         </div>
 
-        {/* Map Container */}
-        <div className="relative bg-secondary/15 rounded-3xl border border-secondary/20 p-6 md:p-12 shadow-2xl flex items-center justify-center min-h-[320px] md:min-h-[500px]">
-          {/* SVG Map Outlines */}
-          <svg
-            viewBox="0 0 1000 500"
-            className="w-full h-auto opacity-40 select-none"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="0.8"
-          >
-            {/* North America */}
-            <path
-              d="M 100 100 Q 120 70, 200 80 T 300 120 T 320 200 Q 250 250, 180 230 T 150 250 Z"
-              className="fill-secondary/20 stroke-cream/20"
-            />
-            {/* South America */}
-            <path
-              d="M 280 240 Q 330 250, 340 320 T 310 450 T 270 480 Q 250 400, 270 320 Z"
-              className="fill-secondary/20 stroke-cream/20"
-            />
-            {/* Europe & Africa */}
-            <path
-              d="M 450 100 Q 520 80, 560 120 T 600 200 Q 580 250, 500 240 Q 480 320, 520 400 T 540 470 Q 480 470, 460 400 T 450 240 Z"
-              className="fill-secondary/20 stroke-cream/20"
-            />
-            {/* Asia */}
-            <path
-              d="M 580 120 Q 700 80, 850 100 T 900 200 T 800 350 Q 720 380, 680 320 Q 640 250, 580 200 Z"
-              className="fill-secondary/20 stroke-cream/20"
-            />
-            {/* Australia */}
-            <path
-              d="M 800 380 Q 860 380, 890 420 T 850 480 Q 800 460, 780 420 Z"
-              className="fill-secondary/20 stroke-cream/20"
-            />
-
-            {/* Flight Arcs / Connection lines */}
-            {displayPins.length > 1 &&
-              displayPins.slice(1).map((pin, index) => {
-                const prev = displayPins[0]; // Connect all back to the first pin (e.g. primary base)
-                return (
-                  <g key={index}>
-                    <path
-                      d={`M ${prev.x * 10} ${prev.y * 5} Q ${(prev.x + pin.x) * 5} ${
-                        Math.min(prev.y, pin.y) * 5 - 50
-                      }, ${pin.x * 10} ${pin.y * 5}`}
-                      className="stroke-accent/40"
-                      strokeWidth="1"
-                      strokeDasharray="4,4"
-                      fill="none"
-                    />
-                  </g>
-                );
-              })}
-          </svg>
-
-          {/* Interactive Absolute Pins */}
-          <div className="absolute inset-0">
-            {displayPins.map((pin, index) => {
-              const xPercent = `${pin.x}%`;
-              const yPercent = `${pin.y}%`;
-
-              return (
-                <div
-                  key={index}
-                  style={{ left: xPercent, top: yPercent }}
-                  className="absolute -translate-x-1/2 -translate-y-1/2 group cursor-pointer"
-                  onMouseEnter={() =>
-                    setHoveredPin({ name: pin.name, country: pin.country, x: pin.x, y: pin.y })
-                  }
-                  onMouseLeave={() => setHoveredPin(null)}
-                >
-                  {/* Glowing waves */}
-                  <span className="absolute inset-0 w-8 h-8 -left-4 -top-4 rounded-full bg-accent/20 animate-ping" />
-                  <span className="absolute inset-0 w-12 h-12 -left-6 -top-6 rounded-full bg-accent/10 animate-pulse" />
-
-                  {/* Marker Pin */}
-                  <div className="relative p-1 bg-accent text-primary rounded-full shadow-md border border-primary/20 hover:scale-125 transition-transform duration-300">
-                    <MapPin className="w-4 h-4 fill-primary stroke-accent" />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Tooltip Overlay */}
-          {hoveredPin && (
-            <div
-              style={{
-                left: `${hoveredPin.x}%`,
-                top: `${hoveredPin.y - 12}%`,
-              }}
-              className="absolute -translate-x-1/2 bg-cream text-primary text-xs py-3 px-4 rounded-xl border border-accent shadow-xl z-30 min-w-[140px] flex flex-col gap-1 pointer-events-none animate-fadeIn"
-            >
-              <span className="font-serif font-bold text-sm tracking-wide border-b border-primary/10 pb-1 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-accent fill-accent" />
-                {hoveredPin.name}
-              </span>
-              <span className="text-[10px] text-charcoal/60 uppercase tracking-widest font-semibold font-sans mt-0.5">
-                {hoveredPin.country}
-              </span>
-              <span className="text-[9px] text-accent font-bold uppercase tracking-wider mt-1 bg-primary px-1.5 py-0.5 rounded w-max">
-                Visited Hub
-              </span>
+        {/* Leaflet Map Container */}
+        <div className="relative bg-secondary/15 rounded-3xl border border-secondary/20 p-2 shadow-2xl overflow-hidden min-h-[400px] md:min-h-[500px]">
+          {displayPins.length === 0 ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 bg-secondary/10">
+              <Globe className="w-12 h-12 text-accent/50 animate-pulse mb-3" />
+              <p className="text-sm text-cream/70 font-sans">No travel pins found in database.</p>
             </div>
+          ) : (
+            <div id="map" className="w-full h-[400px] md:h-[500px] rounded-2xl z-10 leaflet-container-theme" />
           )}
         </div>
       </div>

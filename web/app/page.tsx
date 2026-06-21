@@ -30,6 +30,8 @@ type TripPreviewItem = {
   coverImage?: SanityImage;
   gallery?: { url: string }[];
   startDate?: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 type BlogPreviewItem = {
@@ -78,7 +80,9 @@ async function getHomepageData() {
         _id, title, slug, location, type, description,
         coverImage{ asset->{ url } },
         gallery[]{ "url": asset->url },
-        startDate
+        startDate,
+        latitude,
+        longitude
       },
       "blogs": *[_type == "blog"] | order(_createdAt desc)[0...6]{
         _id, title, slug, coverImage{ asset->{ url } },
@@ -111,6 +115,21 @@ async function getHomepageData() {
 export default async function HomePage() {
   const { trips, blogs, vlogs, author, hero } = await getHomepageData();
   console.log("HOMEPAGE HERO DATA FETCHED:", JSON.stringify(hero, null, 2));
+
+  // Calculate dynamic statistics based on actual CMS content
+  const visitedCountries = trips
+    .map((t) => t.location?.split(",").pop()?.trim())
+    .filter((c): c is string => !!c);
+  const uniqueCountriesCount = new Set(visitedCountries).size;
+  const countriesCountLabel = uniqueCountriesCount > 0 ? `${uniqueCountriesCount}+` : "20+";
+
+  const visitedCities = trips
+    .map((t) => t.location?.split(",")[0]?.trim())
+    .filter((c): c is string => !!c);
+  const uniqueCitiesCount = new Set(visitedCities).size;
+  const citiesCountLabel = uniqueCitiesCount > 0 ? `${uniqueCitiesCount}+` : "120+";
+
+  const totalTripsLabel = trips.length > 0 ? `${trips.length}+` : "12+";
 
   // Extract gallery images from CMS trips
   const galleryImages = trips
@@ -155,11 +174,11 @@ export default async function HomePage() {
         <section className="relative z-20 -mt-16 max-w-5xl mx-auto px-6">
           <div className="bg-white rounded-2xl border border-primary/5 p-6 md:p-8 shadow-xl grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-primary/5">
             {[
-              { num: "20+", label: "Countries Visited" },
-              { num: "120+", label: "Cities Explored" },
+              { num: countriesCountLabel, label: "Countries Visited" },
+              { num: citiesCountLabel, label: "Cities Explored" },
+              { num: totalTripsLabel, label: "Total Trips" },
               { num: `${blogs.length}+`, label: "Travel Stories" },
               { num: "500k+", label: "Total Followers" },
-              { num: "100+", label: "Collaborations" },
             ].map((stat, idx) => (
               <div
                 key={idx}
