@@ -8,9 +8,11 @@ import VlogsSection from "@/components/home/VlogsSection";
 import GlobalFootprints from "@/components/home/GlobalFootprints";
 import GallerySection from "@/components/home/GallerySection";
 import ContactSection from "@/components/home/ContactSection";
+import HeroSection from "@/components/home/HeroSection";
 import { Compass, BookOpen, Clock, Calendar, Check, ArrowRight } from "lucide-react";
 
 export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 type SanityImage = {
   asset?: {
@@ -59,6 +61,14 @@ type HomePageData = {
   blogs: BlogPreviewItem[];
   vlogs: VlogPreviewItem[];
   author: AuthorItem | null;
+  hero: {
+    title?: string;
+    images?: {
+      caption?: string;
+      subtitle?: string;
+      image?: SanityImage;
+    }[];
+  } | null;
 };
 
 async function getHomepageData() {
@@ -80,15 +90,27 @@ async function getHomepageData() {
       },
       "author": *[_type == "author"][0]{
         name, bio, image{ asset->{ url } }
+      },
+      "hero": *[_type == "hero"] | order(count(images) desc, _updatedAt desc)[0]{
+        title,
+        images[]{
+          caption,
+          subtitle,
+          image{ asset->{ url } }
+        }
       }
     }`,
     {},
-    { cache: "no-store" }
+    { 
+      cache: "no-store",
+      next: { revalidate: 0 }
+    }
   );
 }
 
 export default async function HomePage() {
-  const { trips, blogs, vlogs, author } = await getHomepageData();
+  const { trips, blogs, vlogs, author, hero } = await getHomepageData();
+  console.log("HOMEPAGE HERO DATA FETCHED:", JSON.stringify(hero, null, 2));
 
   // Extract gallery images from CMS trips
   const galleryImages = trips
@@ -126,61 +148,11 @@ export default async function HomePage() {
       <Navbar />
 
       <main className="bg-cream min-h-screen text-charcoal overflow-x-hidden font-sans">
-        {/* ── SPLIT-SCREEN HERO SECTION ── */}
-        <section className="relative min-h-[90vh] grid grid-cols-1 md:grid-cols-12 border-b border-primary/10">
-          {/* Left panel (Green banner) */}
-          <div className="md:col-span-5 bg-primary text-cream p-12 md:p-20 flex flex-col justify-center space-y-8 relative z-10">
-            <div className="space-y-4">
-              <span className="text-xs uppercase tracking-widest text-accent font-bold font-sans">
-                Explorer Portfolio
-              </span>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight tracking-tight">
-                Explore Your <br />
-                <span className="text-accent">Travel Story.</span>
-              </h1>
-              <p className="text-cream/80 text-sm md:text-base leading-relaxed max-w-sm font-sans font-medium">
-                {author?.bio
-                  ? `${author.bio.slice(0, 150)}...`
-                  : "Discover off-grid treks, hidden city streets, local cultures, and unfiltered journals from roads less traveled."}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-4 pt-4">
-              <Link
-                href="/trips"
-                className="px-6 py-3 bg-accent hover:bg-accent/90 text-primary font-sans font-semibold text-xs tracking-widest uppercase rounded-lg shadow-md transition-all duration-300"
-              >
-                Explore Trips
-              </Link>
-              <Link
-                href="/blogs"
-                className="px-6 py-3 border border-cream/20 hover:border-accent hover:text-accent font-sans font-semibold text-xs tracking-widest uppercase rounded-lg transition-all duration-300"
-              >
-                Read Stories
-              </Link>
-            </div>
-          </div>
-
-          {/* Right panel (Full-height Image) */}
-          <div className="md:col-span-7 relative min-h-[40vh] md:min-h-full">
-            <Image
-              src={
-                trips[0]?.coverImage?.asset?.url ||
-                "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1800&q=80"
-              }
-              alt="Harsh Chorghe travel photo"
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 60vw"
-              className="object-cover"
-            />
-            {/* Soft gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-primary/30" />
-          </div>
-        </section>
+        {/* ── HERO SECTION WITH SMOOTH SLIDESHOW & BLENDED TRANSITIONS ── */}
+        <HeroSection hero={hero} authorBio={author?.bio} />
 
         {/* ── STATISTICS CARDS OVERLAY ── */}
-        <section className="relative z-20 -mt-10 max-w-5xl mx-auto px-6">
+        <section className="relative z-20 -mt-16 max-w-5xl mx-auto px-6">
           <div className="bg-white rounded-2xl border border-primary/5 p-6 md:p-8 shadow-xl grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-primary/5">
             {[
               { num: "20+", label: "Countries Visited" },
