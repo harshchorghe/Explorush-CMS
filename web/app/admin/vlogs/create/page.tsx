@@ -111,29 +111,29 @@ export default function CreateVlogPage() {
       <div className="flex items-center gap-4">
         <Link
           href="/admin/vlogs"
-          className="p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 hover:text-white hover:border-slate-700 transition"
+          className="p-2.5 bg-white border border-primary/10 rounded-xl text-charcoal/60 hover:text-primary hover:border-primary/25 transition shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
-            <Tv className="w-7 h-7 text-rose-450" />
+          <h1 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-2 font-serif">
+            <Tv className="w-7 h-7 text-accent" />
             Publish New Vlog
           </h1>
-          <p className="text-slate-400 mt-1">Add a new YouTube vlog link to the video gallery.</p>
+          <p className="text-charcoal/70 mt-1 font-medium">Add a new YouTube vlog link to the video gallery.</p>
         </div>
       </div>
 
       {/* Message Notifications */}
       {success && (
-        <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl">
+        <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 text-primary p-4 rounded-xl font-semibold">
           <Check className="w-5 h-5 shrink-0" />
           <span>Vlog Created Successfully! Redirecting...</span>
         </div>
       )}
 
       {error && (
-        <div className="flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-xl">
+        <div className="flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-600 p-4 rounded-xl font-semibold">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -142,31 +142,31 @@ export default function CreateVlogPage() {
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Input Fields */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-6">
-            <h2 className="text-lg font-bold text-white border-b border-slate-850 pb-3">Vlog Details</h2>
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6 space-y-6">
+            <h2 className="text-lg font-bold text-primary border-b border-primary/5 pb-3 font-serif">Vlog Details</h2>
 
             {/* Title */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300">Vlog Title *</label>
+              <label className="text-sm font-semibold text-charcoal/80">Vlog Title *</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Backpacking Through Spiti Valley - Day 1"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-950 border border-slate-850 rounded-xl text-slate-100 focus:outline-none focus:border-rose-550 transition-colors"
+                className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder-charcoal/40 font-medium"
               />
             </div>
 
             {/* YouTube Link */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300">YouTube Video URL</label>
+              <label className="text-sm font-semibold text-charcoal/80">YouTube Video URL</label>
               <input
                 type="url"
                 placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
                 value={videoUrl}
                 onChange={(e) => setVideoUrl(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-950 border border-slate-850 rounded-xl text-slate-100 focus:outline-none focus:border-rose-550 transition-colors"
+                className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder-charcoal/40 font-medium"
               />
             </div>
           </div>
@@ -175,28 +175,28 @@ export default function CreateVlogPage() {
         {/* Right Panel - Media Cover & Save Action */}
         <div className="space-y-6">
           {/* Thumbnail upload card */}
-          <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-4">
-            <h2 className="text-lg font-bold text-white border-b border-slate-850 pb-3">Vlog Thumbnail</h2>
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6 space-y-4">
+            <h2 className="text-lg font-bold text-primary border-b border-primary/5 pb-3 font-serif">Vlog Thumbnail</h2>
 
             {thumbnail ? (
-              <div className="relative h-48 rounded-xl overflow-hidden group border border-slate-850">
+              <div className="relative h-48 rounded-xl overflow-hidden group border border-primary/10 shadow-sm">
                 <Image src={thumbnail.url} alt="Thumbnail Preview" fill style={{ objectFit: "cover" }} />
                 <button
                   type="button"
                   onClick={() => setThumbnail(null)}
-                  className="absolute top-2 right-2 p-2 bg-slate-950/80 hover:bg-rose-600 rounded-xl text-slate-300 hover:text-white transition"
+                  className="absolute top-2 right-2 p-2 bg-white/90 hover:bg-rose-600 rounded-xl text-charcoal/70 hover:text-white transition shadow-sm"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-800 hover:border-rose-500 rounded-xl cursor-pointer hover:bg-slate-900/20 transition group">
-                <div className="text-center space-y-2 text-slate-500 group-hover:text-rose-450 transition">
+              <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-primary/10 hover:border-primary rounded-xl cursor-pointer hover:bg-primary/5 transition group">
+                <div className="text-center space-y-2 text-charcoal/50 group-hover:text-primary transition">
                   <Upload className="w-8 h-8 mx-auto" />
                   <span className="text-xs font-semibold block">
                     {thumbnailUploading ? "Uploading..." : "Upload Thumbnail Image"}
                   </span>
-                  <span className="text-[10px] text-slate-600 block">PNG, JPG up to 10MB</span>
+                  <span className="text-[10px] text-charcoal/40 block">PNG, JPG up to 10MB</span>
                 </div>
                 <input
                   type="file"
@@ -210,17 +210,17 @@ export default function CreateVlogPage() {
           </div>
 
           {/* Save Action */}
-          <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-3">
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6 space-y-3">
             <button
               type="submit"
               disabled={loading || success}
-              className="w-full py-3 bg-rose-600 hover:bg-rose-500 disabled:opacity-55 disabled:hover:bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-600/15 hover:shadow-rose-500/25 transition duration-200"
+              className="w-full py-3 bg-primary hover:bg-primary/90 disabled:opacity-50 text-cream rounded-xl font-bold shadow-sm transition duration-200"
             >
               {loading ? "Publishing Vlog..." : "Publish Vlog Link"}
             </button>
             <Link
               href="/admin/vlogs"
-              className="w-full block py-3 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl font-bold transition text-center text-sm border border-slate-800"
+              className="w-full block py-3 bg-cream hover:bg-primary/5 text-charcoal hover:text-primary rounded-xl font-bold transition text-center text-sm border border-primary/10 shadow-sm"
             >
               Cancel
             </Link>

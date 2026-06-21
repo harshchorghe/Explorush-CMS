@@ -254,8 +254,8 @@ export default function EditBlogPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
-        <RefreshCw className="w-8 h-8 text-purple-550 animate-spin" />
-        <p className="text-slate-400">Loading blog details...</p>
+        <RefreshCw className="w-8 h-8 text-primary animate-spin" />
+        <p className="text-charcoal/50 font-semibold">Loading blog details...</p>
       </div>
     );
   }
@@ -266,29 +266,29 @@ export default function EditBlogPage() {
       <div className="flex items-center gap-4">
         <Link
           href="/admin/blogs"
-          className="p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 hover:text-white hover:border-slate-700 transition"
+          className="p-2.5 bg-white border border-primary/10 rounded-xl text-charcoal/60 hover:text-primary hover:border-primary/25 transition shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
-            <BookOpen className="w-7 h-7 text-purple-400" />
+          <h1 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-2 font-serif">
+            <BookOpen className="w-7 h-7 text-accent" />
             Edit Blog
           </h1>
-          <p className="text-slate-400 mt-1">Make changes to your published article.</p>
+          <p className="text-charcoal/70 mt-1 font-medium">Make changes to your published article.</p>
         </div>
       </div>
 
       {/* Message Notifications */}
       {success && (
-        <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl">
+        <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 text-primary p-4 rounded-xl font-semibold">
           <Check className="w-5 h-5 shrink-0" />
           <span>Blog Updated Successfully! Redirecting...</span>
         </div>
       )}
 
       {error && (
-        <div className="flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-xl">
+        <div className="flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-600 p-4 rounded-xl font-semibold">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -297,32 +297,32 @@ export default function EditBlogPage() {
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Input Fields */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-6">
-            <h2 className="text-lg font-bold text-white border-b border-slate-850 pb-3">Blog Details</h2>
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6 space-y-6">
+            <h2 className="text-lg font-bold text-primary border-b border-primary/5 pb-3 font-serif">Blog Details</h2>
 
             {/* Title */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300">Blog Title *</label>
+              <label className="text-sm font-semibold text-charcoal/80">Blog Title *</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. My Weekend Hike to Harishchandragad"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-950 border border-slate-850 rounded-xl text-slate-100 focus:outline-none focus:border-purple-550 transition-colors"
+                className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder-charcoal/40 font-medium"
               />
             </div>
 
             {/* Content Textarea */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300">Article Content *</label>
+              <label className="text-sm font-semibold text-charcoal/80">Article Content *</label>
               <textarea
                 placeholder="Start writing the story here..."
                 required
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={12}
-                className="w-full px-4 py-3 bg-slate-950 border border-slate-850 rounded-xl text-slate-100 focus:outline-none focus:border-purple-550 transition-colors resize-none font-sans leading-relaxed"
+                className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors resize-none font-sans leading-relaxed placeholder-charcoal/40 font-medium"
               />
             </div>
           </div>
@@ -331,19 +331,19 @@ export default function EditBlogPage() {
         {/* Right Panel - Metadata & Uploads */}
         <div className="space-y-6">
           {/* Metadata selection (author, category) */}
-          <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-6">
-            <h2 className="text-lg font-bold text-white border-b border-slate-850 pb-3">Metadata</h2>
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6 space-y-6">
+            <h2 className="text-lg font-bold text-primary border-b border-primary/5 pb-3 font-serif">Metadata</h2>
 
             {/* Author */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-sm font-semibold text-slate-300 flex items-center gap-1.5">
-                  <User className="w-4 h-4 text-slate-500" /> Author
+                <label className="text-sm font-semibold text-charcoal/80 flex items-center gap-1.5">
+                  <User className="w-4 h-4 text-primary/50" /> Author
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowAuthorModal(true)}
-                  className="text-xs text-purple-400 hover:text-purple-300 font-bold"
+                  className="text-xs text-primary hover:text-secondary font-bold"
                 >
                   + Add New
                 </button>
@@ -352,7 +352,7 @@ export default function EditBlogPage() {
                 disabled={fetchingLists}
                 value={authorId}
                 onChange={(e) => setAuthorId(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-950 border border-slate-850 rounded-xl text-slate-100 focus:outline-none focus:border-purple-550 transition-colors disabled:opacity-50"
+                className="w-full px-4 py-3 bg-white border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors font-medium disabled:opacity-50"
               >
                 <option value="">Select Author...</option>
                 {authors.map((a) => (
@@ -366,13 +366,13 @@ export default function EditBlogPage() {
             {/* Category */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-sm font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Tag className="w-4 h-4 text-slate-500" /> Category
+                <label className="text-sm font-semibold text-charcoal/80 flex items-center gap-1.5">
+                  <Tag className="w-4 h-4 text-primary/50" /> Category
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowCategoryModal(true)}
-                  className="text-xs text-purple-400 hover:text-purple-300 font-bold"
+                  className="text-xs text-primary hover:text-secondary font-bold"
                 >
                   + Add New
                 </button>
@@ -381,7 +381,7 @@ export default function EditBlogPage() {
                 disabled={fetchingLists}
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-950 border border-slate-850 rounded-xl text-slate-100 focus:outline-none focus:border-purple-550 transition-colors disabled:opacity-50"
+                className="w-full px-4 py-3 bg-white border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors font-medium disabled:opacity-50"
               >
                 <option value="">Select Category...</option>
                 {categories.map((c) => (
@@ -394,28 +394,28 @@ export default function EditBlogPage() {
           </div>
 
           {/* Cover Image Upload Card */}
-          <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-4">
-            <h2 className="text-lg font-bold text-white border-b border-slate-850 pb-3">Cover Image</h2>
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6 space-y-4">
+            <h2 className="text-lg font-bold text-primary border-b border-primary/5 pb-3 font-serif">Cover Image</h2>
 
             {coverImage ? (
-              <div className="relative h-48 rounded-xl overflow-hidden group border border-slate-850">
+              <div className="relative h-48 rounded-xl overflow-hidden group border border-primary/10 shadow-sm">
                 <Image src={coverImage.url} alt="Cover Preview" fill style={{ objectFit: "cover" }} />
                 <button
                   type="button"
                   onClick={() => setCoverImage(null)}
-                  className="absolute top-2 right-2 p-2 bg-slate-950/80 hover:bg-rose-600 rounded-xl text-slate-300 hover:text-white transition"
+                  className="absolute top-2 right-2 p-2 bg-white/90 hover:bg-rose-600 rounded-xl text-charcoal/70 hover:text-white transition shadow-sm"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-800 hover:border-purple-500 rounded-xl cursor-pointer hover:bg-slate-900/20 transition group">
-                <div className="text-center space-y-2 text-slate-500 group-hover:text-purple-400 transition">
+              <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-primary/10 hover:border-primary rounded-xl cursor-pointer hover:bg-primary/5 transition group">
+                <div className="text-center space-y-2 text-charcoal/50 group-hover:text-primary transition">
                   <Upload className="w-8 h-8 mx-auto" />
                   <span className="text-xs font-semibold block">
                     {coverUploading ? "Uploading..." : "Upload Cover Image"}
                   </span>
-                  <span className="text-[10px] text-slate-600 block">PNG, JPG up to 10MB</span>
+                  <span className="text-[10px] text-charcoal/40 block">PNG, JPG up to 10MB</span>
                 </div>
                 <input
                   type="file"
@@ -429,15 +429,15 @@ export default function EditBlogPage() {
           </div>
 
           {/* Save Action */}
-          <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-3">
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6 space-y-3">
             <button
               type="submit"
               disabled={saving || success}
-              className="w-full py-3 bg-purple-600 hover:bg-purple-500 disabled:opacity-55 disabled:hover:bg-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-600/15 hover:shadow-purple-500/25 transition duration-200 flex items-center justify-center gap-2"
+              className="w-full py-3 bg-primary hover:bg-primary/90 disabled:opacity-50 text-cream rounded-xl font-bold shadow-sm transition duration-200 flex items-center justify-center gap-2"
             >
               {saving ? (
                 <>
-                  <RefreshCw className="w-5 h-5 animate-spin" /> Saving Changes...
+                  <RefreshCw className="w-5 h-5 animate-spin text-cream" /> Saving Changes...
                 </>
               ) : (
                 "Save Changes"
@@ -445,7 +445,7 @@ export default function EditBlogPage() {
             </button>
             <Link
               href="/admin/blogs"
-              className="w-full block py-3 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl font-bold transition text-center text-sm border border-slate-800"
+              className="w-full block py-3 bg-cream hover:bg-primary/5 text-charcoal hover:text-primary rounded-xl font-bold transition text-center text-sm border border-primary/10 shadow-sm"
             >
               Cancel
             </Link>
@@ -455,30 +455,30 @@ export default function EditBlogPage() {
 
       {/* Author Modal */}
       {showAuthorModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
-            <h3 className="text-lg font-bold text-white">Quick Add Author</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/40 backdrop-blur-sm p-4">
+          <div className="bg-white border border-primary/10 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <h3 className="text-lg font-bold text-primary font-serif">Quick Add Author</h3>
             <form onSubmit={handleQuickAuthorCreate} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs text-slate-400 font-semibold uppercase">Author Name *</label>
+                <label className="text-xs text-charcoal/60 font-semibold uppercase">Author Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. John Doe"
                   value={newAuthorName}
                   onChange={(e) => setNewAuthorName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 focus:outline-none focus:border-purple-550 transition-colors"
+                  className="w-full px-3 py-2 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary transition-colors font-medium"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs text-slate-400 font-semibold uppercase">Short Bio</label>
+                <label className="text-xs text-charcoal/60 font-semibold uppercase">Short Bio</label>
                 <textarea
                   placeholder="e.g. Adventure photographer & writer"
                   value={newAuthorBio}
                   onChange={(e) => setNewAuthorBio(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 focus:outline-none focus:border-purple-550 transition-colors resize-none"
+                  className="w-full px-3 py-2 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary transition-colors resize-none font-medium"
                 />
               </div>
 
@@ -486,14 +486,14 @@ export default function EditBlogPage() {
                 <button
                   type="button"
                   onClick={() => setShowAuthorModal(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 rounded-xl text-xs font-bold transition"
+                  className="px-4 py-2 bg-cream border border-primary/10 text-charcoal hover:bg-primary/5 rounded-xl text-xs font-bold transition shadow-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={authorCreating}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-4 py-2 bg-primary hover:bg-primary/90 text-cream rounded-xl text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {authorCreating ? (
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -509,19 +509,19 @@ export default function EditBlogPage() {
 
       {/* Category Modal */}
       {showCategoryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
-            <h3 className="text-lg font-bold text-white">Quick Add Category</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/40 backdrop-blur-sm p-4">
+          <div className="bg-white border border-primary/10 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <h3 className="text-lg font-bold text-primary font-serif">Quick Add Category</h3>
             <form onSubmit={handleQuickCategoryCreate} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs text-slate-400 font-semibold uppercase">Category Title *</label>
+                <label className="text-xs text-charcoal/60 font-semibold uppercase">Category Title *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Camping Guides"
                   value={newCategoryTitle}
                   onChange={(e) => setNewCategoryTitle(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 focus:outline-none focus:border-purple-550 transition-colors"
+                  className="w-full px-3 py-2 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary transition-colors font-medium"
                 />
               </div>
 
@@ -529,14 +529,14 @@ export default function EditBlogPage() {
                 <button
                   type="button"
                   onClick={() => setShowCategoryModal(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 rounded-xl text-xs font-bold transition"
+                  className="px-4 py-2 bg-cream border border-primary/10 text-charcoal hover:bg-primary/5 rounded-xl text-xs font-bold transition shadow-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={categoryCreating}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-4 py-2 bg-primary hover:bg-primary/90 text-cream rounded-xl text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {categoryCreating ? (
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />

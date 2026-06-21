@@ -267,8 +267,8 @@ export default function EditTripPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
-        <RefreshCw className="w-8 h-8 text-blue-500 animate-spin" />
-        <p className="text-slate-400">Loading trip details...</p>
+        <RefreshCw className="w-8 h-8 text-primary animate-spin" />
+        <p className="text-charcoal/50 font-semibold">Loading trip details...</p>
       </div>
     );
   }
@@ -279,29 +279,29 @@ export default function EditTripPage() {
       <div className="flex items-center gap-4">
         <Link
           href="/admin/trips"
-          className="p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 hover:text-white hover:border-slate-700 transition"
+          className="p-2.5 bg-white border border-primary/10 rounded-xl text-charcoal/60 hover:text-primary hover:border-primary/25 transition shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
-            <Compass className="w-7 h-7 text-blue-500" />
+          <h1 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-2 font-serif">
+            <Compass className="w-7 h-7 text-accent" />
             Edit Trip
           </h1>
-          <p className="text-slate-400 mt-1">Make changes to the travel package itinerary.</p>
+          <p className="text-charcoal/70 mt-1 font-medium">Make changes to the travel package itinerary.</p>
         </div>
       </div>
 
       {/* Message Notifications */}
       {success && (
-        <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl">
+        <div className="flex items-center gap-3 bg-primary/10 border border-primary/20 text-primary p-4 rounded-xl font-semibold">
           <Check className="w-5 h-5 shrink-0" />
           <span>Trip Updated Successfully! Redirecting...</span>
         </div>
       )}
 
       {error && (
-        <div className="flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-xl">
+        <div className="flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 text-rose-600 p-4 rounded-xl font-semibold">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -310,44 +310,44 @@ export default function EditTripPage() {
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Columns - Inputs */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-6">
-            <h2 className="text-lg font-bold text-white border-b border-slate-850 pb-3">Trip Information</h2>
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6 space-y-6">
+            <h2 className="text-lg font-bold text-primary border-b border-primary/5 pb-3 font-serif">Trip Information</h2>
 
             {/* Title */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300">Trip Title *</label>
+              <label className="text-sm font-semibold text-charcoal/80">Trip Title *</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Kedarkantha Snow Trek"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-950 border border-slate-850 rounded-xl text-slate-100 focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder-charcoal/40 font-medium"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Location */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-300 flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-slate-500" /> Location
+                <label className="text-sm font-semibold text-charcoal/80 flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4 text-primary/50" /> Location
                 </label>
                 <input
                   type="text"
                   placeholder="e.g. Uttarakhand, India"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-950 border border-slate-850 rounded-xl text-slate-100 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder-charcoal/40 font-medium"
                 />
               </div>
 
               {/* Type Selection */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-300">Trip Type</label>
+                <label className="text-sm font-semibold text-charcoal/80">Trip Type</label>
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-950 border border-slate-850 rounded-xl text-slate-100 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-3 bg-white border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors font-medium"
                 >
                   <option value="trek">Trek</option>
                   <option value="city">City Exploration</option>
@@ -360,52 +360,52 @@ export default function EditTripPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Start Date */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-slate-500" /> Start Date
+                <label className="text-sm font-semibold text-charcoal/80 flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-primary/50" /> Start Date
                 </label>
                 <input
                   type="datetime-local"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-950 border border-slate-850 rounded-xl text-slate-100 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors font-medium"
                 />
               </div>
 
               {/* End Date */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-slate-500" /> End Date
+                <label className="text-sm font-semibold text-charcoal/80 flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-primary/50" /> End Date
                 </label>
                 <input
                   type="datetime-local"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-950 border border-slate-850 rounded-xl text-slate-100 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors font-medium"
                 />
               </div>
             </div>
 
             {/* Description */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300">Description</label>
+              <label className="text-sm font-semibold text-charcoal/80">Description</label>
               <textarea
                 placeholder="Write a descriptive overview of the trip journey..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={6}
-                className="w-full px-4 py-3 bg-slate-950 border border-slate-850 rounded-xl text-slate-100 focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors resize-none placeholder-charcoal/40 font-medium"
               />
             </div>
           </div>
 
           {/* Dynamic Itinerary Builder */}
-          <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-6">
-            <div className="flex justify-between items-center border-b border-slate-850 pb-3">
-              <h2 className="text-lg font-bold text-white">Itinerary Details</h2>
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6 space-y-6">
+            <div className="flex justify-between items-center border-b border-primary/5 pb-3">
+              <h2 className="text-lg font-bold text-primary font-serif">Itinerary Details</h2>
               <button
                 type="button"
                 onClick={addItineraryDay}
-                className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 font-bold"
+                className="flex items-center gap-1.5 text-xs text-primary hover:text-secondary font-bold"
               >
                 <Plus className="w-4 h-4" /> Add Day
               </button>
@@ -415,7 +415,7 @@ export default function EditTripPage() {
               {itinerary.map((item, index) => (
                 <div
                   key={index}
-                  className="p-4 rounded-xl bg-slate-950/60 border border-slate-850 space-y-3 relative group"
+                  className="p-4 rounded-xl bg-cream/20 border border-primary/10 space-y-3 relative group"
                 >
                   <div className="flex justify-between items-center">
                     <input
@@ -423,13 +423,13 @@ export default function EditTripPage() {
                       value={item.day}
                       onChange={(e) => handleItineraryChange(index, "day", e.target.value)}
                       placeholder={`Day ${index + 1}`}
-                      className="bg-transparent text-sm font-bold text-white border-b border-transparent focus:border-blue-500 focus:outline-none w-1/3"
+                      className="bg-transparent text-sm font-bold text-primary border-b border-transparent focus:border-primary focus:outline-none w-1/3"
                     />
                     {itinerary.length > 1 && (
                       <button
                         type="button"
                         onClick={() => removeItineraryDay(index)}
-                        className="p-1.5 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-900/80 transition"
+                        className="p-1.5 text-charcoal/50 hover:text-rose-600 rounded-lg hover:bg-rose-500/10 transition"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -440,7 +440,7 @@ export default function EditTripPage() {
                     value={item.plan}
                     onChange={(e) => handleItineraryChange(index, "plan", e.target.value)}
                     rows={3}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-sm text-slate-300 focus:outline-none focus:border-blue-500 transition resize-none"
+                    className="w-full px-3 py-2 bg-white border border-primary/10 rounded-lg text-sm text-charcoal focus:outline-none focus:border-primary transition resize-none placeholder-charcoal/40 font-medium"
                   />
                 </div>
               ))}
@@ -451,28 +451,28 @@ export default function EditTripPage() {
         {/* Right Column - Media upload files */}
         <div className="space-y-6">
           {/* Cover Image Upload Card */}
-          <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-4">
-            <h2 className="text-lg font-bold text-white border-b border-slate-850 pb-3">Cover Image</h2>
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6 space-y-4">
+            <h2 className="text-lg font-bold text-primary border-b border-primary/5 pb-3 font-serif">Cover Image</h2>
 
             {coverImage ? (
-              <div className="relative h-48 rounded-xl overflow-hidden group border border-slate-850">
+              <div className="relative h-48 rounded-xl overflow-hidden group border border-primary/10 shadow-sm">
                 <Image src={coverImage.url} alt="Cover Preview" fill style={{ objectFit: "cover" }} />
                 <button
                   type="button"
                   onClick={() => setCoverImage(null)}
-                  className="absolute top-2 right-2 p-2 bg-slate-950/80 hover:bg-rose-600 rounded-xl text-slate-300 hover:text-white transition"
+                  className="absolute top-2 right-2 p-2 bg-white/90 hover:bg-rose-600 rounded-xl text-charcoal/70 hover:text-white transition shadow-sm"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-800 hover:border-blue-500 rounded-xl cursor-pointer hover:bg-slate-900/20 transition group">
-                <div className="text-center space-y-2 text-slate-500 group-hover:text-blue-400 transition">
+              <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-primary/10 hover:border-primary rounded-xl cursor-pointer hover:bg-primary/5 transition group">
+                <div className="text-center space-y-2 text-charcoal/50 group-hover:text-primary transition">
                   <Upload className="w-8 h-8 mx-auto" />
                   <span className="text-xs font-semibold block">
                     {coverUploading ? "Uploading..." : "Upload Cover Image"}
                   </span>
-                  <span className="text-[10px] text-slate-600 block">PNG, JPG up to 10MB</span>
+                  <span className="text-[10px] text-charcoal/40 block">PNG, JPG up to 10MB</span>
                 </div>
                 <input
                   type="file"
@@ -486,11 +486,11 @@ export default function EditTripPage() {
           </div>
 
           {/* Gallery Upload Card */}
-          <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-4">
-            <h2 className="text-lg font-bold text-white border-b border-slate-850 pb-3">Trip Gallery</h2>
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6 space-y-4">
+            <h2 className="text-lg font-bold text-primary border-b border-primary/5 pb-3 font-serif">Trip Gallery</h2>
 
-            <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-800 hover:border-blue-500 rounded-xl cursor-pointer hover:bg-slate-900/20 transition group">
-              <div className="text-center space-y-2 text-slate-500 group-hover:text-blue-400 transition">
+            <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-primary/10 hover:border-primary rounded-xl cursor-pointer hover:bg-primary/5 transition group">
+              <div className="text-center space-y-2 text-charcoal/50 group-hover:text-primary transition">
                 <Upload className="w-6 h-6 mx-auto" />
                 <span className="text-xs font-semibold block">
                   {galleryUploading ? "Uploading..." : "Add Gallery Images"}
@@ -511,13 +511,13 @@ export default function EditTripPage() {
                 {gallery.map((img, i) => (
                   <div
                     key={img.id}
-                    className="relative h-16 rounded-lg overflow-hidden border border-slate-850 group"
+                    className="relative h-16 rounded-lg overflow-hidden border border-primary/10 group"
                   >
                     <Image src={img.url} alt={`Gallery ${i}`} fill style={{ objectFit: "cover" }} />
                     <button
                       type="button"
                       onClick={() => setGallery(gallery.filter((_, idx) => idx !== i))}
-                      className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-rose-400 transition"
+                      className="absolute inset-0 bg-white/80 opacity-0 group-hover:opacity-100 flex items-center justify-center text-rose-600 transition"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -528,15 +528,15 @@ export default function EditTripPage() {
           </div>
 
           {/* Save Action */}
-          <div className="bg-slate-900/40 border border-slate-800/80 backdrop-blur-md rounded-2xl p-6 space-y-3">
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6 space-y-3">
             <button
               type="submit"
               disabled={saving || success}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-55 disabled:hover:bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-600/15 hover:shadow-blue-500/25 transition duration-200 flex items-center justify-center gap-2"
+              className="w-full py-3 bg-primary hover:bg-primary/90 disabled:opacity-50 text-cream rounded-xl font-bold shadow-sm transition duration-200 flex items-center justify-center gap-2"
             >
               {saving ? (
                 <>
-                  <RefreshCw className="w-5 h-5 animate-spin" /> Saving Changes...
+                  <RefreshCw className="w-5 h-5 animate-spin text-cream" /> Saving Changes...
                 </>
               ) : (
                 "Save Changes"
@@ -544,7 +544,7 @@ export default function EditTripPage() {
             </button>
             <Link
               href="/admin/trips"
-              className="w-full block py-3 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl font-bold transition text-center text-sm border border-slate-800"
+              className="w-full block py-3 bg-cream hover:bg-primary/5 text-charcoal hover:text-primary rounded-xl font-bold transition text-center text-sm border border-primary/10 shadow-sm"
             >
               Cancel
             </Link>
