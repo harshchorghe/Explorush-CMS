@@ -171,11 +171,18 @@ export default async function HomePage() {
   const blogsCountLabel = `${totalBlogsCount || 0}+`;
   const upcomingCountLabel = `${totalUpcomingToursCount || 0}+`;
 
-  // Extract gallery images from CMS trips
+  // Extract gallery images from CMS trips with trip details
   const galleryImages = trips
-    .flatMap((trip) => trip.gallery || [])
-    .filter((img): img is { url: string } => !!(img && img.url))
-    .map((img) => ({ url: img.url, alt: "Expedition snapshot" }));
+    .flatMap((trip) => {
+      const gallery = trip.gallery || [];
+      return gallery.map((img) => ({
+        url: img.url,
+        alt: img.url ? `${trip.title} - Snapshot` : "Expedition snapshot",
+        tripTitle: trip.title || "Adventure",
+        location: trip.location || ""
+      }));
+    })
+    .filter((img): img is { url: string; alt: string; tripTitle: string; location: string } => !!(img && img.url));
 
   // Upcoming Trips (trips starting after today, or just latest 3 trips as featured group tours)
   const upcomingTrips = trips.slice(0, 3);
