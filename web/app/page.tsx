@@ -87,6 +87,10 @@ type HomePageData = {
     }[];
   } | null;
   upcomingTours: UpcomingTourPreviewItem[];
+  totalTripsCount: number;
+  totalBlogsCount: number;
+  totalVlogsCount: number;
+  totalUpcomingToursCount: number;
 };
 
 async function getHomepageData() {
@@ -123,7 +127,11 @@ async function getHomepageData() {
         _id, title, slug, location, type, price, totalSlots, bookedSlots, startDate, endDate,
         coverImage{ asset->{ url } },
         author->{ name }
-      }
+      },
+      "totalTripsCount": count(*[_type == "trip"]),
+      "totalBlogsCount": count(*[_type == "blog"]),
+      "totalVlogsCount": count(*[_type == "vlog"]),
+      "totalUpcomingToursCount": count(*[_type == "upcomingTour"])
     }`,
     {},
     { 
@@ -134,23 +142,25 @@ async function getHomepageData() {
 }
 
 export default async function HomePage() {
-  const { trips, blogs, vlogs, author, hero, upcomingTours } = await getHomepageData();
+  const {
+    trips,
+    blogs,
+    vlogs,
+    author,
+    hero,
+    upcomingTours,
+    totalTripsCount,
+    totalBlogsCount,
+    totalVlogsCount,
+    totalUpcomingToursCount
+  } = await getHomepageData();
   console.log("HOMEPAGE HERO DATA FETCHED:", JSON.stringify(hero, null, 2));
 
-  // Calculate dynamic statistics based on actual CMS content
-  const visitedCountries = trips
-    .map((t) => t.location?.split(",").pop()?.trim())
-    .filter((c): c is string => !!c);
-  const uniqueCountriesCount = new Set(visitedCountries).size;
-  const countriesCountLabel = uniqueCountriesCount > 0 ? `${uniqueCountriesCount}+` : "20+";
-
-  const visitedCities = trips
-    .map((t) => t.location?.split(",")[0]?.trim())
-    .filter((c): c is string => !!c);
-  const uniqueCitiesCount = new Set(visitedCities).size;
-  const citiesCountLabel = uniqueCitiesCount > 0 ? `${uniqueCitiesCount}+` : "120+";
-
-  const totalTripsLabel = trips.length > 0 ? `${trips.length}+` : "12+";
+  // Dynamic statistics labels from CMS
+  const tripsCountLabel = `${totalTripsCount || 0}+`;
+  const vlogsCountLabel = `${totalVlogsCount || 0}+`;
+  const blogsCountLabel = `${totalBlogsCount || 0}+`;
+  const upcomingCountLabel = `${totalUpcomingToursCount || 0}+`;
 
   // Extract gallery images from CMS trips
   const galleryImages = trips
@@ -193,13 +203,12 @@ export default async function HomePage() {
 
         {/* ── STATISTICS CARDS OVERLAY ── */}
         <section className="relative z-20 -mt-16 max-w-5xl mx-auto px-6">
-          <div className="bg-white rounded-2xl border border-primary/5 p-6 md:p-8 shadow-xl grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-primary/5">
+          <div className="bg-white rounded-2xl border border-primary/5 p-6 md:p-8 shadow-xl grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-primary/5">
             {[
-              { num: countriesCountLabel, label: "Countries Visited" },
-              { num: citiesCountLabel, label: "Cities Explored" },
-              { num: totalTripsLabel, label: "Total Trips" },
-              { num: `${blogs.length}+`, label: "Travel Stories" },
-              { num: "500k+", label: "Total Followers" },
+              { num: tripsCountLabel, label: "Total Trips" },
+              { num: vlogsCountLabel, label: "Travel Vlogs" },
+              { num: blogsCountLabel, label: "Travel Stories" },
+              { num: upcomingCountLabel, label: "Upcoming Trips & Events" },
             ].map((stat, idx) => (
               <div
                 key={idx}
