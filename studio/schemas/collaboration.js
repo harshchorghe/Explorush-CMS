@@ -47,10 +47,10 @@ export default {
       type: "string",
       options: {
         list: [
-          { title: "Under $1,000", value: "under_1k" },
-          { title: "$1,000 - $5,000", value: "1k_5k" },
-          { title: "$5,000 - $10,000", value: "5k_10k" },
-          { title: "$10,000+", value: "10k_plus" },
+          { title: "Under ₹1,000", value: "under_1k" },
+          { title: "₹1,000 - ₹5,000", value: "1k_5k" },
+          { title: "₹5,000 - ₹10,000", value: "5k_10k" },
+          { title: "₹10,000+", value: "10k_plus" },
           { title: "Flexible / Contact Us", value: "flexible" },
         ],
       },

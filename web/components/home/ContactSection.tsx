@@ -9,7 +9,7 @@ import {
   FileText,
   Phone,
   Briefcase,
-  DollarSign,
+  IndianRupee,
   Link2,
   Download,
   AlertCircle,
@@ -323,7 +323,7 @@ export default function ContactSection({ mediaKit }: { mediaKit?: MediaKitInfo }
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-3.5 text-charcoal/40">
-                        <DollarSign className="w-4 h-4" />
+                        <IndianRupee className="w-4 h-4" />
                       </span>
                       <select
                         id="budget"
@@ -332,10 +332,10 @@ export default function ContactSection({ mediaKit }: { mediaKit?: MediaKitInfo }
                         onChange={handleChange}
                         className="w-full pl-10 pr-4 py-3 bg-cream/35 border border-primary/10 rounded-xl font-sans text-sm focus:outline-none focus:border-primary focus:bg-white text-charcoal transition-all duration-300 outline-none appearance-none cursor-pointer"
                       >
-                        <option value="under_1k">Under $1,000</option>
-                        <option value="1k_5k">$1,000 - $5,000</option>
-                        <option value="5k_10k">$5,000 - $10,000</option>
-                        <option value="10k_plus">$10,000+</option>
+                        <option value="under_1k">Under ₹1,000</option>
+                        <option value="1k_5k">₹1,000 - ₹5,000</option>
+                        <option value="5k_10k">₹5,000 - ₹10,000</option>
+                        <option value="10k_plus">₹10,000+</option>
                         <option value="flexible">Flexible / Contact Us</option>
                       </select>
                     </div>

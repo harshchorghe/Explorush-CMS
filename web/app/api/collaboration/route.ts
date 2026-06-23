@@ -42,10 +42,10 @@ export async function POST(req: Request) {
     };
 
     const budgetLabels: Record<string, string> = {
-      under_1k: "Under $1,000",
-      "1k_5k": "$1,000 - $5,000",
-      "5k_10k": "$5,000 - $10,000",
-      "10k_plus": "$10,000+",
+      under_1k: "Under ₹1,000",
+      "1k_5k": "₹1,000 - ₹5,000",
+      "5k_10k": "₹5,000 - ₹10,000",
+      "10k_plus": "₹10,000+",
       flexible: "Flexible / Contact Us",
     };
 

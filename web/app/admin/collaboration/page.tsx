@@ -8,7 +8,7 @@ import {
   Briefcase,
   Mail,
   Phone,
-  DollarSign,
+  IndianRupee,
   Globe,
   RefreshCw,
   FileText,
@@ -142,10 +142,10 @@ export default function AdminCollaborationsPage() {
   };
 
   const budgetLabels: Record<string, string> = {
-    under_1k: "Under $1k",
-    "1k_5k": "$1k - $5k",
-    "5k_10k": "$5k - $10k",
-    "10k_plus": "$10k+",
+    under_1k: "Under ₹1k",
+    "1k_5k": "₹1k - ₹5k",
+    "5k_10k": "₹5k - ₹10k",
+    "10k_plus": "₹10k+",
     flexible: "Flexible / Contact Us",
   };
 
@@ -396,7 +396,7 @@ export default function AdminCollaborationsPage() {
 
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-cream rounded-lg text-primary">
-                  <DollarSign className="w-4 h-4" />
+                  <IndianRupee className="w-4 h-4" />
                 </div>
                 <div>
                   <p className="text-[10px] text-charcoal/40 uppercase tracking-wider font-bold">Budget Range</p>
