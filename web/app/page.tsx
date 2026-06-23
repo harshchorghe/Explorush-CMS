@@ -134,7 +134,7 @@ async function getHomepageData() {
       "totalUpcomingToursCount": count(*[_type == "upcomingTour"])
     }`,
     {},
-    { 
+    {
       cache: "no-store",
       next: { revalidate: 0 }
     }
@@ -186,12 +186,12 @@ export default async function HomePage() {
 
   // Grayscale partner brands matching reference layout
   const partnerBrands = [
-    { name: "Travel Gear Co", logo: "TRAVEL GEAR" },
-    { name: "AeroAirlines", logo: "AeroAirlines" },
-    { name: "Global Airways", logo: "GLOBAL AIRWAYS" },
-    { name: "Swiss Tourism", logo: "swiss tourism" },
-    { name: "Tourism Boards Alliance", logo: "Tourism Boards" },
+    { name: "BhargavEdits", logo: "BhargavEdits" },
+    { name: "Chasethetest", logo: "ChasetheTest" },
+    { name: "Explorush", logo: "Explorush" },
+    { name: "RecipeTadka", logo: "RecipeTadka" },
   ];
+  const brandMarquee = [...partnerBrands, ...partnerBrands, ...partnerBrands];
 
   return (
     <>
@@ -212,9 +212,8 @@ export default async function HomePage() {
             ].map((stat, idx) => (
               <div
                 key={idx}
-                className={`text-center flex flex-col justify-center items-center py-4 md:py-0 ${
-                  idx >= 2 ? "pt-4 md:pt-0" : ""
-                }`}
+                className={`text-center flex flex-col justify-center items-center py-4 md:py-0 ${idx >= 2 ? "pt-4 md:pt-0" : ""
+                  }`}
               >
                 <div className="text-3xl font-serif font-bold text-primary">
                   {stat.num}
@@ -433,13 +432,13 @@ export default async function HomePage() {
 
                   const dateLabel = tour.startDate
                     ? `${new Date(tour.startDate).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })} — ${new Date(tour.endDate || tour.startDate).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}`
+                      month: "short",
+                      day: "numeric",
+                    })} — ${new Date(tour.endDate || tour.startDate).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}`
                     : "Flexible dates";
 
                   const priceLabel = tour.price ? `${tour.price} / person` : "Contact Us";
@@ -455,9 +454,8 @@ export default async function HomePage() {
                           <span className="text-[10px] text-accent bg-primary font-sans font-bold uppercase tracking-widest px-2.5 py-1 rounded capitalize">
                             {tour.type || "Expedition"}
                           </span>
-                          <span className={`text-[10px] font-sans font-bold uppercase tracking-wider ${
-                            isFilled ? "text-red-500" : "text-emerald-600"
-                          }`}>
+                          <span className={`text-[10px] font-sans font-bold uppercase tracking-wider ${isFilled ? "text-red-500" : "text-emerald-600"
+                            }`}>
                             {slotsLabel}
                           </span>
                         </div>
@@ -468,7 +466,7 @@ export default async function HomePage() {
                         <p className="text-xs text-charcoal/50 uppercase font-sans tracking-wider font-semibold mb-4 truncate">
                           📍 {tour.location || "Online / Flexible"}
                         </p>
-                        
+
                         <ul className="space-y-2 border-t border-primary/5 pt-4 text-sm text-charcoal/70 font-sans mb-6">
                           <li className="flex items-center gap-2">
                             <Check className="w-4 h-4 text-accent" />
@@ -500,16 +498,22 @@ export default async function HomePage() {
         </section>
 
         {/* ── BRAND COLLABORATIONS STRIP ── */}
-        <section className="py-16 bg-cream border-t border-primary/5">
-          <div className="max-w-7xl mx-auto px-6">
-            <h4 className="text-center text-xs uppercase tracking-widest text-secondary font-bold font-sans mb-8">
+        <section className="py-20 bg-primary text-cream relative overflow-hidden">
+          {/* Decorative grids */}
+          <div className="absolute inset-0 opacity-5 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:30px_30px]" />
+
+          <div className="max-w-7xl mx-auto px-6 relative z-10">
+            <h4 className="text-center text-xs uppercase tracking-widest text-accent font-bold font-sans mb-8">
               Trusted Partner Brands
             </h4>
-            <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
-              {partnerBrands.map((partner, idx) => (
+          </div>
+
+          <div className="bg-white border-y border-accent/30 overflow-hidden py-8 select-none relative z-10">
+            <div className="flex gap-20 whitespace-nowrap animate-marquee w-max">
+              {brandMarquee.map((partner, idx) => (
                 <div
                   key={idx}
-                  className="font-serif font-bold text-xl md:text-2xl text-primary/30 tracking-widest uppercase grayscale hover:grayscale-0 hover:text-accent transition-all duration-300 select-none cursor-default"
+                  className="font-serif font-bold text-2xl md:text-3xl text-primary/50 tracking-widest uppercase grayscale hover:grayscale-0 hover:text-accent transition-all duration-300 select-none cursor-default inline-flex items-center"
                 >
                   {partner.logo}
                 </div>
