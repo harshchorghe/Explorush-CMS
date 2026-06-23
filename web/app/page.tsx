@@ -91,6 +91,10 @@ type HomePageData = {
   totalBlogsCount: number;
   totalVlogsCount: number;
   totalUpcomingToursCount: number;
+  mediaKit: {
+    title: string;
+    fileUrl: string;
+  } | null;
 };
 
 async function getHomepageData() {
@@ -131,7 +135,11 @@ async function getHomepageData() {
       "totalTripsCount": count(*[_type == "trip"]),
       "totalBlogsCount": count(*[_type == "blog"]),
       "totalVlogsCount": count(*[_type == "vlog"]),
-      "totalUpcomingToursCount": count(*[_type == "upcomingTour"])
+      "totalUpcomingToursCount": count(*[_type == "upcomingTour"]),
+      "mediaKit": *[_type == "mediaKit" && _id == "media-kit-singleton"][0] {
+        title,
+        "fileUrl": file.asset->url
+      }
     }`,
     {},
     {
@@ -152,7 +160,8 @@ export default async function HomePage() {
     totalTripsCount,
     totalBlogsCount,
     totalVlogsCount,
-    totalUpcomingToursCount
+    totalUpcomingToursCount,
+    mediaKit
   } = await getHomepageData();
   console.log("HOMEPAGE HERO DATA FETCHED:", JSON.stringify(hero, null, 2));
 
@@ -523,7 +532,7 @@ export default async function HomePage() {
         </section>
 
         {/* ── CONTACT US FORM SECTION ── */}
-        <ContactSection />
+        <ContactSection mediaKit={mediaKit} />
       </main>
 
       <Footer />

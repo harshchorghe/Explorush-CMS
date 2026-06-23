@@ -1,23 +1,25 @@
 import { client } from "@/lib/sanity";
 import Link from "next/link";
-import { Compass, BookOpen, Tv, Plus, Calendar } from "lucide-react";
+import { Compass, BookOpen, Tv, Plus, Calendar, Briefcase } from "lucide-react";
 
 // Never cache this page — always fetch fresh data from Sanity
 export const revalidate = 0;
 
 async function getDashboardData() {
   const fetchOpts = { cache: "no-store" as const };
-  const [tripsCount, upcomingToursCount, blogsCount, vlogsCount, recentItems] = await Promise.all([
+  const [tripsCount, upcomingToursCount, blogsCount, vlogsCount, collaborationsCount, recentItems] = await Promise.all([
     client.fetch(`count(*[_type == "trip"])`, {}, fetchOpts),
     client.fetch(`count(*[_type == "upcomingTour"])`, {}, fetchOpts),
     client.fetch(`count(*[_type == "blog"])`, {}, fetchOpts),
     client.fetch(`count(*[_type == "vlog"])`, {}, fetchOpts),
+    client.fetch(`count(*[_type == "collaboration"])`, {}, fetchOpts),
     client.fetch(
       `
-      *[_type in ["trip", "upcomingTour", "blog", "vlog"]] | order(_createdAt desc)[0...5] {
+      *[_type in ["trip", "upcomingTour", "blog", "vlog", "collaboration"]] | order(_createdAt desc)[0...5] {
         _id,
         _type,
         title,
+        company,
         _createdAt
       }
     `,
@@ -31,12 +33,13 @@ async function getDashboardData() {
     upcomingToursCount,
     blogsCount,
     vlogsCount,
+    collaborationsCount,
     recentItems,
   };
 }
 
 export default async function AdminDashboard() {
-  const { tripsCount, upcomingToursCount, blogsCount, vlogsCount, recentItems } = await getDashboardData();
+  const { tripsCount, upcomingToursCount, blogsCount, vlogsCount, collaborationsCount, recentItems } = await getDashboardData();
 
   const cards = [
     {
@@ -75,6 +78,15 @@ export default async function AdminDashboard() {
       link: "/admin/vlogs",
       createLink: "/admin/vlogs/create",
     },
+    {
+      title: "Collaborations",
+      count: collaborationsCount,
+      icon: Briefcase,
+      bgClass: "bg-blue-600 text-cream shadow-md",
+      glowBg: "bg-blue-600",
+      link: "/admin/collaboration",
+      createLink: null,
+    },
   ];
 
   return (
@@ -96,13 +108,13 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
             <div
               key={card.title}
-              className="bg-white border border-primary/10 rounded-2xl p-6 hover:border-primary/20 hover:shadow-md transition-all duration-300 relative overflow-hidden group shadow-sm"
+              className="bg-white border border-primary/10 rounded-2xl p-6 hover:border-primary/20 hover:shadow-md transition-all duration-300 relative overflow-hidden group shadow-sm flex flex-col justify-between"
             >
               {/* Decorative Gradient Background */}
               <div
@@ -130,13 +142,17 @@ export default async function AdminDashboard() {
                 >
                   Manage {card.title} →
                 </Link>
-                <span className="text-primary/15">|</span>
-                <Link
-                  href={card.createLink}
-                  className="text-xs text-secondary hover:text-primary font-bold transition flex items-center gap-1"
-                >
-                  <Plus className="w-3 h-3" /> New
-                </Link>
+                {card.createLink && (
+                  <>
+                    <span className="text-primary/15">|</span>
+                    <Link
+                      href={card.createLink}
+                      className="text-xs text-secondary hover:text-primary font-bold transition flex items-center gap-1"
+                    >
+                      <Plus className="w-3 h-3" /> New
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           );
@@ -152,7 +168,7 @@ export default async function AdminDashboard() {
             <p className="text-charcoal/50 text-sm py-4">No content has been created yet.</p>
           ) : (
             <div className="space-y-4">
-              {recentItems.map((item: any) => {
+               {recentItems.map((item: any) => {
                 let badgeColor = "bg-primary/10 text-primary border-primary/20";
                 if (item._type === "blog")
                   badgeColor = "bg-accent/25 text-primary border-accent/40";
@@ -160,6 +176,8 @@ export default async function AdminDashboard() {
                   badgeColor = "bg-secondary/15 text-primary border-secondary/30";
                 if (item._type === "upcomingTour")
                   badgeColor = "bg-emerald-500/10 text-emerald-700 border-emerald-500/20";
+                if (item._type === "collaboration")
+                  badgeColor = "bg-blue-500/10 text-blue-700 border-blue-500/20";
 
                 return (
                   <div
@@ -167,7 +185,9 @@ export default async function AdminDashboard() {
                     className="flex justify-between items-center p-4 rounded-xl bg-cream/40 border border-primary/5 hover:border-primary/15 hover:bg-cream/70 transition"
                   >
                     <div>
-                      <h4 className="text-sm font-semibold text-primary">{item.title}</h4>
+                      <h4 className="text-sm font-semibold text-primary">
+                        {item._type === "collaboration" ? `Collab: ${item.company}` : item.title}
+                      </h4>
                       <p className="text-xs text-charcoal/60 mt-1 font-medium">
                         Created on {new Date(item._createdAt).toLocaleDateString()}
                       </p>
@@ -175,7 +195,11 @@ export default async function AdminDashboard() {
                     <span
                       className={`text-xs px-2.5 py-1 rounded-full border ${badgeColor} capitalize font-semibold`}
                     >
-                      {item._type === "upcomingTour" ? "Upcoming Tour" : item._type}
+                      {item._type === "upcomingTour"
+                        ? "Upcoming Tour"
+                        : item._type === "collaboration"
+                        ? "Collaboration"
+                        : item._type}
                     </span>
                   </div>
                 );

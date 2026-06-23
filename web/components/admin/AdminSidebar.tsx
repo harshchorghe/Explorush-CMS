@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Compass, BookOpen, Tv, ArrowLeft, Calendar } from "lucide-react";
+import { LayoutDashboard, Compass, BookOpen, Tv, ArrowLeft, Calendar, Briefcase, FileText } from "lucide-react";
 
 const links = [
   {
@@ -29,6 +29,16 @@ const links = [
     title: "Vlogs",
     href: "/admin/vlogs",
     icon: Tv,
+  },
+  {
+    title: "Collaborations",
+    href: "/admin/collaboration",
+    icon: Briefcase,
+  },
+  {
+    title: "Media Kit",
+    href: "/admin/media-kit",
+    icon: FileText,
   },
 ];
 
