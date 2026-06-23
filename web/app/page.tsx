@@ -256,20 +256,20 @@ export default async function HomePage() {
             </h2>
             <p className="text-base text-charcoal/80 leading-relaxed font-sans">
               {author?.bio ||
-                "I am a travel content creator and explorer dedicated to documenting raw travel stories, high-altitude treks, and cultural connection points globally. Explorush acts as an open journal for global explorers looking for detailed guides and itineraries."}
+                "I'm a traveler, creator, and developer who believes that every journey has a story worth sharing. Through Explorush, I share travel stories, destination guides, hidden gems, practical tips, and unforgettable experiences from the road to help fellow travelers discover new places and travel smarter."}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-primary/10">
               <div className="space-y-2">
                 <h4 className="font-serif font-bold text-primary text-lg">My Travel Mission</h4>
                 <p className="text-sm text-charcoal/70 leading-relaxed font-sans">
-                  Inspiring global storytelling and bringing underrepresented cultures, remote pathways, and eco-conscious adventure to light.
+                  To help fellow travelers discover new places, travel smarter, and create memories that last a lifetime through authentic stories and guides.
                 </p>
               </div>
               <div className="space-y-2">
                 <h4 className="font-serif font-bold text-primary text-lg">Personal Story</h4>
                 <p className="text-sm text-charcoal/70 leading-relaxed font-sans">
-                  From taking a camera into the wilderness to scaling peaks, every expedition has shaped my philosophy of traveling slow.
+                  What started as a passion for exploring new places slowly turned into a desire to document experiences, connect with people, and inspire others.
                 </p>
               </div>
             </div>

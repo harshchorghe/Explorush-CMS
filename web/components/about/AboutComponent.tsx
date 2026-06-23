@@ -4,27 +4,42 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Compass, ShieldCheck, Heart, Award, ArrowLeft } from "lucide-react";
+import { Compass, ShieldCheck, Heart, Award } from "lucide-react";
 
-export default function AboutComponent() {
+type SanityImage = {
+  asset?: {
+    url?: string;
+  };
+};
+
+type AuthorItem = {
+  name: string;
+  bio?: string;
+  image?: SanityImage;
+};
+
+export default function AboutComponent({ author }: { author: AuthorItem | null }) {
+  // If author bio is fetched from Sanity, use it or fall back to the curated text
+  const authorName = author?.name || "Harsh Chorghe";
+  const authorImage = author?.image?.asset?.url || "https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800&q=80";
+
   return (
     <>
       <Navbar />
 
       <main className="bg-cream text-charcoal min-h-screen font-sans">
         {/* HERO SECTION */}
-        <section className="max-w-7xl mx-auto px-6 pt-16 pb-20 text-center space-y-6">
+        <section className="max-w-7xl mx-auto px-6 pt-20 pb-20 text-center space-y-6">
           <span className="text-xs uppercase tracking-widest text-secondary font-bold font-sans">
             Our Story & Philosophy
           </span>
           
           <h1 className="text-5xl md:text-7xl font-serif font-bold text-primary leading-tight tracking-tight max-w-4xl mx-auto">
-            Travel Beyond <br />
-            <span className="text-accent italic">The Ordinary.</span>
+            Hi, I'm <span className="text-accent italic font-normal">{authorName}.</span>
           </h1>
 
-          <p className="max-w-2xl mx-auto text-charcoal/80 text-base md:text-lg leading-relaxed font-sans font-medium">
-            Explorush is a curation of raw expeditions, photography journals, and slow-travel guides designed to inspire deep cultural appreciation and off-the-beaten-path voyages.
+          <p className="max-w-3xl mx-auto text-charcoal/80 text-base md:text-lg leading-relaxed font-sans font-medium">
+            I'm a traveler, creator, and developer who believes that every journey has a story worth sharing. What started as a passion for exploring new places slowly turned into a desire to document experiences, connect with people, and inspire others to step outside their comfort zones.
           </p>
         </section>
 
@@ -32,29 +47,30 @@ export default function AboutComponent() {
         <section className="max-w-6xl mx-auto px-6 pb-24">
           <div className="bg-white border border-primary/10 rounded-3xl p-8 md:p-16 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Col: Photo */}
-            <div className="lg:col-span-5 relative aspect-[3/4] w-full rounded-2xl overflow-hidden shadow-md">
+            <div className="lg:col-span-5 relative aspect-[3/4] w-full rounded-2xl overflow-hidden shadow-md group">
               <Image
-                src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80"
-                alt="Travel journal and camera on map"
+                src={authorImage}
+                alt={authorName}
                 fill
                 sizes="(max-width: 1024px) 100vw, 30vw"
-                className="object-cover animate-fadeIn"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
 
             {/* Right Col: Details */}
             <div className="lg:col-span-7 space-y-6">
               <span className="text-xs uppercase tracking-widest text-accent font-bold bg-primary px-3 py-1 rounded">
-                Our Genesis
+                The Creator Behind Explorush
               </span>
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary">
-                Every Journey Has A Story
+                Combining Travel & Technology
               </h2>
               <p className="text-charcoal/80 text-sm md:text-base leading-relaxed font-sans">
-                What began as a pure passion for capturing landscapes through a camera lens slowly evolved into the Explorush platform. Across alpine treks, remote coastal settlements, and bustling ancient alleyways, we realized that the best paths are those that teach us to slow down.
+                Alongside my love for travel, I'm a technology enthusiast and developer who enjoys building digital experiences that solve real-world problems. Explorush is the result of combining these two passions—travel and technology.
               </p>
               <p className="text-charcoal/80 text-sm md:text-base leading-relaxed font-sans">
-                Explorush was built to share detailed, field-tested travel blueprints, high-definition vlogs, and reflective blog journals, helping travelers wander mindfully, respect local communities, and create their own lifelong stories.
+                Through Explorush, I share travel stories, destination guides, hidden gems, practical tips, and unforgettable experiences from the road. My goal is to help fellow travelers discover new places, travel smarter, and create memories that last a lifetime.
               </p>
             </div>
           </div>
@@ -114,23 +130,24 @@ export default function AboutComponent() {
 
         {/* BIO STATS & CALL TO ACTION */}
         <section className="py-24 max-w-5xl mx-auto px-6 text-center space-y-8">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary">
-            The Journey Continues
+          <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary">
+            Let's explore the world, <br />
+            <span className="text-accent italic font-normal">one journey at a time.</span>
           </h2>
-          <p className="text-charcoal/80 text-sm md:text-base leading-relaxed max-w-xl mx-auto font-sans">
-            We are constantly mapping new valleys, detailing new travel routes, and booking upcoming group tours. Join us as we explore the world, one story at a time.
+          <p className="text-charcoal/80 text-base md:text-lg leading-relaxed max-w-2xl mx-auto font-sans">
+            Whether you're looking for your next adventure, planning a group trip, or simply seeking inspiration, I'm glad you're here.
           </p>
 
           <div className="flex justify-center gap-4 pt-4">
             <Link
               href="/trips"
-              className="px-6 py-3 bg-accent hover:bg-accent/90 text-primary font-sans font-semibold text-xs tracking-widest uppercase rounded-lg shadow transition-colors duration-300"
+              className="px-6 py-3 bg-accent hover:bg-accent/90 text-primary font-sans font-semibold text-xs tracking-widest uppercase rounded-lg shadow-md transition-all duration-300 hover:-translate-y-0.5"
             >
               Explore Trips
             </Link>
             <Link
               href="/"
-              className="px-6 py-3 border border-primary/20 hover:border-primary text-primary font-sans font-semibold text-xs tracking-widest uppercase rounded-lg transition-colors duration-300"
+              className="px-6 py-3 border border-primary/20 hover:border-primary text-primary font-sans font-semibold text-xs tracking-widest uppercase rounded-lg transition-all duration-300 hover:-translate-y-0.5"
             >
               Back to Home
             </Link>
