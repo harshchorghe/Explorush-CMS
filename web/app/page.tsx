@@ -196,7 +196,7 @@ export default async function HomePage() {
   // Grayscale partner brands matching reference layout
   const partnerBrands = [
     { name: "BhargavEdits", logo: "BhargavEdits" },
-    { name: "Chasethetest", logo: "ChasetheTest" },
+    { name: "ChaseTheTastes", logo: "ChaseTheTastes" },
     { name: "Explorush", logo: "Explorush" },
     { name: "RecipeTadka", logo: "RecipeTadka" },
   ];
