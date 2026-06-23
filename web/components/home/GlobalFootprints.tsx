@@ -84,7 +84,17 @@ export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
       })
       .filter((pin): pin is NonNullable<typeof pin> => pin !== null);
 
-    setResolvedPins(initialPins);
+    const homePin = {
+      _id: "home-vasai",
+      name: "Vasai, India",
+      title: "Vasai, India",
+      country: "India",
+      lat: 19.3820,
+      lng: 72.8228,
+      isHome: true,
+    };
+
+    setResolvedPins([homePin, ...initialPins]);
 
     // 2. Identify trips that require dynamic geocoding (no coordinates and not in local dictionary)
     const unresolvedTrips = trips.filter((trip) => {
@@ -202,25 +212,55 @@ export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
         iconAnchor: [16, 16]
       });
 
+      // Home base marker icon (using primary color base and accent/gold home icon)
+      const homeMarkerIcon = L.divIcon({
+        className: "custom-leaflet-marker-home",
+        html: `
+          <div class="relative w-8 h-8 -left-2 -top-2 flex items-center justify-center">
+            <span class="absolute inset-0 w-8 h-8 rounded-full bg-primary/30 animate-ping"></span>
+            <span class="absolute inset-0 w-12 h-12 -left-2 -top-2 rounded-full bg-primary/15 animate-pulse"></span>
+            <div class="relative p-1.5 bg-primary text-accent rounded-full shadow-md border border-accent/20 hover:scale-125 transition-transform duration-300">
+              <svg class="w-4 h-4 fill-accent stroke-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </div>
+          </div>
+        `,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+
       // Place pins and bind hover popups
       resolvedPins.forEach((pin) => {
-        const marker = L.marker([pin.lat, pin.lng], { icon: markerIcon }).addTo(mapInstance);
+        const iconToUse = pin.isHome ? homeMarkerIcon : markerIcon;
+        const marker = L.marker([pin.lat, pin.lng], { icon: iconToUse }).addTo(mapInstance);
 
         const dateString = pin.startDate
           ? new Date(pin.startDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })
           : "";
 
-        const popupContent = `
-          <div class="custom-popup-card p-1 flex flex-col gap-2 font-sans text-primary">
-            ${pin.coverImageUrl ? `<img src="${pin.coverImageUrl}" alt="${pin.title}" class="w-full h-24 object-cover rounded-lg shadow-sm" style="display:block;" />` : ""}
-            <div class="flex flex-col gap-0.5" style="margin-top:2px;">
-              <h4 class="font-serif font-bold text-xs leading-snug m-0 text-primary" style="font-size:11px;">${pin.title}</h4>
-              <p class="text-[10px] text-charcoal/60 m-0 flex items-center gap-1" style="font-size:9px;">📍 ${pin.name}</p>
-              ${dateString ? `<p class="text-[9px] text-accent font-bold uppercase tracking-wider m-0 mt-0.5" style="font-size:8px;">📅 ${dateString}</p>` : ""}
+        const popupContent = pin.isHome
+          ? `
+            <div class="custom-popup-card p-2 flex flex-col gap-1 font-sans text-primary">
+              <div class="flex flex-col gap-0.5">
+                <h4 class="font-serif font-bold text-xs leading-snug m-0 text-primary" style="font-size:12px;">Harsh's Home Base</h4>
+                <p class="text-[10px] text-accent font-bold uppercase tracking-wider m-0">🏡 Vasai, India</p>
+                <p class="text-[10px] text-charcoal/70 m-0 mt-1 leading-relaxed" style="font-size:9.5px;">Starting point for all Explorush travel expeditions & digital projects.</p>
+              </div>
             </div>
-            <a href="/trips/${pin.slug}" class="text-center py-2 mt-1 bg-primary hover:bg-secondary text-cream text-[10px] font-sans font-semibold uppercase tracking-wider rounded-lg block transition-all duration-300 hover:shadow-md" style="font-size:9px; text-decoration:none; color:#F8F4EC;">View Trip Details →</a>
-          </div>
-        `;
+          `
+          : `
+            <div class="custom-popup-card p-1 flex flex-col gap-2 font-sans text-primary">
+              ${pin.coverImageUrl ? `<img src="${pin.coverImageUrl}" alt="${pin.title}" class="w-full h-24 object-cover rounded-lg shadow-sm" style="display:block;" />` : ""}
+              <div class="flex flex-col gap-0.5" style="margin-top:2px;">
+                <h4 class="font-serif font-bold text-xs leading-snug m-0 text-primary" style="font-size:11px;">${pin.title}</h4>
+                <p class="text-[10px] text-charcoal/60 m-0 flex items-center gap-1" style="font-size:9px;">📍 ${pin.name}</p>
+                ${dateString ? `<p class="text-[9px] text-accent font-bold uppercase tracking-wider m-0 mt-0.5" style="font-size:8px;">📅 ${dateString}</p>` : ""}
+              </div>
+              <a href="/trips/${pin.slug}" class="text-center py-2 mt-1 bg-primary hover:bg-secondary text-cream text-[10px] font-sans font-semibold uppercase tracking-wider rounded-lg block transition-all duration-300 hover:shadow-md" style="font-size:9px; text-decoration:none; color:#F8F4EC;">View Trip Details →</a>
+            </div>
+          `;
 
         marker.bindPopup(popupContent, {
           className: "custom-leaflet-popup",
