@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Play, Eye, Clock, Tv } from "lucide-react";
@@ -16,6 +16,7 @@ type Vlog = {
 export default function VlogsSection({ vlogs }: { vlogs: Vlog[] }) {
   const [activeVlog, setActiveVlog] = useState<Vlog | null>(vlogs[0] || null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const playerRef = useRef<HTMLDivElement>(null);
 
   if (!vlogs || vlogs.length === 0) return null;
 
@@ -67,7 +68,10 @@ export default function VlogsSection({ vlogs }: { vlogs: Vlog[] }) {
           {/* Left Side: Featured Vlog Player */}
           {activeVlog && (
             <div className="lg:col-span-2 space-y-4">
-              <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-primary shadow-lg border border-primary/10">
+              <div 
+                ref={playerRef}
+                className="relative aspect-video w-full rounded-2xl overflow-hidden bg-primary shadow-lg border border-primary/10 scroll-mt-24"
+              >
                 {isPlaying && activeVlog.videoUrl ? (
                   <iframe
                     src={getYoutubeEmbedUrl(activeVlog.videoUrl)}
@@ -143,6 +147,9 @@ export default function VlogsSection({ vlogs }: { vlogs: Vlog[] }) {
                     onClick={() => {
                       setActiveVlog(vlog);
                       setIsPlaying(true);
+                      if (typeof window !== "undefined" && window.innerWidth < 1024 && playerRef.current) {
+                        playerRef.current.scrollIntoView({ behavior: "smooth" });
+                      }
                     }}
                     className={`flex gap-4 p-3 rounded-xl border text-left transition-all duration-300 w-full group ${
                       isActive

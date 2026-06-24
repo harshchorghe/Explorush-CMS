@@ -219,26 +219,39 @@ export default async function HomePage() {
 
         {/* ── STATISTICS CARDS OVERLAY ── */}
         <section className="relative z-20 -mt-16 max-w-5xl mx-auto px-6">
-          <div className="bg-white rounded-2xl border border-primary/5 p-6 md:p-8 shadow-xl grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 divide-y md:divide-y-0 md:divide-x divide-primary/5">
+          <div className="bg-white rounded-2xl border border-primary/5 p-6 md:p-8 shadow-xl grid grid-cols-2 md:grid-cols-4 gap-y-6 md:gap-y-0">
             {[
               { num: tripsCountLabel, label: "Total Trips" },
               { num: vlogsCountLabel, label: "Travel Vlogs" },
               { num: blogsCountLabel, label: "Travel Stories" },
               { num: upcomingCountLabel, label: "Upcoming Trips & Events" },
-            ].map((stat, idx) => (
-              <div
-                key={idx}
-                className={`text-center flex flex-col justify-center items-center py-4 md:py-0 ${idx >= 2 ? "pt-4 md:pt-0" : ""
-                  }`}
-              >
-                <div className="text-3xl font-serif font-bold text-primary">
-                  {stat.num}
+            ].map((stat, idx) => {
+              // Custom borders to create a symmetric cross separator (+) on mobile and vertical dividers on desktop
+              let borderClass = "";
+              if (idx === 0) {
+                borderClass = "border-r border-b border-primary/5 md:border-b-0 pb-4 md:pb-0";
+              } else if (idx === 1) {
+                borderClass = "border-b border-primary/5 md:border-b-0 md:border-r pb-4 md:pb-0";
+              } else if (idx === 2) {
+                borderClass = "border-r border-primary/5 md:border-r pt-4 md:pt-0";
+              } else if (idx === 3) {
+                borderClass = "pt-4 md:pt-0";
+              }
+
+              return (
+                <div
+                  key={idx}
+                  className={`text-center flex flex-col justify-center items-center ${borderClass}`}
+                >
+                  <div className="text-3xl font-serif font-bold text-primary">
+                    {stat.num}
+                  </div>
+                  <div className="text-[10px] text-charcoal/50 uppercase tracking-wider font-bold mt-1.5 font-sans">
+                    {stat.label}
+                  </div>
                 </div>
-                <div className="text-[10px] text-charcoal/50 uppercase tracking-wider font-bold mt-1.5 font-sans">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 

@@ -214,7 +214,7 @@ export default function ContactSection({ mediaKit }: { mediaKit?: MediaKitInfo }
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        placeholder="e.g. John Doe"
+                        placeholder="e.g. Harsh Chorghe"
                         className="w-full pl-10 pr-4 py-3 bg-cream/35 border border-primary/10 rounded-xl font-sans text-sm focus:outline-none focus:border-primary focus:bg-white text-charcoal transition-all duration-300"
                         required
                       />

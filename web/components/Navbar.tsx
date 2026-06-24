@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Compass } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -68,34 +69,42 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Drawer */}
-      {isOpen && (
-        <div className="md:hidden absolute top-20 left-0 w-full bg-cream border-b border-primary/10 py-6 px-6 shadow-xl flex flex-col gap-6 animate-fadeIn">
-          <nav className="flex flex-col gap-4 font-sans text-sm tracking-widest uppercase">
-            {links.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`pb-1 border-b border-transparent w-max ${
-                    isActive ? "text-primary font-bold border-accent" : "text-charcoal/70"
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              );
-            })}
-          </nav>
-          <Link
-            href="/trips"
-            onClick={() => setIsOpen(false)}
-            className="w-full text-center py-3 bg-accent text-primary font-sans font-semibold tracking-wider text-xs uppercase rounded-lg shadow-md"
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="md:hidden absolute top-full left-0 w-full bg-cream border-b border-primary/10 py-6 px-6 shadow-xl flex flex-col gap-6"
           >
-            Explore Trips
-          </Link>
-        </div>
-      )}
+            <nav className="flex flex-col gap-4 font-sans text-sm tracking-widest uppercase">
+              {links.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className={`pb-1 border-b border-transparent w-max ${
+                      isActive ? "text-primary font-bold border-accent" : "text-charcoal/70"
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                );
+              })}
+            </nav>
+            <Link
+              href="/trips"
+              onClick={() => setIsOpen(false)}
+              className="w-full text-center py-3 bg-accent text-primary font-sans font-semibold tracking-wider text-xs uppercase rounded-lg shadow-md"
+            >
+              Explore Trips
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

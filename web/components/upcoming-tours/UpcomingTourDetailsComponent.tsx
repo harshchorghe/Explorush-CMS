@@ -126,7 +126,7 @@ export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingT
     <>
       <Navbar />
 
-      <main className="bg-cream text-charcoal min-h-screen font-sans">
+      <main className="bg-cream text-charcoal min-h-screen font-sans pb-20 lg:pb-0">
         {/* HERO HEADER */}
         <section className="relative h-[55vh] md:h-[65vh] w-full overflow-hidden bg-primary">
           {tour.coverImage?.asset?.url && (
@@ -492,7 +492,7 @@ export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingT
                     <input
                       type="text"
                       required
-                      placeholder="e.g. John Doe"
+                      placeholder="e.g. Harsh Chorghe"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="w-full px-4 py-2.5 bg-cream/10 border border-primary/10 rounded-xl text-sm text-charcoal placeholder-charcoal/30 focus:outline-none focus:border-primary transition font-medium"
@@ -570,6 +570,42 @@ export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingT
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* MOBILE STICKY BOTTOM BOOKING BAR */}
+      {!isFilled && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-cream/95 backdrop-blur-md border-t border-primary/10 px-6 py-4 flex items-center justify-between shadow-2xl animate-fade-in">
+          <div className="flex flex-col">
+            <span className="text-[10px] text-charcoal/50 uppercase tracking-widest font-sans font-bold">Total Cost</span>
+            <span className="text-xl font-bold font-serif text-primary">{tour.price || "Contact Us"}</span>
+            <span className="text-[10px] text-emerald-600 font-sans font-bold">{slotsLeft} slots left</span>
+          </div>
+          <button
+            onClick={() => {
+              setShowModal(true);
+              setBookingSuccess(false);
+              setBookingError(null);
+            }}
+            className="px-6 py-3.5 bg-primary hover:bg-secondary text-cream text-xs font-sans font-bold uppercase tracking-wider rounded-xl transition-colors duration-300 shadow-md"
+          >
+            Reserve Spot
+          </button>
+        </div>
+      )}
+      {isFilled && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-cream/95 backdrop-blur-md border-t border-primary/10 px-6 py-4 flex items-center justify-between shadow-2xl">
+          <div className="flex flex-col">
+            <span className="text-[10px] text-charcoal/50 uppercase tracking-widest font-sans font-bold">Total Cost</span>
+            <span className="text-xl font-bold font-serif text-primary/50 line-through">{tour.price || "Contact Us"}</span>
+            <span className="text-[10px] text-rose-500 font-sans font-bold">Fully Booked</span>
+          </div>
+          <button
+            disabled
+            className="px-6 py-3.5 bg-charcoal/10 text-charcoal/40 text-xs font-sans font-bold uppercase tracking-wider rounded-xl cursor-not-allowed"
+          >
+            Filled
+          </button>
         </div>
       )}
 

@@ -34,7 +34,7 @@ export default function AboutComponent({ author }: { author: AuthorItem | null }
             Our Story & Philosophy
           </span>
           
-          <h1 className="text-5xl md:text-7xl font-serif font-bold text-primary leading-tight tracking-tight max-w-4xl mx-auto">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif font-bold text-primary leading-tight tracking-tight max-w-4xl mx-auto">
             Hi, I'm <span className="text-accent italic font-normal">{authorName}.</span>
           </h1>
 

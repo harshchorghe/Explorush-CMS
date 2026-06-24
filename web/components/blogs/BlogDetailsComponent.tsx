@@ -129,7 +129,7 @@ export default function BlogDetailsComponent({ blog }: { blog: BlogDetails }) {
 
         {/* READING CONTAINER */}
         <article className="max-w-3xl mx-auto px-6 pt-8">
-          <div className="bg-white border border-primary/10 rounded-3xl p-8 md:p-12 shadow-xl">
+          <div className="bg-white border border-primary/10 rounded-3xl p-6 md:p-12 shadow-xl">
             <p className="text-charcoal/80 text-base md:text-lg leading-relaxed font-sans whitespace-pre-line select-text selection:bg-accent selection:text-primary">
               {blog.content}
             </p>

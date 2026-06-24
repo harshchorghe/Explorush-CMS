@@ -464,7 +464,7 @@ export default function EditBlogPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. John Doe"
+                  placeholder="e.g. Harsh Chorghe"
                   value={newAuthorName}
                   onChange={(e) => setNewAuthorName(e.target.value)}
                   className="w-full px-3 py-2 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary transition-colors font-medium"
