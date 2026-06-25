@@ -1,10 +1,12 @@
 "use client";
 
+import { useState, useRef, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ArrowLeft, Clock, Calendar, User, Tag } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, User, Tag, Headphones } from "lucide-react";
+import BlogAudioPlayer, { BlogAudioPlayerRef } from "@/components/blogs/BlogAudioPlayer";
 
 type Author = {
   name: string;
@@ -25,6 +27,20 @@ type BlogDetails = {
 };
 
 export default function BlogDetailsComponent({ blog }: { blog: BlogDetails }) {
+  const [activeParagraphIndex, setActiveParagraphIndex] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const audioPlayerRef = useRef<BlogAudioPlayerRef>(null);
+
+  const paragraphs = useMemo(() => {
+    if (!blog?.content) return [];
+    return blog.content
+      .split(/\n+/)
+      .map((p) => p.trim())
+      .filter((p) => p.length > 0);
+  }, [blog?.content]);
+
   if (!blog) {
     return (
       <main className="min-h-screen bg-cream flex flex-col justify-center items-center font-sans space-y-4">
@@ -128,11 +144,54 @@ export default function BlogDetailsComponent({ blog }: { blog: BlogDetails }) {
         )}
 
         {/* READING CONTAINER */}
-        <article className="max-w-3xl mx-auto px-6 pt-8">
+        <article className="max-w-3xl mx-auto px-6 pt-8 space-y-6">
+          {blog.content && (
+            <BlogAudioPlayer
+              ref={audioPlayerRef}
+              title={blog.title}
+              paragraphs={paragraphs}
+              activeParagraphIndex={activeParagraphIndex}
+              onParagraphChange={setActiveParagraphIndex}
+              onPlayStateChange={(playing, paused) => {
+                setIsPlaying(playing);
+                setIsPaused(paused);
+              }}
+            />
+          )}
+
           <div className="bg-white border border-primary/10 rounded-3xl p-6 md:p-12 shadow-xl">
-            <p className="text-charcoal/80 text-base md:text-lg leading-relaxed font-sans whitespace-pre-line select-text selection:bg-accent selection:text-primary">
-              {blog.content}
-            </p>
+            <div className="space-y-6 text-charcoal/80 text-base md:text-lg leading-relaxed font-sans select-text selection:bg-accent selection:text-primary">
+              {paragraphs.map((para, idx) => {
+                const isActive = isPlaying && activeParagraphIndex === idx;
+
+                const handleParagraphClick = () => {
+                  const selection = window.getSelection();
+                  if (selection && selection.toString().trim().length > 0) {
+                    return;
+                  }
+                  if (audioPlayerRef.current) {
+                    audioPlayerRef.current.playParagraph(idx);
+                  }
+                };
+
+                return (
+                  <p
+                    key={idx}
+                    onClick={handleParagraphClick}
+                    className={`group relative p-3 -mx-3 rounded-xl transition-all duration-300 cursor-pointer ${
+                      isActive
+                        ? "bg-accent/10 border-l-4 border-accent text-charcoal pl-4 font-semibold shadow-sm"
+                        : "hover:bg-primary/5 hover:text-primary"
+                    }`}
+                  >
+                    <span className="absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 hidden md:inline-flex items-center justify-center w-5 h-5 rounded-full bg-accent/20 text-primary text-[10px] shadow-sm">
+                      <Headphones className="w-3 h-3 text-primary" />
+                    </span>
+                    {para}
+                  </p>
+                );
+              })}
+            </div>
           </div>
         </article>
       </main>

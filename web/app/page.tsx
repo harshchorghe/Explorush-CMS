@@ -322,6 +322,87 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* ── SOCIAL CONNECT SECTION ── */}
+        <section className="py-12 bg-[#1F4B43] border-y border-primary/5">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Instagram */}
+              <a
+                href="https://www.instagram.com/_explorush_/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative bg-white border border-white/10 hover:border-accent hover:bg-cream rounded-2xl p-6 transition-all duration-300 flex items-center justify-between shadow-sm hover:shadow-md hover:-translate-y-1"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600 flex items-center justify-center text-white shadow-sm shrink-0">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-serif font-bold text-primary text-base">Instagram</h4>
+                    <p className="text-xs text-charcoal/60 font-sans">@explorush • Daily Updates</p>
+                  </div>
+                </div>
+                <span className="text-primary group-hover:text-accent font-sans font-bold text-xs uppercase tracking-wider inline-flex items-center gap-1 transition-colors">
+                  Follow <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </a>
+
+              {/* YouTube */}
+              <a
+                href="https://www.youtube.com/@Harsh_Chorghe"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative bg-white border border-white/10 hover:border-accent hover:bg-cream rounded-2xl p-6 transition-all duration-300 flex items-center justify-between shadow-sm hover:shadow-md hover:-translate-y-1"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-red-600 flex items-center justify-center text-white shadow-sm shrink-0">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" />
+                      <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="currentColor" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-serif font-bold text-primary text-base">YouTube</h4>
+                    <p className="text-xs text-charcoal/60 font-sans">@explorush • Travel Films</p>
+                  </div>
+                </div>
+                <span className="text-primary group-hover:text-accent font-sans font-bold text-xs uppercase tracking-wider inline-flex items-center gap-1 transition-colors">
+                  Subscribe <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </a>
+
+              {/* LinkedIn */}
+              <a
+                href="https://www.linkedin.com/in/harsh-chorghe-4b65b231b/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative bg-white border border-white/10 hover:border-accent hover:bg-cream rounded-2xl p-6 transition-all duration-300 flex items-center justify-between shadow-sm hover:shadow-md hover:-translate-y-1"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-[#0077B5] flex items-center justify-center text-white shadow-sm shrink-0">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                      <rect x="2" y="9" width="4" height="12" />
+                      <circle cx="4" cy="4" r="2" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-serif font-bold text-primary text-base">LinkedIn</h4>
+                    <p className="text-xs text-charcoal/60 font-sans">Harsh Chorghe • Professional</p>
+                  </div>
+                </div>
+                <span className="text-primary group-hover:text-accent font-sans font-bold text-xs uppercase tracking-wider inline-flex items-center gap-1 transition-colors">
+                  Connect <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* ── FEATURED DESTINATIONS CAROUSEL ── */}
         <FeaturedDestinations trips={trips} />
 
