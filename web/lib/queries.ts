@@ -23,7 +23,17 @@ export const blogsQuery = `
   _id,
   title,
   slug,
-  content
+  content,
+  _createdAt,
+  coverImage{
+    asset->{
+      _id,
+      url
+    }
+  },
+  category->{
+    title
+  }
 }
 `;
 

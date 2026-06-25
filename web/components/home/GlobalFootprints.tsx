@@ -42,6 +42,22 @@ const GEODIC: Record<string, { lat: number; lng: number }> = {
   "delhi": { lat: 28.6139, lng: 77.2090 },
   "mumbai": { lat: 19.0760, lng: 72.8777 },
   "bangalore": { lat: 12.9716, lng: 77.5946 },
+  "uttarakhand": { lat: 30.0668, lng: 79.0193 },
+  "maharashtra": { lat: 19.7515, lng: 75.7139 },
+  "himachal": { lat: 31.1048, lng: 77.1734 },
+  "ladakh": { lat: 34.1526, lng: 77.5771 },
+  "kashmir": { lat: 33.7782, lng: 76.5762 },
+  "nepal": { lat: 28.3949, lng: 84.1240 },
+  "sikkim": { lat: 27.5330, lng: 88.5122 },
+  "kerala": { lat: 10.8505, lng: 76.2711 },
+  "rajasthan": { lat: 27.0238, lng: 74.2179 },
+  "ahmednagar": { lat: 19.0948, lng: 74.7480 },
+  "kedarkantha": { lat: 31.0210, lng: 78.1724 },
+  "kunjargad": { lat: 19.5484, lng: 73.7431 },
+  "harishchandragad": { lat: 19.3842, lng: 73.7758 },
+  "lonavala": { lat: 18.7543, lng: 73.4071 },
+  "ratangad": { lat: 19.5258, lng: 73.7122 },
+  "bhandardara": { lat: 19.5376, lng: 73.7656 },
 };
 
 export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
@@ -111,7 +127,7 @@ export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
 
     if (unresolvedTrips.length === 0) return;
 
-    // 3. Resolve coordinates asynchronously using OpenStreetMap's Nominatim geocoder
+    // 3. Resolve coordinates asynchronously using OpenStreetMap's Nominatim geocoder (Progressive Fallback)
     const geocodeUnresolved = async () => {
       const newPins: any[] = [];
 
@@ -123,19 +139,39 @@ export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
             await new Promise((resolve) => setTimeout(resolve, 1100));
           }
 
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-              trip.location!
-            )}&limit=1`,
-            {
-              headers: {
-                "User-Agent": "Explorush-Travel-App",
-              },
-            }
-          );
-          const data = await response.json();
+          let query = trip.location || "";
+          let data = null;
+          let found = false;
 
-          if (data && data.length > 0) {
+          // Progressive lookup: if full query fails, try dropping specific parts from left-to-right (split by commas)
+          const queryParts = query.split(",");
+          for (let attempt = 0; attempt < queryParts.length; attempt++) {
+            const subQuery = queryParts.slice(attempt).join(",").trim();
+            if (!subQuery) continue;
+
+            // Wait a small buffer time for rate limit if we are retrying a sub-query
+            if (attempt > 0) {
+              await new Promise((resolve) => setTimeout(resolve, 300));
+            }
+
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+                subQuery
+              )}&limit=1`,
+              {
+                headers: {
+                  "User-Agent": "Explorush-Travel-App",
+                },
+              }
+            );
+            data = await response.json();
+            if (data && data.length > 0) {
+              found = true;
+              break;
+            }
+          }
+
+          if (found && data && data.length > 0) {
             const lat = parseFloat(data[0].lat);
             const lng = parseFloat(data[0].lon);
             const country = trip.location?.split(",").pop()?.trim() || "Destination";

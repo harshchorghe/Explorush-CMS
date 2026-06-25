@@ -22,6 +22,8 @@ export default function CreateTripPage() {
   const [location, setLocation] = useState("");
   const [type, setType] = useState("trek");
   const [budget, setBudget] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -143,6 +145,8 @@ export default function CreateTripPage() {
         location,
         type,
         budget,
+        latitude: latitude ? parseFloat(latitude) : undefined,
+        longitude: longitude ? parseFloat(longitude) : undefined,
         description,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
@@ -267,6 +271,34 @@ export default function CreateTripPage() {
                   placeholder="e.g. ₹15,000 or $500"
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}
+                  className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder-charcoal/40 font-medium"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Latitude */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-charcoal/80">Latitude (Optional)</label>
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="e.g. 19.5484"
+                  value={latitude}
+                  onChange={(e) => setLatitude(e.target.value)}
+                  className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder-charcoal/40 font-medium"
+                />
+              </div>
+
+              {/* Longitude */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-charcoal/80">Longitude (Optional)</label>
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="e.g. 73.7431"
+                  value={longitude}
+                  onChange={(e) => setLongitude(e.target.value)}
                   className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder-charcoal/40 font-medium"
                 />
               </div>

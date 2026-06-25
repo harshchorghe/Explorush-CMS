@@ -29,6 +29,13 @@ export async function POST(req: Request) {
       budget: body.budget || "",
     };
 
+    if (body.latitude !== undefined && body.latitude !== null && body.latitude !== "") {
+      doc.latitude = parseFloat(body.latitude);
+    }
+    if (body.longitude !== undefined && body.longitude !== null && body.longitude !== "") {
+      doc.longitude = parseFloat(body.longitude);
+    }
+
     if (body.startDate) {
       doc.startDate = new Date(body.startDate).toISOString();
     }

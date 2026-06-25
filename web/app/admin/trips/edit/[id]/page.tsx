@@ -28,6 +28,8 @@ export default function EditTripPage() {
   const [location, setLocation] = useState("");
   const [type, setType] = useState("trek");
   const [budget, setBudget] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -55,6 +57,8 @@ export default function EditTripPage() {
             location,
             type,
             budget,
+            latitude,
+            longitude,
             description,
             startDate,
             endDate,
@@ -84,6 +88,8 @@ export default function EditTripPage() {
           setLocation(data.location || "");
           setType(data.type || "trek");
           setBudget(data.budget || "");
+          setLatitude(data.latitude !== undefined && data.latitude !== null ? String(data.latitude) : "");
+          setLongitude(data.longitude !== undefined && data.longitude !== null ? String(data.longitude) : "");
           setDescription(data.description || "");
           
           // Format Iso Date to local datetime format: YYYY-MM-DDThh:mm
@@ -237,6 +243,8 @@ export default function EditTripPage() {
         location,
         type,
         budget,
+        latitude: latitude ? parseFloat(latitude) : null,
+        longitude: longitude ? parseFloat(longitude) : null,
         description,
         startDate: startDate ? new Date(startDate).toISOString() : null,
         endDate: endDate ? new Date(endDate).toISOString() : null,
@@ -370,6 +378,34 @@ export default function EditTripPage() {
                   placeholder="e.g. ₹15,000 or $500"
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}
+                  className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder-charcoal/40 font-medium"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Latitude */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-charcoal/80">Latitude (Optional)</label>
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="e.g. 19.5484"
+                  value={latitude}
+                  onChange={(e) => setLatitude(e.target.value)}
+                  className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder-charcoal/40 font-medium"
+                />
+              </div>
+
+              {/* Longitude */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-charcoal/80">Longitude (Optional)</label>
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="e.g. 73.7431"
+                  value={longitude}
+                  onChange={(e) => setLongitude(e.target.value)}
                   className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder-charcoal/40 font-medium"
                 />
               </div>

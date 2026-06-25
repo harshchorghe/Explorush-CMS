@@ -28,6 +28,13 @@ export async function PUT(req: Request) {
       budget: body.budget || "",
     };
 
+    if (body.latitude !== undefined && body.latitude !== null && body.latitude !== "") {
+      updateFields.latitude = parseFloat(body.latitude);
+    }
+    if (body.longitude !== undefined && body.longitude !== null && body.longitude !== "") {
+      updateFields.longitude = parseFloat(body.longitude);
+    }
+
     if (body.startDate) {
       updateFields.startDate = new Date(body.startDate).toISOString();
     }
