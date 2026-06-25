@@ -21,7 +21,7 @@ type AuthorItem = {
 export default function AboutComponent({ author }: { author: AuthorItem | null }) {
   // If author bio is fetched from Sanity, use it or fall back to the curated text
   const authorName = author?.name || "Harsh Chorghe";
-  const authorImage = author?.image?.asset?.url || "https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800&q=80";
+  const authorImage = "/about_me.jpg";
 
   return (
     <>

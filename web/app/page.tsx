@@ -272,10 +272,7 @@ export default async function HomePage() {
           {/* Left image */}
           <div className="lg:col-span-5 relative aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50">
             <Image
-              src={
-                author?.image?.asset?.url ||
-                "https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800&q=80"
-              }
+              src="/about_me.jpg"
               alt={author?.name || "Harsh Chorghe"}
               fill
               sizes="(max-width: 1024px) 100vw, 40vw"
