@@ -17,6 +17,7 @@ export default async function TripDetailsPage({
       title,
       location,
       type,
+      budget,
       description,
       startDate,
       endDate,

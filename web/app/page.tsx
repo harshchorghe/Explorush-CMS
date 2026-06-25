@@ -26,6 +26,7 @@ type TripPreviewItem = {
   slug?: { current?: string };
   location?: string;
   type?: string;
+  budget?: string;
   description?: string;
   coverImage?: SanityImage;
   gallery?: { url: string }[];
@@ -101,7 +102,7 @@ async function getHomepageData() {
   return await client.fetch<HomePageData>(
     `{
       "trips": *[_type == "trip"] | order(startDate desc)[0...8]{
-        _id, title, slug, location, type, description,
+        _id, title, slug, location, type, budget, description,
         coverImage{ asset->{ url } },
         gallery[]{ "url": asset->url },
         startDate,

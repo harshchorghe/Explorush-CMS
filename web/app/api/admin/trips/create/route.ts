@@ -26,6 +26,7 @@ export async function POST(req: Request) {
       location: body.location || "",
       description: body.description || "",
       type: body.type || "trek",
+      budget: body.budget || "",
     };
 
     if (body.startDate) {

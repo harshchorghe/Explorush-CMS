@@ -52,6 +52,13 @@ export default {
     },
 
     {
+      name: "budget",
+      title: "Trip Budget/Cost",
+      type: "string",
+      description: "e.g. ₹15,000 or $500",
+    },
+
+    {
       name: "description",
       title: "Description",
       type: "text",

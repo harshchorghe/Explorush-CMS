@@ -5,6 +5,7 @@ export const tripsQuery = `
   slug,
   location,
   type,
+  budget,
   description,
   coverImage{
     asset->{

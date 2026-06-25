@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Plus, Trash2, Edit, MapPin, Calendar, Compass, RefreshCw } from "lucide-react";
+import { Search, Plus, Trash2, Edit, MapPin, Calendar, Compass, RefreshCw, Wallet } from "lucide-react";
 
 type Trip = {
   _id: string;
   title: string;
   location: string;
   type: string;
+  budget?: string;
   startDate?: string;
   endDate?: string;
   coverImage?: {
@@ -199,6 +200,13 @@ export default function AdminTripsPage() {
                       <MapPin className="w-4 h-4 text-primary/50" />
                       <span className="font-medium">{trip.location}</span>
                     </div>
+
+                    {trip.budget && (
+                      <div className="flex items-center gap-2">
+                        <Wallet className="w-4 h-4 text-primary/50" />
+                        <span className="font-medium">{trip.budget}</span>
+                      </div>
+                    )}
 
                     {(trip.startDate || trip.endDate) && (
                       <div className="flex items-center gap-2">

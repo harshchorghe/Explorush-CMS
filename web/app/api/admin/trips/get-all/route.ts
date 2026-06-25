@@ -12,6 +12,7 @@ export async function GET() {
         title,
         location,
         type,
+        budget,
         slug,
         startDate,
         endDate,

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Compass, Upload, Trash2, Plus, Calendar, MapPin, Check, AlertCircle } from "lucide-react";
+import { ArrowLeft, Compass, Upload, Trash2, Plus, Calendar, MapPin, Check, AlertCircle, Wallet } from "lucide-react";
 import Image from "next/image";
 
 type ItineraryItem = {
@@ -21,6 +21,7 @@ export default function CreateTripPage() {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [type, setType] = useState("trek");
+  const [budget, setBudget] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -141,6 +142,7 @@ export default function CreateTripPage() {
         title,
         location,
         type,
+        budget,
         description,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
@@ -225,7 +227,7 @@ export default function CreateTripPage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Location */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-charcoal/80 flex items-center gap-1.5">
@@ -253,6 +255,20 @@ export default function CreateTripPage() {
                   <option value="road">Road Trip</option>
                   <option value="international">International</option>
                 </select>
+              </div>
+
+              {/* Budget */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-charcoal/80 flex items-center gap-1.5">
+                  <Wallet className="w-4 h-4 text-primary/50" /> Budget / Cost
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. ₹15,000 or $500"
+                  value={budget}
+                  onChange={(e) => setBudget(e.target.value)}
+                  className="w-full px-4 py-3 bg-cream/10 border border-primary/10 rounded-xl text-charcoal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder-charcoal/40 font-medium"
+                />
               </div>
             </div>
 

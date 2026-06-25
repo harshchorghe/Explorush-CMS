@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ArrowLeft, MapPin, Calendar, Clock, Tag } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Clock, Tag, Share2, Check, Wallet } from "lucide-react";
 
 type ItineraryItem = {
   day: string;
@@ -19,6 +20,7 @@ type TripDetails = {
   title: string;
   location?: string;
   type?: string;
+  budget?: string;
   description?: string;
   startDate?: string;
   endDate?: string;
@@ -28,6 +30,32 @@ type TripDetails = {
 };
 
 export default function TripDetailsComponent({ trip }: { trip: TripDetails }) {
+  const [shareCopied, setShareCopied] = useState(false);
+
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+    const shareData = {
+      title: trip.title,
+      text: trip.description || `Check out this journey: ${trip.title}`,
+      url: shareUrl,
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log("Share failed/cancelled:", err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2000);
+      } catch (err) {
+        console.error("Failed to copy link:", err);
+      }
+    }
+  };
   if (!trip) {
     return (
       <main className="min-h-screen bg-cream flex flex-col justify-center items-center font-sans space-y-4">
@@ -74,12 +102,31 @@ export default function TripDetailsComponent({ trip }: { trip: TripDetails }) {
 
           {/* Details Overlay */}
           <div className="absolute bottom-16 left-6 right-6 md:left-16 md:right-16 max-w-7xl mx-auto z-10 text-cream space-y-4">
-            {trip.type && (
-              <span className="inline-flex items-center gap-1 bg-accent text-primary text-[10px] md:text-xs font-semibold px-3.5 py-1.5 rounded-full uppercase tracking-wider w-max shadow-md">
-                <Tag className="w-3.5 h-3.5" />
-                {trip.type}
-              </span>
-            )}
+            <div className="flex flex-wrap items-center gap-3">
+              {trip.type && (
+                <span className="inline-flex items-center gap-1 bg-accent text-primary text-[10px] md:text-xs font-semibold px-3.5 py-1.5 rounded-full uppercase tracking-wider w-max shadow-md">
+                  <Tag className="w-3.5 h-3.5" />
+                  {trip.type}
+                </span>
+              )}
+
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-cream/15 hover:bg-cream/25 text-cream border border-cream/20 backdrop-blur-md rounded-full text-[10px] md:text-xs font-sans font-bold uppercase tracking-wider transition-all duration-300 shadow-md"
+              >
+                {shareCopied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-accent" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-3.5 h-3.5" />
+                    Share
+                  </>
+                )}
+              </button>
+            </div>
             <h1 className="text-4xl md:text-6xl font-serif font-bold tracking-tight text-white max-w-4xl drop-shadow-md">
               {trip.title}
             </h1>
@@ -89,6 +136,12 @@ export default function TripDetailsComponent({ trip }: { trip: TripDetails }) {
                 <span className="flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 text-accent fill-accent/10" />
                   {trip.location}
+                </span>
+              )}
+              {trip.budget && (
+                <span className="flex items-center gap-1.5 bg-accent/20 text-accent font-semibold px-2.5 py-0.5 rounded-full text-xs">
+                  <Wallet className="w-3.5 h-3.5" />
+                  Cost: {trip.budget}
                 </span>
               )}
               {trip.startDate && (
@@ -117,6 +170,58 @@ export default function TripDetailsComponent({ trip }: { trip: TripDetails }) {
 
         {/* CONTENT */}
         <section className="max-w-4xl mx-auto px-6 py-20 space-y-16">
+          {/* TRIP KEY STATS */}
+          {(trip.budget || trip.location || trip.type) && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {trip.budget && (
+                <div className="bg-white border border-primary/10 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-4 group">
+                  <div className="p-3 bg-secondary/15 rounded-xl text-secondary group-hover:scale-110 transition-transform duration-300">
+                    <Wallet className="w-6 h-6 text-accent" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] uppercase tracking-widest text-secondary font-bold font-sans block">
+                      Trip Cost / Budget
+                    </span>
+                    <span className="text-xl font-serif font-bold text-primary">
+                      {trip.budget}
+                    </span>
+                  </div>
+                </div>
+              )}
+              
+              {trip.location && (
+                <div className="bg-white border border-primary/10 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-4 group">
+                  <div className="p-3 bg-primary/10 rounded-xl text-primary group-hover:scale-110 transition-transform duration-300">
+                    <MapPin className="w-6 h-6 text-accent" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] uppercase tracking-widest text-secondary font-bold font-sans block">
+                      Destination
+                    </span>
+                    <span className="text-lg font-serif font-bold text-primary line-clamp-1">
+                      {trip.location}
+                    </span>
+                  </div>
+                </div>
+              )}
+              
+              {trip.type && (
+                <div className="bg-white border border-primary/10 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-4 group">
+                  <div className="p-3 bg-accent/20 rounded-xl text-accent group-hover:scale-110 transition-transform duration-300">
+                    <Tag className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] uppercase tracking-widest text-secondary font-bold font-sans block">
+                      Trip Category
+                    </span>
+                    <span className="text-lg font-serif font-bold text-primary capitalize">
+                      {trip.type}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           {/* DESCRIPTION CARD */}
           <div className="bg-white border border-primary/10 rounded-3xl p-8 md:p-12 shadow-xl space-y-4">
             <span className="text-xs uppercase tracking-widest text-secondary font-bold font-sans">

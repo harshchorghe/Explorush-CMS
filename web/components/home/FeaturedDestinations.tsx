@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, MapPin, Tag } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, Tag, Wallet, Share2, Check } from "lucide-react";
 
 type Trip = {
   _id: string;
@@ -11,12 +11,39 @@ type Trip = {
   slug?: { current?: string };
   location?: string;
   type?: string;
+  budget?: string;
   description?: string;
   coverImage?: { asset?: { url?: string } };
 };
 
 export default function FeaturedDestinations({ trips }: { trips: Trip[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [copiedTripId, setCopiedTripId] = useState<string | null>(null);
+
+  const handleShareCard = async (trip: Trip) => {
+    const shareUrl = `${window.location.origin}/trips/${trip.slug?.current || ""}`;
+    const shareData = {
+      title: trip.title,
+      text: trip.description || `Check out this journey: ${trip.title}`,
+      url: shareUrl,
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log("Share failed/cancelled:", err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopiedTripId(trip._id);
+        setTimeout(() => setCopiedTripId(null), 2000);
+      } catch (err) {
+        console.error("Failed to copy link:", err);
+      }
+    }
+  };
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -87,22 +114,52 @@ export default function FeaturedDestinations({ trips }: { trips: Trip[] }) {
                     <MapPin className="w-12 h-12 text-secondary/30" />
                   </div>
                 )}
-                {/* Overlay Badge */}
-                {trip.type && (
-                  <div className="absolute top-4 left-4 bg-primary/95 text-accent text-xs font-semibold px-3.5 py-1.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-md">
-                    <Tag className="w-3 h-3" />
-                    {trip.type}
-                  </div>
-                )}
+                {/* Overlay Badge & Share */}
+                <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
+                  {trip.type ? (
+                    <div className="bg-primary/95 text-accent text-xs font-semibold px-3.5 py-1.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-md">
+                      <Tag className="w-3 h-3" />
+                      {trip.type}
+                    </div>
+                  ) : (
+                    <div />
+                  )}
+                  
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleShareCard(trip);
+                    }}
+                    className="p-2 bg-white/90 hover:bg-white text-primary hover:text-accent rounded-full shadow-md transition-all duration-300 flex items-center justify-center"
+                    title="Share trip"
+                  >
+                    {copiedTripId === trip._id ? (
+                      <Check className="w-3.5 h-3.5 text-accent" />
+                    ) : (
+                      <Share2 className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {/* Body */}
               <div className="p-6 flex-grow flex flex-col justify-between">
                 <div>
-                  {trip.location && (
-                    <div className="flex items-center gap-1 text-secondary text-xs font-semibold uppercase tracking-widest mb-2 font-sans">
-                      <MapPin className="w-3.5 h-3.5 text-accent" />
-                      {trip.location}
+                  {(trip.location || trip.budget) && (
+                    <div className="flex flex-wrap items-center gap-3 text-secondary text-xs font-semibold uppercase tracking-widest mb-2 font-sans">
+                      {trip.location && (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-accent" />
+                          {trip.location}
+                        </div>
+                      )}
+                      {trip.budget && (
+                        <div className="flex items-center gap-1 bg-secondary/10 px-2.5 py-0.5 rounded-full text-[10px] text-primary">
+                          <Wallet className="w-3.5 h-3.5 text-accent" />
+                          {trip.budget}
+                        </div>
+                      )}
                     </div>
                   )}
                   <h3 className="text-2xl font-serif font-bold text-primary mb-3 line-clamp-1 group-hover:text-accent transition-colors duration-300">

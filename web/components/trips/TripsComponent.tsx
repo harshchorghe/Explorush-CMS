@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { MapPin, Tag, Compass } from "lucide-react";
+import { MapPin, Tag, Compass, Wallet, Share2, Check } from "lucide-react";
 
 type Trip = {
   _id: string;
@@ -13,12 +13,39 @@ type Trip = {
   slug?: { current?: string };
   location?: string;
   type?: string;
+  budget?: string;
   description?: string;
   coverImage?: { asset?: { url?: string } };
 };
 
 export default function TripsComponent({ trips }: { trips: Trip[] }) {
   const [selectedType, setSelectedType] = useState<string>("all");
+  const [copiedTripId, setCopiedTripId] = useState<string | null>(null);
+
+  const handleShareCard = async (trip: Trip) => {
+    const shareUrl = `${window.location.origin}/trips/${trip.slug?.current || ""}`;
+    const shareData = {
+      title: trip.title,
+      text: trip.description || `Check out this journey: ${trip.title}`,
+      url: shareUrl,
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log("Share failed/cancelled:", err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopiedTripId(trip._id);
+        setTimeout(() => setCopiedTripId(null), 2000);
+      } catch (err) {
+        console.error("Failed to copy link:", err);
+      }
+    }
+  };
 
   const tripTypes = ["all", "trek", "city", "road", "international"];
 
@@ -97,20 +124,50 @@ export default function TripsComponent({ trips }: { trips: Trip[] }) {
                         </div>
                       )}
                       
-                      {trip.type && (
-                        <span className="absolute top-4 left-4 bg-primary/95 text-accent text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">
-                          <Tag className="w-2.5 h-2.5" />
-                          {trip.type}
-                        </span>
-                      )}
+                      <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
+                        {trip.type ? (
+                          <span className="bg-primary/95 text-accent text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                            <Tag className="w-2.5 h-2.5" />
+                            {trip.type}
+                          </span>
+                        ) : (
+                          <div />
+                        )}
+                        
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleShareCard(trip);
+                          }}
+                          className="p-2 bg-white/90 hover:bg-white text-primary hover:text-accent rounded-full shadow-md transition-all duration-300 flex items-center justify-center"
+                          title="Share trip"
+                        >
+                          {copiedTripId === trip._id ? (
+                            <Check className="w-3.5 h-3.5 text-accent" />
+                          ) : (
+                            <Share2 className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </div>
                     </div>
 
                     {/* Content */}
                     <div className="p-6 space-y-3">
-                      {trip.location && (
-                        <div className="flex items-center gap-1 text-secondary text-[10px] font-bold uppercase tracking-widest font-sans">
-                          <MapPin className="w-3 h-3 text-accent" />
-                          {trip.location}
+                      {(trip.location || trip.budget) && (
+                        <div className="flex flex-wrap items-center gap-3 text-secondary text-[10px] font-bold uppercase tracking-widest font-sans">
+                          {trip.location && (
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3 text-accent" />
+                              {trip.location}
+                            </div>
+                          )}
+                          {trip.budget && (
+                            <div className="flex items-center gap-1 bg-secondary/10 px-2.5 py-0.5 rounded-full text-primary">
+                              <Wallet className="w-3.5 h-3.5 text-accent" />
+                              {trip.budget}
+                            </div>
+                          )}
                         </div>
                       )}
                       <h3 className="text-xl font-serif font-bold text-primary line-clamp-1 group-hover:text-accent transition-colors duration-200">
@@ -124,11 +181,12 @@ export default function TripsComponent({ trips }: { trips: Trip[] }) {
                     </div>
                   </div>
 
+                  {/* Footer Link & Share */}
                   {/* Footer Link */}
                   <div className="p-6 pt-0 border-t border-primary/5 mt-4">
                     <Link
                       href={trip.slug?.current ? `/trips/${trip.slug.current}` : "/trips"}
-                      className="inline-flex items-center gap-2 text-primary font-serif font-bold text-sm hover:text-accent transition-colors duration-200 mt-4 group"
+                      className="inline-flex items-center gap-2 text-primary font-serif font-bold text-sm hover:text-accent transition-colors duration-200 group"
                     >
                       Open Travel Journal <span className="transform group-hover:translate-x-1 transition-transform duration-300">→</span>
                     </Link>
