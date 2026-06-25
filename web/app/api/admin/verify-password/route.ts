@@ -11,12 +11,6 @@ export async function POST(request: Request) {
         message: "Authenticated successfully",
       });
 
-      // Set secure cookie in response header
-      response.headers.append(
-        "Set-Cookie",
-        "admin_session=explorush-admin-session-active; Path=/; HttpOnly; Max-Age=604800; SameSite=Lax; Secure"
-      );
-
       return response;
     }
 

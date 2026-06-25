@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Lock, AlertCircle, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function PasswordPrompt() {
+export default function PasswordPrompt({ onAuthenticated }: { onAuthenticated?: () => void }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,8 +27,11 @@ export default function PasswordPrompt() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        // Successful login, refresh page to load server-rendered layout
-        window.location.reload();
+        if (onAuthenticated) {
+          onAuthenticated();
+        } else {
+          window.location.reload();
+        }
       } else {
         setError(data.error || "Authentication failed");
         setShakeTrigger(true);
