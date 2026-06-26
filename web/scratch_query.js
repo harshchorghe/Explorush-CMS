@@ -9,14 +9,29 @@ const client = createClient({
 
 async function run() {
   try {
-    const data = await client.fetch(`*[_type == "trip"]{
-      _id,
-      title,
-      location,
-      latitude,
-      longitude
+    const docCount = await client.fetch(`count(*)`);
+    console.log("Total Document Count:", docCount);
+
+    const assetData = await client.fetch(`*[_type in ["sanity.imageAsset", "sanity.fileAsset"]]{
+      _type,
+      size
     }`);
-    console.log("ALL TRIP DOCUMENTS IN SANITY:", JSON.stringify(data, null, 2));
+    console.log(`Found ${assetData.length} assets`);
+    
+    let totalSize = 0;
+    assetData.forEach(asset => {
+      if (asset.size) totalSize += asset.size;
+    });
+    console.log(`Total asset storage size: ${totalSize} bytes (${(totalSize / (1024 * 1024)).toFixed(2)} MB)`);
+    
+    // Let's count specific doc types
+    const types = await client.fetch(`*[]{_type}`);
+    const counts = {};
+    types.forEach(d => {
+      counts[d._type] = (counts[d._type] || 0) + 1;
+    });
+    console.log("Document counts by type:", counts);
+
   } catch (error) {
     console.error("Sanity query failed:", error);
   }

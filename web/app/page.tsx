@@ -12,6 +12,7 @@ import GallerySection from "@/components/home/GallerySection";
 import ContactSection from "@/components/home/ContactSection";
 import HeroSection from "@/components/home/HeroSection";
 import { Compass, BookOpen, Clock, Calendar, Check, ArrowRight } from "lucide-react";
+import WebsiteTour, { WebsiteTourSettings } from "@/components/home/WebsiteTour";
 
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
@@ -98,6 +99,7 @@ type HomePageData = {
     title: string;
     fileUrl: string;
   } | null;
+  websiteTour: WebsiteTourSettings | null;
 };
 
 async function getHomepageData() {
@@ -142,6 +144,17 @@ async function getHomepageData() {
       "mediaKit": *[_type == "mediaKit" && _id == "media-kit-singleton"][0] {
         title,
         "fileUrl": file.asset->url
+      },
+      "websiteTour": *[_type == "websiteTourSettings"][0] {
+        title,
+        videoUrl,
+        thumbnail{ asset->{ url } },
+        description,
+        buttonText,
+        enableTour,
+        showOnlyOnMobile,
+        autoShowOnFirstVisit,
+        showOnlyOnce
       }
     }`,
     {},
@@ -164,7 +177,8 @@ export default async function HomePage() {
     totalBlogsCount,
     totalVlogsCount,
     totalUpcomingToursCount,
-    mediaKit
+    mediaKit,
+    websiteTour
   } = await getHomepageData();
   console.log("HOMEPAGE HERO DATA FETCHED:", JSON.stringify(hero, null, 2));
 
@@ -259,7 +273,7 @@ export default async function HomePage() {
         </section>
 
         {/* ── TICKER TAPE MARQUEE ── */}
-        <div className="bg-secondary/15 border-y border-primary/5 overflow-hidden py-4 mt-16 select-none">
+        <div className="bg-secondary/15 border-y border-primary/5 overflow-hidden py-4 mt-0 select-none">
           <div className="flex gap-16 whitespace-nowrap animate-marquee w-max">
             {ticker.map((item, idx) => (
               <div key={idx} className="flex items-center gap-2 text-xs font-sans font-bold tracking-widest text-primary/70">
@@ -269,6 +283,9 @@ export default async function HomePage() {
             ))}
           </div>
         </div>
+
+        {/* ── WEBSITE TOUR SECTION ── */}
+        <WebsiteTour settings={websiteTour} />
 
         {/* ── ABOUT CREATOR SECTION ── */}
         <section className="py-24 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">

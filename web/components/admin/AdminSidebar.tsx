@@ -14,6 +14,7 @@ import {
   FileText,
   Menu,
   X,
+  Activity,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -52,6 +53,11 @@ const links = [
     title: "Media Kit",
     href: "/admin/media-kit",
     icon: FileText,
+  },
+  {
+    title: "Health & Usage",
+    href: "/admin/health-usage",
+    icon: Activity,
   },
 ];
 

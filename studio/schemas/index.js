@@ -8,6 +8,7 @@ import upcomingTour from './upcomingTour'
 import booking from './booking'
 import collaboration from './collaboration'
 import mediaKit from './mediaKit'
+import websiteTourSettings from './websiteTourSettings'
 
 export const schemaTypes = [
   trip,
@@ -19,5 +20,6 @@ export const schemaTypes = [
   upcomingTour,
   booking,
   collaboration,
-  mediaKit
+  mediaKit,
+  websiteTourSettings
 ]

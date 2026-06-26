@@ -1,6 +1,7 @@
 import { client } from "@/lib/sanity";
 import Link from "next/link";
-import { Compass, BookOpen, Tv, Plus, Calendar, Briefcase } from "lucide-react";
+import { Compass, BookOpen, Tv, Plus, Calendar, Briefcase, Activity } from "lucide-react";
+import { getProjectHealthAndUsage } from "@/lib/healthService";
 
 // Never cache this page — always fetch fresh data from Sanity
 export const revalidate = 0;
@@ -40,6 +41,10 @@ async function getDashboardData() {
 
 export default async function AdminDashboard() {
   const { tripsCount, upcomingToursCount, blogsCount, vlogsCount, collaborationsCount, recentItems } = await getDashboardData();
+  const healthData = await getProjectHealthAndUsage().catch((e) => {
+    console.error("Failed to load health summary on dashboard:", e);
+    return null;
+  });
 
   const cards = [
     {
@@ -161,9 +166,68 @@ export default async function AdminDashboard() {
 
       {/* Main Content Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Items */}
-        <div className="lg:col-span-2 bg-white border border-primary/10 shadow-sm rounded-2xl p-6">
-          <h2 className="text-lg font-bold text-primary font-serif mb-4">Recent Entries</h2>
+        {/* Recent Items Column */}
+        <div className="lg:col-span-2 space-y-6">
+          {healthData && (
+            <div
+              className={`border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 hover:shadow-sm ${
+                healthData.overallStatus === "error"
+                  ? "bg-rose-500/5 border-rose-500/25 text-rose-900"
+                  : healthData.overallStatus === "warning"
+                  ? "bg-amber-500/5 border-amber-500/25 text-amber-900"
+                  : "bg-emerald-500/5 border-emerald-500/25 text-emerald-900"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-xl bg-white shadow-xs shrink-0 flex items-center justify-center ${
+                  healthData.overallStatus === "error"
+                    ? "text-rose-600"
+                    : healthData.overallStatus === "warning"
+                    ? "text-amber-600"
+                    : "text-emerald-600"
+                }`}>
+                  <Activity className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold uppercase tracking-wider">Project Health</span>
+                    <span className={`w-2 h-2 rounded-full ${
+                      healthData.overallStatus === "error"
+                        ? "bg-rose-500 animate-ping"
+                        : healthData.overallStatus === "warning"
+                        ? "bg-amber-500"
+                        : "bg-emerald-500"
+                    }`} />
+                  </div>
+                  <p className="text-sm font-extrabold tracking-tight mt-0.5">
+                    {healthData.overallStatus === "error"
+                      ? "Critical: Limit exceeded or CMS offline"
+                      : healthData.overallStatus === "warning"
+                      ? "Warning: Approaching resource quotas"
+                      : "All systems healthy and active"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-semibold text-charcoal/70">
+                <div className="hidden md:block">
+                  Docs: <span className="font-mono font-bold text-primary">{healthData.usage.documentCount.formattedUsed}</span>
+                  <span className="text-charcoal/30 mx-2">|</span>
+                  Assets: <span className="font-mono font-bold text-primary">{healthData.usage.assetStorage.formattedUsed}</span>
+                </div>
+                <Link
+                  href="/admin/health-usage"
+                  className="px-3.5 py-1.5 bg-white border border-primary/10 hover:border-primary/20 text-primary hover:text-secondary rounded-xl font-bold shadow-xs transition text-xs shrink-0"
+                >
+                  View Health Details →
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Recent Entries */}
+          <div className="bg-white border border-primary/10 shadow-sm rounded-2xl p-6">
+            <h2 className="text-lg font-bold text-primary font-serif mb-4">Recent Entries</h2>
           {recentItems.length === 0 ? (
             <p className="text-charcoal/50 text-sm py-4">No content has been created yet.</p>
           ) : (
@@ -206,6 +270,7 @@ export default async function AdminDashboard() {
               })}
             </div>
           )}
+          </div>
         </div>
 
         {/* Quick Actions & System Info */}

@@ -51,3 +51,23 @@ export const vlogsQuery = `
   }
 }
 `;
+
+export const websiteTourQuery = `
+*[_type == "websiteTourSettings"][0]{
+  _id,
+  title,
+  videoUrl,
+  thumbnail{
+    asset->{
+      _id,
+      url
+    }
+  },
+  description,
+  buttonText,
+  enableTour,
+  showOnlyOnMobile,
+  autoShowOnFirstVisit,
+  showOnlyOnce
+}
+`;

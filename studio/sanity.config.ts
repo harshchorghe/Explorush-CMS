@@ -11,7 +11,27 @@ export default defineConfig({
   projectId: "rmcbvfwf",
   dataset: "production",
 
-  plugins: [structureTool()],
+  plugins: [
+    structureTool({
+      structure: (S) =>
+        S.list()
+          .title("Content")
+          .items([
+            S.listItem()
+              .title("Website Tour Settings")
+              .id("websiteTourSettings")
+              .child(
+                S.document()
+                  .schemaType("websiteTourSettings")
+                  .documentId("websiteTourSettings")
+              ),
+            S.divider(),
+            ...S.documentTypeListItems().filter(
+              (item) => item.getId() !== "websiteTourSettings"
+            ),
+          ]),
+    }),
+  ],
 
   schema: {
     types: schemaTypes as SchemaTypeDefinition[],
