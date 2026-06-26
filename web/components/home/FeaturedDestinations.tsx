@@ -57,10 +57,10 @@ export default function FeaturedDestinations({ trips }: { trips: Trip[] }) {
   };
 
   return (
-    <section className="py-20 bg-cream">
+    <section className="py-12 bg-cream">
       <div className="max-w-7xl rounded-2xl mx-auto px-6">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
             <span className="text-xs uppercase tracking-widest text-secondary font-semibold font-sans">
               Destinations
@@ -91,7 +91,7 @@ export default function FeaturedDestinations({ trips }: { trips: Trip[] }) {
         {/* Horizontal Scroll container */}
         <div
           ref={scrollRef}
-          className="flex gap-8 overflow-x-auto scrollbar-none pb-6 snap-x snap-mandatory"
+          className="flex gap-8 overflow-x-auto scrollbar-none pb-4 snap-x snap-mandatory"
           style={{ scrollbarWidth: "none" }}
         >
           {trips.map((trip) => (
@@ -100,7 +100,7 @@ export default function FeaturedDestinations({ trips }: { trips: Trip[] }) {
               className="min-w-[300px] md:min-w-[380px] max-w-[380px] bg-white rounded-2xl overflow-hidden border border-primary/5 shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex-shrink-0 snap-start flex flex-col group"
             >
               {/* Image Container */}
-              <div className="relative h-64 overflow-hidden">
+              <div className="relative h-52 overflow-hidden">
                 {trip.coverImage?.asset?.url ? (
                   <Image
                     src={trip.coverImage.asset.url}

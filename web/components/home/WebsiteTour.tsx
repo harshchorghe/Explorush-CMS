@@ -56,24 +56,24 @@ export default function WebsiteTour({ settings }: WebsiteTourProps) {
   const embedUrl = getGoogleDriveEmbedUrl(settings.videoUrl);
 
   return (
-    <section className="bg-primary border-y border-white/5 py-12 text-cream relative overflow-hidden">
+    <section className="bg-cream border-y border-primary/5 py-12 text-charcoal relative overflow-hidden">
       {/* Background Decorative Rings */}
-      <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-white/[0.02] rounded-full blur-2xl pointer-events-none"></div>
-      <div className="absolute -right-20 -top-20 w-80 h-80 bg-accent/[0.04] rounded-full blur-2xl pointer-events-none"></div>
+      <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-primary/[0.03] rounded-full blur-2xl pointer-events-none"></div>
+      <div className="absolute -right-20 -top-20 w-80 h-80 bg-secondary/[0.04] rounded-full blur-2xl pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Left Side: Title and Description */}
           <div className="lg:col-span-5 space-y-6">
-            <span className="text-xs uppercase tracking-widest text-accent font-bold font-sans">
+            <span className="text-xs uppercase tracking-widest text-secondary font-bold font-sans">
               Interactive Guide
             </span>
-            <h2 className="text-4xl md:text-5xl font-serif font-extrabold tracking-tight leading-tight">
+            <h2 className="text-4xl md:text-5xl font-serif font-extrabold tracking-tight leading-tight text-primary">
               {settings.title}
             </h2>
             {settings.description && (
-              <p className="text-cream/85 text-base leading-relaxed font-medium font-sans">
+              <p className="text-charcoal/80 text-base leading-relaxed font-medium font-sans">
                 {settings.description}
               </p>
             )}
@@ -81,7 +81,7 @@ export default function WebsiteTour({ settings }: WebsiteTourProps) {
 
           {/* Right Side: Embedded Video Player (plays in-place) */}
           <div className="lg:col-span-7 w-full">
-            <div className="relative aspect-video w-full rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black">
+            <div className="relative aspect-video w-full rounded-3xl overflow-hidden shadow-2xl border border-primary/10 bg-black">
               <iframe
                 src={embedUrl}
                 title={settings.title}

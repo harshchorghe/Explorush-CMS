@@ -52,10 +52,10 @@ export default function VlogsSection({ vlogs }: { vlogs: Vlog[] }) {
   const activeIndex = vlogs.findIndex(v => v._id === activeVlog?._id);
 
   return (
-    <section className="py-20 bg-cream border-t border-primary/5">
+    <section className="py-12 bg-cream border-t border-primary/5">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
-        <div className="mb-12">
+        <div className="mb-8">
           <span className="text-xs uppercase tracking-widest text-secondary font-semibold font-sans">
             Video Journals
           </span>

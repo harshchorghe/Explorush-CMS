@@ -132,14 +132,14 @@ export default function GallerySection({ images }: { images: GalleryImage[] }) {
     : filteredImages;
 
   return (
-    <section className="py-24 bg-cream border-t border-primary/5 relative">
+    <section className="py-12 bg-cream border-t border-primary/5 relative">
       {/* Decorative grids */}
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-[linear-gradient(rgba(31,75,67,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(31,75,67,0.1)_1px,transparent_1px)] bg-[size:40px_40px]" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         
         {/* Header with Mode Toggles */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
           <div className="text-center md:text-left">
             <span className="text-xs uppercase tracking-widest text-secondary font-semibold font-sans">
               Explore Moments

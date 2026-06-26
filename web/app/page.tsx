@@ -272,11 +272,14 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* ── WEBSITE TOUR SECTION ── */}
+        <WebsiteTour settings={websiteTour} />
+
         {/* ── TICKER TAPE MARQUEE ── */}
-        <div className="bg-secondary/15 border-y border-primary/5 overflow-hidden py-4 mt-0 select-none">
+        <div className="bg-primary border-y border-white/5 overflow-hidden py-6 mt-0 select-none">
           <div className="flex gap-16 whitespace-nowrap animate-marquee w-max">
             {ticker.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-2 text-xs font-sans font-bold tracking-widest text-primary/70">
+              <div key={idx} className="flex items-center gap-2 text-xs font-sans font-bold tracking-widest text-white">
                 <span>✦</span>
                 {item}
               </div>
@@ -284,11 +287,8 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* ── WEBSITE TOUR SECTION ── */}
-        <WebsiteTour settings={websiteTour} />
-
         {/* ── ABOUT CREATOR SECTION ── */}
-        <section className="py-24 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+        <section className="py-16 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
           {/* Left image */}
           <div className="lg:col-span-5 relative aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50">
             <Image
@@ -439,7 +439,7 @@ export default async function HomePage() {
         <UpcomingToursSection upcomingTours={upcomingTours} author={author} />
 
         {/* ── BRAND COLLABORATIONS STRIP ── */}
-        <section className="py-20 bg-primary text-cream relative overflow-hidden">
+        <section className="py-12 bg-primary text-cream relative overflow-hidden">
           {/* Decorative grids */}
           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:30px_30px]" />
 

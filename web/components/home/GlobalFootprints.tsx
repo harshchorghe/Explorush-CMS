@@ -330,13 +330,13 @@ export default function GlobalFootprints({ trips }: { trips: Trip[] }) {
   }, [resolvedPins]);
 
   return (
-    <section className="py-20 bg-primary text-cream relative overflow-hidden">
+    <section className="py-12 bg-primary text-cream relative overflow-hidden">
       {/* Decorative grids */}
       <div className="absolute inset-0 opacity-5 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:30px_30px]" />
       
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-8">
           <span className="text-xs uppercase tracking-widest text-accent font-semibold flex items-center justify-center gap-1.5 font-sans">
             <Globe className="w-4 h-4 animate-spin-slow" />
             Interactive Map

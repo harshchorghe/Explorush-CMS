@@ -81,10 +81,10 @@ export default function ContactSection({ mediaKit }: { mediaKit?: MediaKitInfo }
   };
 
   return (
-    <section id="collaborate" className="py-24 bg-cream border-t border-primary/5">
+    <section id="collaborate" className="py-12 bg-cream border-t border-primary/5">
       <div className="max-w-6xl mx-auto px-6">
         {/* Header */}
-        <div className="text-center mb-16 space-y-2">
+        <div className="text-center mb-8 space-y-2">
           <span className="text-xs uppercase tracking-widest text-secondary font-bold font-sans">
             Work with us
           </span>
