@@ -320,12 +320,7 @@ export default async function HomePage() {
                   To help fellow travelers discover new places, travel smarter, and create memories that last a lifetime through authentic stories and guides.
                 </p>
               </div>
-              <div className="space-y-2">
-                <h4 className="font-serif font-bold text-primary text-lg">Personal Story</h4>
-                <p className="text-sm text-charcoal/70 leading-relaxed font-sans">
-                  What started as a passion for exploring new places slowly turned into a desire to document experiences, connect with people, and inspire others.
-                </p>
-              </div>
+             
             </div>
 
             <div className="pt-6">
