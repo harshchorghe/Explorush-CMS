@@ -1,8 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
-import { Play } from "lucide-react";
+import React from "react";
 
 export interface WebsiteTourSettings {
   title: string;
@@ -25,7 +23,6 @@ interface WebsiteTourProps {
 }
 
 export default function WebsiteTour({ settings }: WebsiteTourProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
   // Parse Video URL (YouTube or Google Drive) to iframe embed URL
   const getVideoEmbedUrl = (url: string): string => {
     if (!url) return "";
@@ -108,49 +105,13 @@ export default function WebsiteTour({ settings }: WebsiteTourProps) {
           {/* Right Side: Embedded Video Player (plays in-place) */}
           <div className="lg:col-span-7 w-full">
             <div className="relative aspect-video w-full rounded-3xl overflow-hidden shadow-2xl border border-primary/10 bg-black">
-              {isPlaying ? (
-                <iframe
-                  src={`${embedUrl}${embedUrl.includes('?') ? '&' : '?'}autoplay=1`}
-                  title={settings.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full border-0 absolute inset-0"
-                />
-              ) : (
-                <div 
-                  className="absolute inset-0 w-full h-full cursor-pointer group"
-                  onClick={() => setIsPlaying(true)}
-                >
-                  {settings.thumbnail?.asset?.url ? (
-                    <Image
-                      src={settings.thumbnail.asset.url}
-                      alt={settings.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-tr from-primary to-secondary flex items-center justify-center">
-                      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] bg-[size:16px_16px]" />
-                    </div>
-                  )}
-                  {/* Dark Tint Overlay */}
-                  <div className="absolute inset-0 bg-charcoal/30 group-hover:bg-charcoal/40 transition-colors duration-300" />
-                  
-                  {/* Pulsing Play Button */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-accent text-primary rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform duration-300 relative">
-                      {/* Pulse Ring */}
-                      <div className="absolute inset-0 rounded-full bg-accent/30 animate-ping" />
-                      <Play className="w-6 h-6 md:w-8 md:h-8 fill-primary translate-x-0.5" />
-                    </div>
-                  </div>
-
-                  {/* Play Tour Badge */}
-                  <div className="absolute bottom-4 right-4 bg-primary/95 text-accent text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border border-accent/20 font-sans shadow-md">
-                    Play Tour Video
-                  </div>
-                </div>
-              )}
+              <iframe
+                src={embedUrl}
+                title={settings.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full border-0 absolute inset-0"
+              />
             </div>
           </div>
 
