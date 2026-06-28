@@ -39,7 +39,7 @@ export default function UpcomingToursSection({ upcomingTours, author }: Upcoming
   };
 
   return (
-    <section className="py-12 bg-cream border-t border-primary/5">
+    <section id="upcoming-tours" className="py-12 bg-cream border-t border-primary/5">
       <div className="max-w-7xl mx-auto px-6">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">

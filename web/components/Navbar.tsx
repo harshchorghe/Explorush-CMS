@@ -1,14 +1,69 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Compass } from "lucide-react";
+import { Menu, X, Compass, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import NavDropdown from "@/components/NavDropdown";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const [activeFormType, setActiveFormType] = useState<"feedback" | "own-website" | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Disable body scroll when modal is open
+  useEffect(() => {
+    if (activeFormType) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [activeFormType]);
+
+  const handleShareModal = async (type: "feedback" | "own-website") => {
+    const pagePath = type === "feedback" ? "website-feedback" : "get-your-own-website";
+    const shareUrl = `${window.location.origin}/${pagePath}`;
+
+    const shareData = {
+      title: type === "feedback" ? "Explorush - Website Feedback" : "Explorush - Get Your Own Website",
+      text: type === "feedback" 
+        ? "Help shape the journey! Provide your feedback for Explorush."
+        : "Get your own custom-built premium website! Inquire here.",
+      url: shareUrl,
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+        setToastMessage("Thanks for sharing Explorush!");
+        setTimeout(() => setToastMessage(null), 3000);
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          copyUrlToClipboard(shareUrl);
+        }
+      }
+    } else {
+      copyUrlToClipboard(shareUrl);
+    }
+  };
+
+  const copyUrlToClipboard = (url: string) => {
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        setToastMessage("Link copied successfully!");
+        setTimeout(() => setToastMessage(null), 3000);
+      })
+      .catch(() => {
+        setToastMessage("Failed to copy link.");
+        setTimeout(() => setToastMessage(null), 3000);
+      });
+  };
 
   const links = [
     { name: "Home", href: "/" },
@@ -16,6 +71,27 @@ export default function Navbar() {
     { name: "Trips", href: "/trips" },
     { name: "Blogs", href: "/blogs" },
     { name: "Vlogs", href: "/vlogs" },
+  ];
+
+  const dropdownItems = [
+    {
+      label: "💙 Website Feedback",
+      href: "/website-feedback",
+      onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        setActiveFormType("feedback");
+      },
+    },
+    {
+      label: "🚀 Get Your Own Website",
+      href: "/get-your-own-website",
+      onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        setActiveFormType("own-website");
+      },
+    },
+    { label: "🤝 Collaborate", href: "/#collaborate" },
+    { label: "🧳 Trip Registration", href: "/#upcoming-tours" },
   ];
 
   const activeClass = "text-primary font-semibold border-b-2 border-accent";
@@ -48,14 +124,13 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* Desktop CTA Button */}
+        {/* Desktop CTA Button (Dropdown) */}
         <div className="hidden md:block">
-          <Link
-            href="/trips"
-            className="px-6 py-2.5 bg-accent hover:bg-accent/90 text-primary font-sans font-semibold tracking-wider text-xs uppercase rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
-          >
-            Explore Trips
-          </Link>
+          <NavDropdown
+            triggerText="Connect & Feedback"
+            items={dropdownItems}
+            mode="desktop"
+          />
         </div>
 
         {/* Mobile Menu Button */}
@@ -95,13 +170,108 @@ export default function Navbar() {
                 );
               })}
             </nav>
-            <Link
-              href="/trips"
-              onClick={() => setIsOpen(false)}
-              className="w-full text-center py-3 bg-accent text-primary font-sans font-semibold tracking-wider text-xs uppercase rounded-lg shadow-md"
+            <NavDropdown
+              triggerText="Connect & Feedback"
+              items={dropdownItems}
+              mode="mobile"
+              onItemClick={() => setIsOpen(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* POPUP MODAL OVERLAY */}
+      <AnimatePresence>
+        {activeFormType && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActiveFormType(null)}
+              className="absolute inset-0 bg-charcoal/60 backdrop-blur-sm"
+            />
+
+            {/* Modal Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="relative bg-cream border border-primary/10 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden z-10"
             >
-              Explore Trips
-            </Link>
+              {/* Modal Header */}
+              <div className="px-6 pt-6 pb-4 border-b border-primary/5 flex items-start justify-between">
+                <div className="space-y-1 pr-8">
+                  <span className="text-[10px] uppercase tracking-widest text-secondary font-bold font-sans">
+                    {activeFormType === "feedback" ? "Connect & Feedback" : "Connect & Services"}
+                  </span>
+                  <h3 className="text-2xl font-serif font-bold text-primary">
+                    {activeFormType === "feedback" ? "Website Feedback" : "Get Your Own Website"}
+                  </h3>
+                  <p className="text-charcoal/70 text-xs font-sans leading-relaxed">
+                    {activeFormType === "feedback"
+                      ? "We'd love to hear your thoughts, suggestions, or reports about your experience on Explorush."
+                      : "Looking for a premium, custom-designed website to showcase your brand? Share your vision!"}
+                  </p>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex items-center gap-3 shrink-0">
+                  <button
+                    onClick={() => handleShareModal(activeFormType)}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 border border-primary/20 hover:border-primary text-primary hover:bg-primary/5 font-sans font-semibold text-xs tracking-widest uppercase rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+                    title="Share this form link"
+                  >
+                    <Share2 className="w-3.5 h-3.5 text-accent" />
+                    <span>Share Form</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveFormType(null)}
+                    className="p-1.5 border border-primary/20 hover:border-primary text-primary hover:bg-primary/5 rounded-lg transition-all duration-300 cursor-pointer outline-none"
+                    title="Close modal"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Body (Iframe) */}
+              <div className="flex-1 overflow-y-auto p-4 bg-white">
+                <iframe
+                  src={
+                    activeFormType === "feedback"
+                      ? "https://docs.google.com/forms/d/e/1FAIpQLSdKXHGoqY9GC4eBPhaIfVTy8oT3lzW9wA0fV6uKsSwoHnATzQ/viewform?embedded=true"
+                      : "https://docs.google.com/forms/d/e/1FAIpQLSdKXHGoqY9GC4eBPhaIfVTy8oT3lzW9wA0fV6uKsSwoHnATzQ/viewform?embedded=true"
+                  }
+                  width="100%"
+                  height="1200"
+                  frameBorder="0"
+                  marginHeight={0}
+                  marginWidth={0}
+                  title={activeFormType === "feedback" ? "Website Feedback Form" : "Get Your Own Website Form"}
+                  className="w-full block"
+                >
+                  Loading…
+                </iframe>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* TOAST NOTIFICATION */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-8 right-8 z-[110] px-6 py-3 bg-primary text-cream rounded-xl shadow-2xl border border-accent/20 flex items-center gap-3 font-sans text-sm font-medium"
+          >
+            <Compass className="w-4 h-4 text-accent animate-spin-slow" />
+            <span>{toastMessage}</span>
           </motion.div>
         )}
       </AnimatePresence>
