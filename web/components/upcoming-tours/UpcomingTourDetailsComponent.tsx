@@ -41,6 +41,7 @@ export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingT
   const [localBookedSlots, setLocalBookedSlots] = useState(tour?.bookedSlots || 0);
 
   // Modal & Form States
+  const [showDemoInfoModal, setShowDemoInfoModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -378,9 +379,7 @@ export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingT
                   {!isFilled ? (
                     <button
                       onClick={() => {
-                        setShowModal(true);
-                        setBookingSuccess(false);
-                        setBookingError(null);
+                        setShowDemoInfoModal(true);
                       }}
                       className="w-full py-3.5 bg-primary hover:bg-secondary text-cream text-xs font-sans font-bold uppercase tracking-wider rounded-xl transition-colors duration-300 shadow-sm"
                     >
@@ -573,6 +572,58 @@ export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingT
         </div>
       )}
 
+      {/* PAYMENT & DEMO INFO MODAL POPUP */}
+      {showDemoInfoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white border border-primary/10 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative text-center space-y-5 font-sans">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowDemoInfoModal(false)}
+              className="absolute top-4 right-4 p-2 text-charcoal/40 hover:text-charcoal/70 bg-cream/50 hover:bg-cream rounded-xl transition-colors outline-none"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Icon */}
+            <div className="w-16 h-16 bg-accent/15 rounded-full flex items-center justify-center mx-auto text-accent mt-2">
+              <Info className="w-8 h-8" />
+            </div>
+
+            {/* Details */}
+            <div className="space-y-2.5">
+              <h3 className="text-2xl font-serif font-bold text-primary">Demo Booking Mode</h3>
+              <p className="text-sm text-charcoal/80 leading-relaxed font-sans">
+                Please note that **payment gateway integration is coming soon**.
+              </p>
+              <p className="text-xs text-charcoal/60 leading-relaxed font-sans">
+                This booking flow is operating in **Demo Mode**. You can proceed to test fill the registration form for free. No real transaction will occur.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-2 pt-2">
+              <button
+                onClick={() => {
+                  setShowDemoInfoModal(false);
+                  setShowModal(true);
+                  setBookingSuccess(false);
+                  setBookingError(null);
+                }}
+                className="w-full py-3 bg-primary hover:bg-secondary text-cream text-xs font-sans font-bold uppercase tracking-wider rounded-xl transition-colors duration-300 shadow-sm cursor-pointer outline-none"
+              >
+                Proceed to Registration
+              </button>
+              <button
+                onClick={() => setShowDemoInfoModal(false)}
+                className="w-full py-3 bg-transparent hover:bg-charcoal/5 text-charcoal/70 border border-charcoal/10 text-xs font-sans font-bold uppercase tracking-wider rounded-xl transition-colors duration-300 cursor-pointer outline-none"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MOBILE STICKY BOTTOM BOOKING BAR */}
       {!isFilled && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-cream/95 backdrop-blur-md border-t border-primary/10 px-6 py-4 flex items-center justify-between shadow-2xl animate-fade-in">
@@ -583,9 +634,7 @@ export default function UpcomingTourDetailsComponent({ tour }: { tour: UpcomingT
           </div>
           <button
             onClick={() => {
-              setShowModal(true);
-              setBookingSuccess(false);
-              setBookingError(null);
+              setShowDemoInfoModal(true);
             }}
             className="px-6 py-3.5 bg-primary hover:bg-secondary text-cream text-xs font-sans font-bold uppercase tracking-wider rounded-xl transition-colors duration-300 shadow-md"
           >

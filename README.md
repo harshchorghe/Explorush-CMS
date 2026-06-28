@@ -41,7 +41,7 @@ graph TD
 
 ### 4. Direct Support & Bug Report Form
 * **In-App Support Modal**: Popup modal located in the footer menu letting users file issues (Bugs, Content Errors, Feedback).
-* **Native Draft Redirection**: Automatically generates a formatted `mailto:` URI, opening the user's native email client with pre-filled support details directing to `chorgheharsh07@gmail.com`.
+* **Native Draft Redirection**: Automatically generates a formatted `mailto:` URI, opening the user's native email client with pre-filled support details directing to `explorushofficial@gmail.com`.
 
 ### 5. Secure In-Memory Admin Portal
 * **Transient Memory Auth**: Completely secure client-side React state validation. No cookies, localStorage, or sessionStorage are saved locally, prompting the user for the password `Harsh@1136` on refreshes or initial load.

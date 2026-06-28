@@ -31,7 +31,7 @@ export default function Navbar() {
 
     const shareData = {
       title: type === "feedback" ? "Explorush - Website Feedback" : "Explorush - Get Your Own Website",
-      text: type === "feedback" 
+      text: type === "feedback"
         ? "Help shape the journey! Provide your feedback for Explorush."
         : "Get your own custom-built premium website! Inquire here.",
       url: shareUrl,
@@ -75,7 +75,7 @@ export default function Navbar() {
 
   const dropdownItems = [
     {
-      label: "💙 Website Feedback",
+      label: " Website Feedback",
       href: "/website-feedback",
       onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
@@ -83,15 +83,15 @@ export default function Navbar() {
       },
     },
     {
-      label: "🚀 Get Your Own Website",
+      label: " Get Your Own Website",
       href: "/get-your-own-website",
       onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
         setActiveFormType("own-website");
       },
     },
-    { label: "🤝 Collaborate", href: "/#collaborate" },
-    { label: "🧳 Trip Registration", href: "/#upcoming-tours" },
+    { label: " Collaborate", href: "/#collaborate" },
+    { label: " Trip Registration", href: "/#upcoming-tours" },
   ];
 
   const activeClass = "text-primary font-semibold border-b-2 border-accent";
@@ -114,9 +114,8 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`pb-1 border-b-2 border-transparent transition-all duration-300 ${
-                  isActive ? activeClass : inactiveClass
-                }`}
+                className={`pb-1 border-b-2 border-transparent transition-all duration-300 ${isActive ? activeClass : inactiveClass
+                  }`}
               >
                 {link.name}
               </Link>
@@ -161,9 +160,8 @@ export default function Navbar() {
                     key={link.name}
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className={`pb-1 border-b border-transparent w-max ${
-                      isActive ? "text-primary font-bold border-accent" : "text-charcoal/70"
-                    }`}
+                    className={`pb-1 border-b border-transparent w-max ${isActive ? "text-primary font-bold border-accent" : "text-charcoal/70"
+                      }`}
                   >
                     {link.name}
                   </Link>
@@ -199,7 +197,7 @@ export default function Navbar() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="relative bg-cream border border-primary/10 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden z-10"
+              className="relative bg-cream border border-primary/10 rounded-2xl shadow-2xl w-full max-h-[90vh] flex flex-col overflow-hidden z-10 transition-all duration-300 max-w-[980px]"
             >
               {/* Modal Header */}
               <div className="px-6 pt-6 pb-4 border-b border-primary/5 flex items-start justify-between">
@@ -216,7 +214,7 @@ export default function Navbar() {
                       : "Looking for a premium, custom-designed website to showcase your brand? Share your vision!"}
                   </p>
                 </div>
-                
+
                 {/* Action Buttons */}
                 <div className="flex items-center gap-3 shrink-0">
                   <button
@@ -243,7 +241,7 @@ export default function Navbar() {
                   src={
                     activeFormType === "feedback"
                       ? "https://docs.google.com/forms/d/e/1FAIpQLSdKXHGoqY9GC4eBPhaIfVTy8oT3lzW9wA0fV6uKsSwoHnATzQ/viewform?embedded=true"
-                      : "https://docs.google.com/forms/d/e/1FAIpQLSdKXHGoqY9GC4eBPhaIfVTy8oT3lzW9wA0fV6uKsSwoHnATzQ/viewform?embedded=true"
+                      : "https://docs.google.com/forms/d/e/1FAIpQLScQ4HM7s_UF7uAORemyS7ppJnRJ11W6wHWKE7CiPOifInpM7Q/viewform?embedded=true"
                   }
                   width="100%"
                   height="1200"

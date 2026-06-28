@@ -25,7 +25,7 @@ ${description}
 --
 Sent from Explorush App`;
 
-    const mailtoUrl = `mailto:chorgheharsh07@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoUrl = `mailto:explorushofficial@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoUrl;
 
     setDescription("");

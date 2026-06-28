@@ -54,7 +54,7 @@ export default function WebsiteFeedbackPage() {
 
       <main className="bg-cream text-charcoal min-h-screen font-sans">
         {/* HEADER SECTION */}
-        <section className="max-w-4xl mx-auto px-6 pt-24 pb-8 text-center space-y-4">
+        <section className="max-w-4xl mx-auto px-6 pt-14 pb-8 text-center space-y-4">
           <span className="text-xs uppercase tracking-widest text-secondary font-bold font-sans">
             Connect & Feedback
           </span>
@@ -79,11 +79,11 @@ export default function WebsiteFeedbackPage() {
 
         {/* GOOGLE FORM EMBED */}
         <section className="max-w-7xl mx-auto px-6 pb-20">
-          <div className="w-full max-w-[640px] mx-auto bg-white rounded-2xl shadow-lg border border-primary/10 overflow-hidden my-4">
+          <div className="w-full max-w-[940px] mx-auto bg-white rounded-2xl shadow-lg border border-primary/10 overflow-hidden my-4">
             <iframe
               src="https://docs.google.com/forms/d/e/1FAIpQLSdKXHGoqY9GC4eBPhaIfVTy8oT3lzW9wA0fV6uKsSwoHnATzQ/viewform?embedded=true"
               width="100%"
-              height="2770"
+              height="2810"
               frameBorder="0"
               marginHeight={0}
               marginWidth={0}
