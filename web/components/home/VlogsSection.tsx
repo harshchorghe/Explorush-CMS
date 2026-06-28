@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Play, Eye, Clock, Tv } from "lucide-react";
+import { Play, Tv } from "lucide-react";
 
 type Vlog = {
   _id: string;
@@ -38,16 +38,9 @@ export default function VlogsSection({ vlogs }: { vlogs: Vlog[] }) {
   };
 
   // Mock overlays matching reference design
-  const getMockDuration = (index: number) => {
-    const mins = [14, 18, 12, 22, 10, 15];
-    const secs = [32, 15, 45, 10, 55, 20];
-    return `${mins[index % mins.length]}:${secs[index % secs.length]}`;
-  };
 
-  const getMockViews = (index: number) => {
-    const views = ["120K", "85K", "240K", "150K", "95K", "310K"];
-    return `${views[index % views.length]} views`;
-  };
+
+
 
   const activeIndex = vlogs.findIndex(v => v._id === activeVlog?._id);
 
@@ -111,16 +104,6 @@ export default function VlogsSection({ vlogs }: { vlogs: Vlog[] }) {
                   <h3 className="text-2xl font-serif font-bold text-primary">
                     {activeVlog.title}
                   </h3>
-                  <div className="flex items-center gap-4 text-xs text-charcoal/60 mt-2 font-sans font-medium">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-accent" />
-                      {getMockDuration(activeIndex >= 0 ? activeIndex : 0)}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Eye className="w-3.5 h-3.5 text-accent" />
-                      {getMockViews(activeIndex >= 0 ? activeIndex : 0)}
-                    </span>
-                  </div>
                 </div>
                 <Link
                   href={activeVlog.slug?.current ? `/vlogs/${activeVlog.slug.current}` : "/vlogs"}
@@ -176,13 +159,10 @@ export default function VlogsSection({ vlogs }: { vlogs: Vlog[] }) {
                     </div>
 
                     {/* Meta */}
-                    <div className="flex flex-col justify-between py-1">
+                    <div className="flex flex-col justify-center py-1">
                       <h5 className="font-serif text-sm font-bold text-primary line-clamp-2 leading-snug group-hover:text-accent transition-colors duration-300">
                         {vlog.title}
                       </h5>
-                      <span className="text-[10px] text-charcoal/50 font-sans tracking-wide">
-                        {getMockDuration(idx)} • {getMockViews(idx)}
-                      </span>
                     </div>
                   </button>
                 );

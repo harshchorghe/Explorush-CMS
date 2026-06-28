@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Play, Eye, Clock, Tv } from "lucide-react";
+import { Play, Tv } from "lucide-react";
 
 type Vlog = {
   _id: string;
@@ -15,17 +15,7 @@ type Vlog = {
 };
 
 export default function VlogComponent({ vlogs }: { vlogs: Vlog[] }) {
-  // Mock overlays matching design
-  const getMockDuration = (index: number) => {
-    const mins = [14, 18, 12, 22, 10, 15];
-    const secs = [32, 15, 45, 10, 55, 20];
-    return `${mins[index % mins.length]}:${secs[index % secs.length]}`;
-  };
 
-  const getMockViews = (index: number) => {
-    const views = ["120K", "85K", "240K", "150K", "95K", "310K"];
-    return `${views[index % views.length]} views`;
-  };
 
   return (
     <>
@@ -66,7 +56,7 @@ export default function VlogComponent({ vlogs }: { vlogs: Vlog[] }) {
                     {/* Thumbnail wrapper */}
                     <Link
                       href={vlog.slug?.current ? `/vlogs/${vlog.slug.current}` : "/vlogs"}
-                      className="relative h-56 overflow-hidden block bg-primary/10"
+                      className="relative h-44 overflow-hidden block bg-primary/10"
                     >
                       {vlog.thumbnail?.asset?.url ? (
                         <Image
@@ -91,20 +81,8 @@ export default function VlogComponent({ vlogs }: { vlogs: Vlog[] }) {
                     </Link>
 
                     {/* Content Body */}
-                    <div className="p-6 space-y-3">
-                      <div className="flex items-center gap-3 text-[10px] uppercase font-sans font-bold text-secondary tracking-widest">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5" />
-                          {getMockDuration(idx)}
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <Eye className="w-3.5 h-3.5" />
-                          {getMockViews(idx)}
-                        </span>
-                      </div>
-
-                      <h3 className="text-lg font-serif font-bold text-primary mb-2 line-clamp-2 group-hover:text-accent transition-colors duration-200">
+                    <div className="p-5">
+                      <h3 className="text-base font-serif font-bold text-primary line-clamp-2 group-hover:text-accent transition-colors duration-200">
                         <Link href={vlog.slug?.current ? `/vlogs/${vlog.slug.current}` : "/vlogs"}>
                           {vlog.title}
                         </Link>
@@ -113,10 +91,10 @@ export default function VlogComponent({ vlogs }: { vlogs: Vlog[] }) {
                   </div>
 
                   {/* Action Link */}
-                  <div className="p-6 pt-0 border-t border-primary/5 mt-4">
+                  <div className="p-5 pt-0 border-t border-primary/5">
                     <Link
                       href={vlog.slug?.current ? `/vlogs/${vlog.slug.current}` : "/vlogs"}
-                      className="inline-flex items-center gap-2 text-primary font-serif font-bold text-sm hover:text-accent transition-colors duration-200 mt-4 group"
+                      className="inline-flex items-center gap-2 text-primary font-serif font-bold text-xs hover:text-accent transition-colors duration-200 mt-2 group"
                     >
                       Watch Vlog Now <span className="transform group-hover:translate-x-1 transition-transform duration-300">→</span>
                     </Link>

@@ -108,10 +108,7 @@ export default function VlogDetailsComponent({ vlog }: { vlog: VlogDetails }) {
                 <Clock className="w-4 h-4 text-accent" />
                 14:32 duration
               </span>
-              <span className="flex items-center gap-1">
-                <Eye className="w-4 h-4 text-accent" />
-                120k views
-              </span>
+
             </div>
           </div>
         </div>
