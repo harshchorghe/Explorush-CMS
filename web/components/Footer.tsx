@@ -8,6 +8,146 @@ export default function Footer() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [issueType, setIssueType] = useState("bug");
   const [description, setDescription] = useState("");
+  const [activeInfoModal, setActiveInfoModal] = useState<"terms" | "privacy" | null>(null);
+
+  const termsContent = (
+    <div className="space-y-4">
+      <p className="font-semibold text-primary">Welcome to Explorush!</p>
+      <p>By accessing or using Explorush, you agree to comply with and be bound by these Terms of Service. If you do not agree with these terms, please do not use this website.</p>
+      
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">1. Use of the Website</h4>
+        <p>Explorush is intended to provide travel content, blogs, videos, trip information, collaboration opportunities, and website development services.</p>
+        <p>You agree to use this website only for lawful purposes and in a manner that does not interfere with the experience of other users.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">2. Intellectual Property</h4>
+        <p>Unless otherwise stated, all content available on Explorush—including text, photographs, videos, graphics, logos, branding, website design, and other original materials—is the property of Explorush and may not be copied, reproduced, distributed, or used without prior written permission.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">3. User Submissions</h4>
+        <p>By submitting any information through our forms (including feedback, collaboration requests, trip registrations, or website inquiries), you confirm that:</p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>The information provided is accurate.</li>
+          <li>You have the right to submit the information.</li>
+          <li>You grant Explorush permission to contact you regarding your inquiry.</li>
+        </ul>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">4. Third-Party Services</h4>
+        <p>Explorush may integrate or link to third-party platforms such as:</p>
+        <p className="text-xs text-charcoal/60">Google Forms, Google Maps, YouTube, Instagram, WhatsApp, and other external services.</p>
+        <p>We are not responsible for the privacy practices or content of third-party websites.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">5. Trip Registrations</h4>
+        <p>Submitting a trip registration form does not automatically confirm your booking. Trip confirmation is subject to availability, communication, and any additional terms shared during the booking process.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">6. Website Development Services</h4>
+        <p>Any pricing displayed or discussed through Explorush is considered an estimated quotation. Final pricing, timelines, deliverables, and project scope will be finalized only after a detailed discussion with the client.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">7. Limitation of Liability</h4>
+        <p>While we strive to keep all information accurate and up to date, Explorush does not guarantee that all content is error-free or uninterrupted. Use of this website is at your own discretion.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">8. Changes to These Terms</h4>
+        <p>These Terms may be updated from time to time without prior notice. Continued use of the website constitutes acceptance of the updated Terms.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">9. Contact</h4>
+        <p>If you have any questions regarding these Terms, please contact us using the contact information provided on the website.</p>
+      </div>
+    </div>
+  );
+
+  const privacyContent = (
+    <div className="space-y-4">
+      <p className="font-semibold text-primary">Your Privacy Matters</p>
+      <p>Explorush respects your privacy and is committed to protecting your personal information.</p>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">Information We Collect</h4>
+        <p>Depending on how you interact with our website, we may collect:</p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Name, Email address, Phone number</li>
+          <li>Instagram username</li>
+          <li>Feedback responses</li>
+          <li>Website inquiry details & Collaboration requests</li>
+          <li>Trip registration information</li>
+          <li>Any information you voluntarily submit through forms</li>
+        </ul>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">How We Use Your Information</h4>
+        <p>Your information may be used to:</p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Respond to inquiries</li>
+          <li>Contact you regarding collaborations</li>
+          <li>Discuss website development projects</li>
+          <li>Manage trip registrations</li>
+          <li>Improve our website and services</li>
+          <li>Analyze user feedback</li>
+          <li>Provide customer support</li>
+        </ul>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">Data Storage</h4>
+        <p>Information submitted through forms may be securely stored using trusted third-party services such as Google Forms, Google Sheets, or other secure platforms used by Explorush.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">Cookies</h4>
+        <p>Explorush may use cookies or similar technologies to improve website performance and enhance user experience. You may disable cookies through your browser settings if you prefer.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">Third-Party Services</h4>
+        <p>Our website may contain links or integrations with external services including Google, YouTube, Instagram, WhatsApp, and other trusted platforms. These services have their own privacy policies, and we encourage you to review them.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">Data Sharing</h4>
+        <p>We do not sell or rent your personal information to third parties. Your information is only used for the purposes described in this Privacy Policy unless required by law.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">Data Security</h4>
+        <p>We take reasonable measures to protect your information from unauthorized access, misuse, or disclosure. However, no online platform can guarantee 100% security.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">Your Rights</h4>
+        <p>You may request to access your personal information, correct inaccurate information, or request deletion of your information (where applicable). To make such a request, please contact us through the website.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">Children's Privacy</h4>
+        <p>Explorush is not intended for children under the age of 13. We do not knowingly collect personal information from children.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">Changes to This Privacy Policy</h4>
+        <p>This Privacy Policy may be updated from time to time. Any updates will be published on this page.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">Contact Us</h4>
+        <p>If you have any questions about this Privacy Policy or how your information is handled, please contact us using the contact details available on the website.</p>
+      </div>
+    </div>
+  );
 
   const handleSubmitIssue = (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,10 +265,20 @@ Sent from Explorush App`;
 
       <div className="max-w-7xl mx-auto px-6 border-t border-secondary/20 mt-6 pt-3 flex flex-col md:flex-row items-center justify-between text-[11px] text-cream/50 gap-3">
         <p>© {new Date().getFullYear()} Explorush. All rights reserved.</p>
-        <p className="flex gap-4">
-          <Link href="/" className="hover:text-accent">Terms of Service</Link>
-          <Link href="/" className="hover:text-accent">Privacy Policy</Link>
-        </p>
+        <div className="flex gap-4">
+          <button
+            onClick={() => setActiveInfoModal("terms")}
+            className="hover:text-accent transition-colors duration-200 cursor-pointer outline-none font-sans text-xs text-cream/50"
+          >
+            Terms of Service
+          </button>
+          <button
+            onClick={() => setActiveInfoModal("privacy")}
+            className="hover:text-accent transition-colors duration-200 cursor-pointer outline-none font-sans text-xs text-cream/50"
+          >
+            Privacy Policy
+          </button>
+        </div>
       </div>
 
       {/* Support & Issue Modal */}
@@ -205,6 +355,44 @@ Sent from Explorush App`;
                 Open Email Draft
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Terms / Privacy Modal */}
+      {activeInfoModal && (
+        <div className="fixed inset-0 z-50 bg-primary/40 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-cream border border-secondary/35 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative flex flex-col max-h-[85vh] p-6 text-charcoal">
+            {/* Close Button */}
+            <button
+              onClick={() => setActiveInfoModal(null)}
+              className="p-1.5 rounded-full text-charcoal/60 hover:text-primary hover:bg-secondary/20 transition-all duration-300 absolute top-4 right-4 cursor-pointer outline-none"
+              aria-label="Close modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Header */}
+            <div className="border-b border-primary/5 pb-3">
+              <h3 className="font-serif font-bold text-2xl text-primary">
+                {activeInfoModal === "terms" ? "Terms of Service" : "Privacy Policy"}
+              </h3>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto pr-2 mt-4 font-sans text-xs sm:text-sm leading-relaxed text-charcoal/80">
+              {activeInfoModal === "terms" ? termsContent : privacyContent}
+            </div>
+
+            {/* Footer Action */}
+            <div className="border-t border-primary/5 pt-4 mt-4 flex justify-end">
+              <button
+                onClick={() => setActiveInfoModal(null)}
+                className="px-6 py-2 bg-primary hover:bg-secondary text-cream font-sans font-semibold text-xs uppercase tracking-wider rounded-xl transition duration-300 shadow-md cursor-pointer outline-none"
+              >
+                Understood
+              </button>
+            </div>
           </div>
         </div>
       )}
