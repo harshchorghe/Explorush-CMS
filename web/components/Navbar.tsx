@@ -12,6 +12,14 @@ export default function Navbar() {
   const pathname = usePathname();
   const [activeFormType, setActiveFormType] = useState<"feedback" | "own-website" | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [iframeLoading, setIframeLoading] = useState(true);
+
+  // Reset iframe loading when modal toggles
+  useEffect(() => {
+    if (activeFormType) {
+      setIframeLoading(true);
+    }
+  }, [activeFormType]);
 
   // Disable body scroll when modal is open
   useEffect(() => {
@@ -236,7 +244,13 @@ export default function Navbar() {
               </div>
 
               {/* Modal Body (Iframe) */}
-              <div className="flex-1 overflow-y-auto p-4 bg-white">
+              <div className="flex-1 overflow-y-auto p-4 bg-white relative min-h-[400px]">
+                {iframeLoading && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-10 gap-3">
+                    <Compass className="w-8 h-8 text-primary animate-spin-slow" />
+                    <p className="text-xs text-charcoal/50 font-sans tracking-widest uppercase font-semibold">Loading Form...</p>
+                  </div>
+                )}
                 <iframe
                   src={
                     activeFormType === "feedback"
@@ -250,6 +264,8 @@ export default function Navbar() {
                   marginWidth={0}
                   title={activeFormType === "feedback" ? "Website Feedback Form" : "Get Your Own Website Form"}
                   className="w-full block"
+                  loading="lazy"
+                  onLoad={() => setIframeLoading(false)}
                 >
                   Loading…
                 </iframe>

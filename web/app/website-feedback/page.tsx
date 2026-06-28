@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function WebsiteFeedbackPage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [iframeLoading, setIframeLoading] = useState(true);
 
   const handleShare = async () => {
     const shareData = {
@@ -79,7 +80,13 @@ export default function WebsiteFeedbackPage() {
 
         {/* GOOGLE FORM EMBED */}
         <section className="max-w-7xl mx-auto px-6 pb-20">
-          <div className="w-full max-w-[940px] mx-auto bg-white rounded-2xl shadow-lg border border-primary/10 overflow-hidden my-4">
+          <div className="w-full max-w-[940px] mx-auto bg-white rounded-2xl shadow-lg border border-primary/10 overflow-hidden my-4 relative min-h-[400px]">
+            {iframeLoading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-10 gap-3">
+                <Compass className="w-8 h-8 text-primary animate-spin-slow" />
+                <p className="text-xs text-charcoal/50 font-sans tracking-widest uppercase font-semibold">Loading Form...</p>
+              </div>
+            )}
             <iframe
               src="https://docs.google.com/forms/d/e/1FAIpQLSdKXHGoqY9GC4eBPhaIfVTy8oT3lzW9wA0fV6uKsSwoHnATzQ/viewform?embedded=true"
               width="100%"
@@ -89,6 +96,8 @@ export default function WebsiteFeedbackPage() {
               marginWidth={0}
               title="Website Feedback Form"
               className="w-full block"
+              loading="lazy"
+              onLoad={() => setIframeLoading(false)}
             >
               Loading…
             </iframe>
