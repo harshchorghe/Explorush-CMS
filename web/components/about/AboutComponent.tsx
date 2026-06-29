@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Compass, ShieldCheck, Heart, Award } from "lucide-react";
+import { Compass, ShieldCheck, Heart, Award, Mail } from "lucide-react";
 
 type SanityImage = {
   asset?: {
@@ -76,16 +76,40 @@ export default function AboutComponent({ author }: { author: AuthorItem | null }
           </div>
         </section>
 
+        {/* CONTACT & INQUIRIES */}
+        <section id="contact" className="bg-cream pb-20 text-center">
+          <div className="max-w-4xl mx-auto px-4 space-y-4">
+            <span className="text-xs uppercase tracking-widest text-secondary font-bold font-sans">
+              Contact & Inquiries
+            </span>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary">
+              Have any inquiry or problem?
+            </h2>
+            <p className="text-charcoal/80 text-sm md:text-base leading-relaxed max-w-xl mx-auto font-sans">
+              Explorush is developed & operated by <span className="font-semibold text-primary">Harsh Chorghe</span> based in <span className="font-semibold text-primary">Mumbai, Maharashtra, India</span>. We are here to help! If you have any questions, feedback, or issues, please reach out to us directly.
+            </p>
+            <div className="pt-2">
+              <a
+                href="mailto:explorushofficial@gmail.com"
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-accent hover:bg-accent/90 text-primary font-sans font-bold text-xs uppercase tracking-widest rounded-xl transition duration-300 shadow-md hover:-translate-y-0.5"
+              >
+                <Mail className="w-4 h-4 text-primary" />
+                explorushofficial@gmail.com
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* VALUES / WHAT YOU FIND HERE */}
-        <section className="bg-primary text-cream py-24 border-y border-secondary/30 relative overflow-hidden">
+        <section className="bg-primary text-cream py-8 md:py-10 border-y border-secondary/30 relative overflow-hidden">
           <div className="absolute inset-0 opacity-5 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:40px_40px]" />
           
           <div className="max-w-7xl mx-auto px-6 relative z-10">
-            <h2 className="text-center text-4xl md:text-5xl font-serif font-bold mb-16 text-white">
+            <h2 className="text-center text-2xl md:text-3xl font-serif font-bold mb-6 text-white">
               What You'll Find Here
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {[
                 {
                   title: "Detailed Guides",
@@ -112,13 +136,13 @@ export default function AboutComponent({ author }: { author: AuthorItem | null }
                 return (
                   <div
                     key={idx}
-                    className="bg-secondary/15 border border-secondary/20 rounded-2xl p-8 hover:bg-secondary/25 transition-all duration-300 flex flex-col items-center text-center space-y-4 shadow-lg group"
+                    className="bg-secondary/15 border border-secondary/20 rounded-2xl p-4 md:p-5 hover:bg-secondary/25 transition-all duration-300 flex flex-col items-center text-center space-y-2 shadow-lg group"
                   >
-                    <div className="p-4 bg-accent text-primary rounded-full group-hover:scale-110 transition-transform duration-300">
-                      <Icon className="w-6 h-6 stroke-[2]" />
+                    <div className="p-2.5 bg-accent text-primary rounded-full group-hover:scale-110 transition-transform duration-300">
+                      <Icon className="w-4 h-4 md:w-5 md:h-5 stroke-[2]" />
                     </div>
-                    <h3 className="text-xl font-serif font-bold text-white">{val.title}</h3>
-                    <p className="text-cream/70 text-xs md:text-sm font-sans leading-relaxed">
+                    <h3 className="text-base font-serif font-bold text-white">{val.title}</h3>
+                    <p className="text-cream/70 text-[11px] md:text-xs font-sans leading-relaxed">
                       {val.text}
                     </p>
                   </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Compass, X, AlertCircle } from "lucide-react";
 
@@ -8,7 +8,20 @@ export default function Footer() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [issueType, setIssueType] = useState("bug");
   const [description, setDescription] = useState("");
-  const [activeInfoModal, setActiveInfoModal] = useState<"terms" | "privacy" | null>(null);
+  const [activeInfoModal, setActiveInfoModal] = useState<"terms" | "privacy" | "refunds" | null>(null);
+
+  useEffect(() => {
+    const handleOpenModal = (e: Event) => {
+      const customEvent = e as CustomEvent<"terms" | "privacy" | "refunds">;
+      if (customEvent.detail) {
+        setActiveInfoModal(customEvent.detail);
+      }
+    };
+    window.addEventListener("open-footer-modal", handleOpenModal);
+    return () => {
+      window.removeEventListener("open-footer-modal", handleOpenModal);
+    };
+  }, []);
 
   const termsContent = (
     <div className="space-y-4">
@@ -64,8 +77,13 @@ export default function Footer() {
       </div>
 
       <div className="space-y-1">
-        <h4 className="font-bold text-primary">9. Contact</h4>
-        <p>If you have any questions regarding these Terms, please contact us using the contact information provided on the website.</p>
+        <h4 className="font-bold text-primary">9. Contact Details</h4>
+        <p>If you have any questions regarding these Terms, please contact us at:</p>
+        <p className="text-xs">
+          <strong>Operator:</strong> Harsh Chorghe<br />
+          <strong>Email:</strong> explorushofficial@gmail.com<br />
+          <strong>Location:</strong> Mumbai, Maharashtra, India
+        </p>
       </div>
     </div>
   );
@@ -144,10 +162,48 @@ export default function Footer() {
 
       <div className="space-y-1">
         <h4 className="font-bold text-primary">Contact Us</h4>
-        <p>If you have any questions about this Privacy Policy or how your information is handled, please contact us using the contact details available on the website.</p>
+        <p>If you have any questions about this Privacy Policy or how your information is handled, please contact us at:</p>
+        <p className="text-xs">
+          <strong>Operator:</strong> Harsh Chorghe<br />
+          <strong>Email:</strong> explorushofficial@gmail.com<br />
+          <strong>Location:</strong> Mumbai, Maharashtra, India
+        </p>
       </div>
     </div>
   );
+
+  const refundsContent = (
+    <div className="space-y-4">
+      <p className="font-semibold text-primary">Refund & Cancellation Policy</p>
+      <p>At Explorush, we want you to have a great experience. Please read our cancellation and refund policies carefully before booking any trips or services.</p>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">1. Trip / Tour Bookings</h4>
+        <p>Because tour planning involves advanced bookings (stays, transit, and local guides), the following cancellation charges apply:</p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><strong>Cancellation 15 days or more before departure:</strong> 100% refund of the booking amount.</li>
+          <li><strong>Cancellation between 7 to 14 days before departure:</strong> 50% refund of the booking amount.</li>
+          <li><strong>Cancellation less than 7 days before departure:</strong> No refund will be provided.</li>
+        </ul>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">2. Service & Digital Deliverables</h4>
+        <p>For custom digital solutions, photography licensing, or website development services, cancellations and milestone payments are governed by the project agreement signed between Explorush and the client. Completed milestone works are non-refundable.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">3. Refund Processing Timeline</h4>
+        <p>Once a refund request is approved, the refund will be processed and automatically credited back to your original payment method (Credit/Debit Card, Net Banking, UPI, or Wallet) within <strong>5 to 7 business days</strong>.</p>
+      </div>
+
+      <div className="space-y-1">
+        <h4 className="font-bold text-primary">4. Contact for Refunds</h4>
+        <p>To request a cancellation or refund, please email us at <a href="mailto:explorushofficial@gmail.com" className="text-accent underline font-semibold">explorushofficial@gmail.com</a> with your booking ID and details.</p>
+      </div>
+    </div>
+  );
+
 
   const handleSubmitIssue = (e: React.FormEvent) => {
     e.preventDefault();
@@ -217,6 +273,7 @@ Sent from Explorush App`;
             <li><Link href="/trips" className="hover:text-accent transition-colors duration-200">Destinations</Link></li>
             <li><Link href="/blogs" className="hover:text-accent transition-colors duration-200">Travel Blogs</Link></li>
             <li><Link href="/vlogs" className="hover:text-accent transition-colors duration-200">Vlogs</Link></li>
+            <li><Link href="/about#contact" className="hover:text-accent transition-colors duration-200">Contact</Link></li>
           </ul>
         </div>
 
@@ -265,7 +322,7 @@ Sent from Explorush App`;
 
       <div className="max-w-7xl mx-auto px-6 border-t border-secondary/20 mt-6 pt-3 flex flex-col md:flex-row items-center justify-between text-[11px] text-cream/50 gap-3">
         <p>© {new Date().getFullYear()} Explorush. All rights reserved.</p>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 justify-center md:justify-end">
           <button
             onClick={() => setActiveInfoModal("terms")}
             className="hover:text-accent transition-colors duration-200 cursor-pointer outline-none font-sans text-xs text-cream/50"
@@ -277,6 +334,12 @@ Sent from Explorush App`;
             className="hover:text-accent transition-colors duration-200 cursor-pointer outline-none font-sans text-xs text-cream/50"
           >
             Privacy Policy
+          </button>
+          <button
+            onClick={() => setActiveInfoModal("refunds")}
+            className="hover:text-accent transition-colors duration-200 cursor-pointer outline-none font-sans text-xs text-cream/50"
+          >
+            Refunds & Cancellations
           </button>
         </div>
       </div>
@@ -361,7 +424,7 @@ Sent from Explorush App`;
 
       {/* Terms / Privacy Modal */}
       {activeInfoModal && (
-        <div className="fixed inset-0 z-50 bg-primary/40 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] bg-primary/40 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-cream border border-secondary/35 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative flex flex-col max-h-[85vh] p-6 text-charcoal">
             {/* Close Button */}
             <button
@@ -375,13 +438,17 @@ Sent from Explorush App`;
             {/* Header */}
             <div className="border-b border-primary/5 pb-3">
               <h3 className="font-serif font-bold text-2xl text-primary">
-                {activeInfoModal === "terms" ? "Terms of Service" : "Privacy Policy"}
+                {activeInfoModal === "terms" && "Terms of Service"}
+                {activeInfoModal === "privacy" && "Privacy Policy"}
+                {activeInfoModal === "refunds" && "Refund & Cancellation Policy"}
               </h3>
             </div>
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto pr-2 mt-4 font-sans text-xs sm:text-sm leading-relaxed text-charcoal/80">
-              {activeInfoModal === "terms" ? termsContent : privacyContent}
+              {activeInfoModal === "terms" && termsContent}
+              {activeInfoModal === "privacy" && privacyContent}
+              {activeInfoModal === "refunds" && refundsContent}
             </div>
 
             {/* Footer Action */}

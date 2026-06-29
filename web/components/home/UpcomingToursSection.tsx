@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, ArrowRight, Check, X, ShieldAlert } from "lucide-react";
 
 type UpcomingTourPreviewItem = {
   _id: string;
@@ -26,6 +27,31 @@ type UpcomingToursProps = {
 
 export default function UpcomingToursSection({ upcomingTours, author }: UpcomingToursProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [selectedTourUrl, setSelectedTourUrl] = useState<string | null>(null);
+  const [isAgreed, setIsAgreed] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const router = useRouter();
+
+  const handleReserveClick = (e: React.MouseEvent, url: string, isFilled: boolean) => {
+    if (isFilled) {
+      return;
+    }
+    e.preventDefault();
+    setSelectedTourUrl(url);
+    setIsAgreed(false);
+    setShowError(false);
+  };
+
+  const handleProceed = () => {
+    if (!isAgreed) {
+      setShowError(true);
+      return;
+    }
+    if (selectedTourUrl) {
+      router.push(selectedTourUrl);
+      setSelectedTourUrl(null);
+    }
+  };
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -144,6 +170,7 @@ export default function UpcomingToursSection({ upcomingTours, author }: Upcoming
 
                   <Link
                     href={tour.slug?.current ? `/upcoming-tours/${tour.slug.current}` : "/upcoming-tours"}
+                    onClick={(e) => handleReserveClick(e, tour.slug?.current ? `/upcoming-tours/${tour.slug.current}` : "/upcoming-tours", isFilled)}
                     className="w-full text-center py-3 bg-primary hover:bg-secondary text-cream text-xs font-sans font-semibold uppercase tracking-wider rounded-lg transition-colors duration-300"
                   >
                     {isFilled ? "View Details" : "Reserve Spot"}
@@ -154,6 +181,98 @@ export default function UpcomingToursSection({ upcomingTours, author }: Upcoming
           )}
         </div>
       </div>
+
+      {selectedTourUrl && (
+        <div className="fixed inset-0 z-50 bg-primary/40 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-cream border border-secondary/35 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative p-6 space-y-5 text-charcoal">
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedTourUrl(null)}
+              className="p-1.5 rounded-full text-charcoal/60 hover:text-primary hover:bg-secondary/20 transition-all duration-300 absolute top-4 right-4 cursor-pointer outline-none"
+              aria-label="Close modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Header */}
+            <div className="space-y-2 text-center pt-2">
+              <div className="mx-auto w-12 h-12 bg-accent/15 rounded-full flex items-center justify-center text-accent mb-1">
+                <Check className="w-6 h-6 text-primary stroke-[3]" />
+              </div>
+              <h3 className="font-serif font-bold text-xl text-primary">
+                Policy & Booking Consent
+              </h3>
+              <p className="text-xs text-charcoal/60 leading-relaxed max-w-xs mx-auto">
+                Before proceeding with your reservation, please review and accept our platform policies.
+              </p>
+            </div>
+
+            {/* Checkbox */}
+            <div className="flex items-start gap-3 p-4 bg-white border border-primary/10 rounded-xl">
+              <input
+                type="checkbox"
+                id="consent-check"
+                checked={isAgreed}
+                onChange={(e) => {
+                  setIsAgreed(e.target.checked);
+                  if (e.target.checked) setShowError(false);
+                }}
+                className="w-4 h-4 mt-0.5 accent-primary border-primary/20 rounded cursor-pointer shrink-0"
+              />
+              <label htmlFor="consent-check" className="text-xs text-charcoal/80 font-sans leading-relaxed cursor-pointer select-none font-medium">
+                I have read and successfully accepted the{" "}
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent("open-footer-modal", { detail: "terms" }))}
+                  className="text-primary hover:text-accent font-semibold underline bg-transparent border-none p-0 cursor-pointer inline font-sans text-xs"
+                >
+                  Terms of Service
+                </button>
+                ,{" "}
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent("open-footer-modal", { detail: "privacy" }))}
+                  className="text-primary hover:text-accent font-semibold underline bg-transparent border-none p-0 cursor-pointer inline font-sans text-xs"
+                >
+                  Privacy Policy
+                </button>
+                , and{" "}
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent("open-footer-modal", { detail: "refunds" }))}
+                  className="text-primary hover:text-accent font-semibold underline bg-transparent border-none p-0 cursor-pointer inline font-sans text-xs"
+                >
+                  Refund & Cancellation Policy
+                </button>
+                .
+              </label>
+            </div>
+
+            {showError && (
+              <p className="text-rose-600 text-xs font-semibold flex items-center gap-1.5">
+                <ShieldAlert className="w-4 h-4 shrink-0" />
+                Please accept the terms and policies to continue.
+              </p>
+            )}
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setSelectedTourUrl(null)}
+                className="flex-1 py-3 border border-primary/20 hover:border-primary text-primary font-sans font-semibold text-xs tracking-widest uppercase rounded-xl transition duration-300 cursor-pointer outline-none"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleProceed}
+                className="flex-1 py-3 bg-accent hover:bg-accent/90 text-primary font-sans font-bold text-xs tracking-widest uppercase rounded-xl transition duration-300 shadow-md hover:shadow-lg cursor-pointer outline-none"
+              >
+                Proceed
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
