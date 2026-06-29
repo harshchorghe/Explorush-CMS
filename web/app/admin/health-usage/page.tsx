@@ -2,14 +2,14 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowLeft, RefreshCw, Key, Database, Info, WifiOff } from "lucide-react";
+import { ArrowLeft, RefreshCw, Key, Database, Info, WifiOff, Globe, Wifi, Zap, ShieldAlert } from "lucide-react";
 import { useHealthUsage } from "@/hooks/useHealthUsage";
 import ProjectStatusCard from "@/components/admin/ProjectStatusCard";
 import HealthStatusCard from "@/components/admin/HealthStatusCard";
 import UsageMetricCard from "@/components/admin/UsageMetricCard";
 
 export default function HealthUsagePage() {
-  const { data, loading, error, refresh, secondsToRefresh } = useHealthUsage();
+  const { data, vercelData, loading, error, vercelError, refresh, secondsToRefresh } = useHealthUsage();
 
   // Loading skeletons for premium experience
   const renderSkeletons = () => (
@@ -237,6 +237,136 @@ export default function HealthUsagePage() {
             </div>
           </div>
 
+          {/* 3. Vercel Usage Monitoring */}
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-t border-primary/5 pt-6">
+              <div>
+                <h2 className="text-xl font-bold text-primary font-serif">Vercel Usage Monitoring</h2>
+                <p className="text-xs text-charcoal/60 mt-0.5 font-semibold">
+                  Resource usage limits, edge traffic, and project execution quotas from Vercel.
+                </p>
+              </div>
+              {vercelData && (
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                  <span className="text-charcoal/50">Plan:</span>
+                  <span className="text-primary bg-primary/10 px-2.5 py-0.5 rounded-full capitalize font-mono text-[10px] font-bold">
+                    {vercelData.plan}
+                  </span>
+                  {vercelData.isFallback && (
+                    <span className="text-amber-700 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold animate-pulse">
+                      Hobby Fallback Active
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {vercelError && (
+              <div className="bg-rose-50 border border-rose-100 text-rose-800 p-4 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs">
+                <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>{vercelError}</span>
+              </div>
+            )}
+
+            {vercelData && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <VercelMetricCard
+                  name={vercelData.usage.edgeRequests.name}
+                  used={vercelData.usage.edgeRequests.used}
+                  limit={vercelData.usage.edgeRequests.limit}
+                  percentage={vercelData.usage.edgeRequests.percentage}
+                  formattedUsed={vercelData.usage.edgeRequests.formattedUsed}
+                  formattedLimit={vercelData.usage.edgeRequests.formattedLimit}
+                  iconName="Globe"
+                />
+
+                <VercelMetricCard
+                  name={vercelData.usage.bandwidth.name}
+                  used={vercelData.usage.bandwidth.used}
+                  limit={vercelData.usage.bandwidth.limit}
+                  percentage={vercelData.usage.bandwidth.percentage}
+                  formattedUsed={vercelData.usage.bandwidth.formattedUsed}
+                  formattedLimit={vercelData.usage.bandwidth.formattedLimit}
+                  iconName="Wifi"
+                />
+
+                <VercelMetricCard
+                  name={vercelData.usage.functionInvocations.name}
+                  used={vercelData.usage.functionInvocations.used}
+                  limit={vercelData.usage.functionInvocations.limit}
+                  percentage={vercelData.usage.functionInvocations.percentage}
+                  formattedUsed={vercelData.usage.functionInvocations.formattedUsed}
+                  formattedLimit={vercelData.usage.functionInvocations.formattedLimit}
+                  iconName="Zap"
+                />
+              </div>
+            )}
+
+            {/* Vercel Latest Deployment Status Card */}
+            {vercelData && (
+              <div className="bg-white border border-primary/10 rounded-2xl p-6 shadow-xs flex flex-col lg:flex-row gap-6 justify-between lg:items-center">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-cream text-primary rounded-xl flex items-center justify-center shrink-0">
+                    <Info className="w-5 h-5 text-secondary" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-primary">Latest Vercel Deployment</h4>
+                    {vercelData.deployment.githubCommitMsg && (
+                      <p className="font-mono text-xs text-charcoal/70 bg-cream/50 px-2 py-1 rounded border border-primary/5 mt-1 max-w-lg truncate">
+                        "{vercelData.deployment.githubCommitMsg}"
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-4 md:gap-8 text-xs font-semibold">
+                  <div className="flex items-center gap-2">
+                    <div className="text-[11px]">
+                      <span className="text-charcoal/50 uppercase tracking-wider block">Deployment Domain</span>
+                      <a
+                        href={`https://${vercelData.deployment.url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-primary font-bold underline hover:text-accent"
+                      >
+                        {vercelData.deployment.url}
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="text-[11px]">
+                      <span className="text-charcoal/50 uppercase tracking-wider block">Completed At</span>
+                      <span className="font-mono text-primary font-bold">{vercelData.deployment.createdAt}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="text-[11px]">
+                      <span className="text-charcoal/50 uppercase tracking-wider block">Deployment Status</span>
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                        vercelData.deployment.status === "READY"
+                          ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20"
+                          : vercelData.deployment.status === "BUILDING"
+                          ? "bg-amber-500/10 text-amber-700 border-amber-500/20"
+                          : "bg-rose-500/10 text-rose-700 border-rose-500/20"
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          vercelData.deployment.status === "READY"
+                            ? "bg-emerald-500"
+                            : vercelData.deployment.status === "BUILDING"
+                            ? "bg-amber-500"
+                            : "bg-rose-500"
+                        }`} />
+                        {vercelData.deployment.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* System Properties Metadata */}
           <div className="bg-white border border-primary/10 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row gap-6 justify-between md:items-center">
             <div className="flex items-center gap-3">
@@ -271,6 +401,113 @@ export default function HealthUsagePage() {
           </div>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+// Subcomponent for Vercel usage metric cards
+function VercelMetricCard({
+  name,
+  percentage,
+  formattedUsed,
+  formattedLimit,
+  iconName,
+}: {
+  name: string;
+  used: number;
+  limit: number;
+  percentage: number;
+  formattedUsed: string;
+  formattedLimit: string;
+  iconName: "Globe" | "Wifi" | "Zap";
+}) {
+  let IconComponent = Globe;
+  if (iconName === "Wifi") IconComponent = Wifi;
+  if (iconName === "Zap") IconComponent = Zap;
+
+  // Health indicator thresholds:
+  // Green = under 60%
+  // Yellow = 60–85%
+  // Red = above 85%
+  let theme = {
+    progressBg: "bg-emerald-500",
+    badge: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
+    text: "text-emerald-700",
+    iconBg: "bg-emerald-50 text-emerald-600",
+    border: "border-emerald-500/10 hover:border-emerald-500/30",
+    glow: "bg-emerald-500",
+    statusLabel: "Healthy",
+  };
+
+  if (percentage > 85) {
+    theme = {
+      progressBg: "bg-rose-500",
+      badge: "bg-rose-500/10 text-rose-700 border-rose-500/20",
+      text: "text-rose-700",
+      iconBg: "bg-rose-50 text-rose-600",
+      border: "border-rose-500/10 hover:border-rose-500/30",
+      glow: "bg-rose-500",
+      statusLabel: "Critical",
+    };
+  } else if (percentage >= 60) {
+    theme = {
+      progressBg: "bg-amber-500",
+      badge: "bg-amber-500/10 text-amber-700 border-amber-500/20",
+      text: "text-amber-700",
+      iconBg: "bg-amber-50 text-amber-600",
+      border: "border-amber-500/10 hover:border-amber-500/30",
+      glow: "bg-amber-500",
+      statusLabel: "Warning",
+    };
+  }
+
+  const barWidth = Math.min(percentage, 100);
+
+  return (
+    <div
+      className={`bg-white border ${theme.border} rounded-2xl p-6 hover:shadow-md transition-all duration-300 relative overflow-hidden group flex flex-col justify-between shadow-xs`}
+    >
+      <div
+        className={`absolute -right-10 -top-10 w-28 h-28 ${theme.glow} opacity-[0.03] rounded-full blur-xl group-hover:scale-125 transition-transform duration-500`}
+      ></div>
+
+      <div>
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-3">
+            <div className={`p-2.5 rounded-xl ${theme.iconBg} flex items-center justify-center shrink-0`}>
+              <IconComponent className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-charcoal/60 text-xs font-bold uppercase tracking-wider">
+                {name}
+              </p>
+              <h3 className="text-2xl font-extrabold text-primary mt-1 tracking-tight font-serif">
+                {formattedUsed}
+              </h3>
+            </div>
+          </div>
+
+          <span
+            className={`text-xs px-2.5 py-0.5 rounded-full border ${theme.badge} font-bold`}
+          >
+            {percentage}%
+          </span>
+        </div>
+
+        <div className="mt-6">
+          <div className="w-full bg-cream border border-primary/5 h-2.5 rounded-full overflow-hidden">
+            <div
+              className={`h-full ${theme.progressBg} rounded-full transition-all duration-500`}
+              style={{ width: `${barWidth}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-primary/5 text-[11px] font-bold text-charcoal/50">
+        <span>LIMIT: {formattedLimit}</span>
+        <span className={theme.text}>{theme.statusLabel}</span>
+      </div>
     </div>
   );
 }
