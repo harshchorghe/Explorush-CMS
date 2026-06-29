@@ -8,7 +8,7 @@ export function useHealthUsage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [vercelError, setVercelError] = useState<string | null>(null);
-  const [secondsToRefresh, setSecondsToRefresh] = useState<number>(300);
+  const [secondsToRefresh, setSecondsToRefresh] = useState<number>(900);
 
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -55,7 +55,7 @@ export function useHealthUsage() {
       await Promise.all([sanityPromise, vercelPromise]);
     } finally {
       setLoading(false);
-      setSecondsToRefresh(300); // Reset timer
+      setSecondsToRefresh(900); // Reset timer to 15 minutes (900s)
     }
   }, []);
 
@@ -70,7 +70,7 @@ export function useHealthUsage() {
       setSecondsToRefresh((prev) => {
         if (prev <= 1) {
           fetchData(); // Trigger background refresh
-          return 300;
+          return 900;
         }
         return prev - 1;
       });

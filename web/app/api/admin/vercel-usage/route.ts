@@ -141,19 +141,21 @@ export async function GET() {
       console.warn("Failed to retrieve live usage from Vercel:", err);
     }
 
-    // 5. Fallback logic: Deterministic mock values based on date if API is Hobby (plan_upgrade_required)
+    // 5. Fallback logic: Deterministic mock values based on IST date if API is Hobby (plan_upgrade_required)
     if (!usageFetched) {
       const today = new Date();
-      const seed = today.getDate() + today.getMonth() * 31;
+      const istDate = new Date(today.getTime() + 5.5 * 60 * 60 * 1000); // Shift UTC to IST (UTC + 5:30)
+      const seed = istDate.getUTCDate() + istDate.getUTCMonth() * 31; // stable day seed in IST
+      const istHour = istDate.getUTCHours(); // stable hour in IST
       
       // Simulate usage (deterministic and realistic, keeping within 30-55% of limits)
-      edgeRequestsUsed = Math.round(180000 + (seed * 12345) % 250000 + today.getHours() * 800);
+      edgeRequestsUsed = Math.round(180000 + (seed * 12345) % 250000 + istHour * 800);
       bandwidthUsedBytes = Math.round(
         15 * 1024 * 1024 * 1024 + // 15 GB base
         (seed * 620 * 1024 * 1024) % 30000000000 + 
-        today.getHours() * 120 * 1024 * 1024
+        istHour * 120 * 1024 * 1024
       );
-      invocationsUsed = Math.round(15000 + (seed * 3421) % 35000 + today.getHours() * 210);
+      invocationsUsed = Math.round(15000 + (seed * 3421) % 35000 + istHour * 210);
     }
 
     // Calculations

@@ -221,18 +221,20 @@ export async function getProjectHealthAndUsage(headersObj?: {
   const formattedCdnLimit = cdnLimit.toLocaleString();
   const formattedBandwidthLimit = "100.0 GB";
 
-  // Mock metric generators (deterministic based on current date + docCount to simulate realism)
+  // Mock metric generators (deterministic based on IST date/hours to keep localhost & live aligned in IST)
   const today = new Date();
-  const seed = today.getDate() + today.getMonth() * 31; // stable day seed
+  const istDate = new Date(today.getTime() + 5.5 * 60 * 60 * 1000); // Shift UTC to IST (UTC + 5:30)
+  const seed = istDate.getUTCDate() + istDate.getUTCMonth() * 31; // stable day seed in IST
+  const istHour = istDate.getUTCHours(); // stable hour in IST
   
   // Estimate API and CDN usage based on document count + temporal seeds
   const mockApiUsed = Math.min(
     apiLimit - 100,
-    Math.round(21400 + documentCount * 45 + (seed * 850) % 50000 + today.getHours() * 120)
+    Math.round(21400 + documentCount * 45 + (seed * 850) % 50000 + istHour * 120)
   );
   const mockCdnUsed = Math.min(
     cdnLimit - 100,
-    Math.round(89300 + documentCount * 120 + (seed * 2200) % 150000 + today.getHours() * 340)
+    Math.round(89300 + documentCount * 120 + (seed * 2200) % 150000 + istHour * 340)
   );
   const mockBandwidthUsedBytes = Math.min(
     bandwidthLimit - 1024,
