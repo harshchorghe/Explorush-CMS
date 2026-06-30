@@ -273,7 +273,7 @@ Sent from Explorush App`;
             <li><Link href="/trips" className="hover:text-accent transition-colors duration-200">Destinations</Link></li>
             <li><Link href="/blogs" className="hover:text-accent transition-colors duration-200">Travel Blogs</Link></li>
             <li><Link href="/vlogs" className="hover:text-accent transition-colors duration-200">Vlogs</Link></li>
-            <li><Link href="/about#contact" className="hover:text-accent transition-colors duration-200">Contact</Link></li>
+            <li><Link href="/contact-us" className="hover:text-accent transition-colors duration-200">Contact</Link></li>
           </ul>
         </div>
 
@@ -323,24 +323,24 @@ Sent from Explorush App`;
       <div className="max-w-7xl mx-auto px-6 border-t border-secondary/20 mt-6 pt-3 flex flex-col md:flex-row items-center justify-between text-[11px] text-cream/50 gap-3">
         <p>© {new Date().getFullYear()} Explorush. All rights reserved.</p>
         <div className="flex flex-wrap gap-x-4 gap-y-1 justify-center md:justify-end">
-          <button
-            onClick={() => setActiveInfoModal("terms")}
-            className="hover:text-accent transition-colors duration-200 cursor-pointer outline-none font-sans text-xs text-cream/50"
+          <Link
+            href="/terms-and-conditions"
+            className="hover:text-accent transition-colors duration-200 font-sans text-xs text-cream/50"
           >
             Terms of Service
-          </button>
-          <button
-            onClick={() => setActiveInfoModal("privacy")}
-            className="hover:text-accent transition-colors duration-200 cursor-pointer outline-none font-sans text-xs text-cream/50"
+          </Link>
+          <Link
+            href="/privacy-policy"
+            className="hover:text-accent transition-colors duration-200 font-sans text-xs text-cream/50"
           >
             Privacy Policy
-          </button>
-          <button
-            onClick={() => setActiveInfoModal("refunds")}
-            className="hover:text-accent transition-colors duration-200 cursor-pointer outline-none font-sans text-xs text-cream/50"
+          </Link>
+          <Link
+            href="/refund-policy"
+            className="hover:text-accent transition-colors duration-200 font-sans text-xs text-cream/50"
           >
             Refunds & Cancellations
-          </button>
+          </Link>
         </div>
       </div>
 

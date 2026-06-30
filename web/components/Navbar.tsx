@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Compass, Share2 } from "lucide-react";
+import { Menu, X, Compass, Share2, PhoneCall } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import NavDropdown from "@/components/NavDropdown";
 
@@ -131,13 +131,25 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* Desktop CTA Button (Dropdown) */}
-        <div className="hidden md:block">
+        {/* Desktop CTA Button (Dropdown) & Contact Button */}
+        <div className="hidden md:flex items-center gap-2">
           <NavDropdown
             triggerText="Connect & Feedback"
             items={dropdownItems}
             mode="desktop"
           />
+          <div className="relative group flex items-center">
+            <Link
+              href="/contact-us"
+              className="p-2 text-charcoal/70 hover:text-primary transition-all duration-300 flex items-center justify-center cursor-pointer outline-none"
+              aria-label="Contact"
+            >
+              <PhoneCall className="w-5 h-5" />
+            </Link>
+            <span className="absolute top-full left-1/2 -translate-x-1/2 mt-1 px-2 py-1 bg-[#2A2A2A] text-[#F8F4EC] text-[10px] font-sans tracking-wider uppercase font-bold rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+              Contact
+            </span>
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
@@ -176,12 +188,22 @@ export default function Navbar() {
                 );
               })}
             </nav>
-            <NavDropdown
-              triggerText="Connect & Feedback"
-              items={dropdownItems}
-              mode="mobile"
-              onItemClick={() => setIsOpen(false)}
-            />
+            <div className="flex flex-col gap-3">
+              <NavDropdown
+                triggerText="Connect & Feedback"
+                items={dropdownItems}
+                mode="mobile"
+                onItemClick={() => setIsOpen(false)}
+              />
+              <Link
+                href="/contact-us"
+                onClick={() => setIsOpen(false)}
+                className="w-full py-3 bg-primary hover:bg-primary/95 text-cream hover:text-accent font-sans font-semibold tracking-wider text-xs uppercase rounded-lg shadow-md flex items-center justify-center gap-2 cursor-pointer outline-none transition-all duration-300"
+              >
+                <PhoneCall className="w-3.5 h-3.5" />
+                <span>Contact Us</span>
+              </Link>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
