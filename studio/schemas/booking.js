@@ -38,6 +38,7 @@ export default {
       name: "tour",
       title: "Upcoming Tour & Event",
       type: "reference",
+      weak: true,
       to: [{ type: "upcomingTour" }],
     },
   ],

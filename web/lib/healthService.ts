@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { client } from "@/lib/sanity";
+import { createClient } from "@sanity/client";
 
 export interface ServiceStatus {
   status: "healthy" | "warning" | "error";
@@ -78,17 +79,24 @@ async function checkEmailHealth(): Promise<ServiceStatus> {
   }
 }
 
-// Fetch Sanity project metadata via Management API to check token health
+// Fetch Sanity project metadata and verify write client permissions
 async function checkSanityApiHealth(
   projectId: string,
-  token: string
-): Promise<{ healthy: boolean; details: string; rawProject?: any }> {
+  token: string,
+  writeToken: string
+): Promise<{ healthy: boolean; writeHealthy: boolean; details: string; writeDetails: string; rawProject?: any }> {
   if (!projectId || !token) {
     return {
       healthy: false,
+      writeHealthy: false,
       details: "Missing project ID or Sanity Management Token in env configuration.",
+      writeDetails: "Missing token.",
     };
   }
+
+  let healthy = false;
+  let details = "";
+  let rawProject: any = null;
 
   try {
     const res = await fetch(`https://api.sanity.io/v2021-06-07/projects/${projectId}`, {
@@ -99,25 +107,56 @@ async function checkSanityApiHealth(
     });
 
     if (res.ok) {
-      const rawProject = await res.json();
-      return {
-        healthy: true,
-        details: `Connected. Project: "${rawProject.displayName || "Explorush"}" (Org: ${rawProject.organizationId || "N/A"})`,
-        rawProject,
-      };
+      rawProject = await res.json();
+      healthy = true;
+      details = `Connected. Project: "${rawProject.displayName || "Explorush"}" (Org: ${rawProject.organizationId || "N/A"})`;
     } else {
       const errText = await res.text();
-      return {
-        healthy: false,
-        details: `HTTP ${res.status}: ${errText.substring(0, 100) || res.statusText}`,
-      };
+      details = `HTTP ${res.status}: ${errText.substring(0, 100) || res.statusText}`;
     }
   } catch (e: any) {
-    return {
-      healthy: false,
-      details: e.message || "Failed to reach Sanity Management API",
-    };
+    details = e.message || "Failed to reach Sanity Management API";
   }
+
+  let writeHealthy = false;
+  let writeDetails = "";
+
+  if (!writeToken) {
+    writeDetails = "SANITY_API_TOKEN is missing in the server environment.";
+  } else {
+    try {
+      const testClient = createClient({
+        projectId,
+        dataset: "production",
+        apiVersion: "2024-01-01",
+        token: writeToken,
+        useCdn: false,
+      });
+      // Dry-run mutation to verify write permissions
+      await testClient.mutate([
+        {
+          createOrReplace: {
+            _id: "drafts.write_test_connection",
+            _type: "blog",
+            title: "Write Test Connection",
+          }
+        }
+      ], { dryRun: true });
+      writeHealthy = true;
+      writeDetails = "Write/Delete permissions verified successfully.";
+    } catch (e: any) {
+      writeHealthy = false;
+      writeDetails = `Write check failed: ${e.message || e}`;
+    }
+  }
+
+  return {
+    healthy,
+    writeHealthy,
+    details,
+    writeDetails,
+    rawProject,
+  };
 }
 
 export async function getProjectHealthAndUsage(headersObj?: {
@@ -127,9 +166,10 @@ export async function getProjectHealthAndUsage(headersObj?: {
   const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "rmcbvfwf";
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
   const token = process.env.SANITY_MANAGEMENT_TOKEN || "";
+  const writeToken = process.env.SANITY_API_TOKEN || "";
 
   // 1. Check Sanity Connection
-  const sanityCheck = await checkSanityApiHealth(projectId, token);
+  const sanityCheck = await checkSanityApiHealth(projectId, token, writeToken);
 
   // 2. Fetch direct metrics from Sanity Content Lake
   let documentCount = 0;
@@ -172,15 +212,28 @@ export async function getProjectHealthAndUsage(headersObj?: {
   };
 
   // 5. Build other health statuses
-  const sanityCmsStatus: ServiceStatus = {
-    status: sanityCheck.healthy ? (queryError ? "warning" : "healthy") : "error",
-    message: sanityCheck.healthy ? (queryError ? "Degraded" : "Healthy") : "Error",
-    details: sanityCheck.healthy
-      ? queryError
+  let sanityCmsStatus: ServiceStatus;
+  if (!sanityCheck.healthy) {
+    sanityCmsStatus = {
+      status: "error",
+      message: "Error",
+      details: `Read API check failed: ${sanityCheck.details}`,
+    };
+  } else if (!sanityCheck.writeHealthy) {
+    sanityCmsStatus = {
+      status: "error",
+      message: "Write Access Error",
+      details: `Read API OK. ${sanityCheck.writeDetails}`,
+    };
+  } else {
+    sanityCmsStatus = {
+      status: queryError ? "warning" : "healthy",
+      message: queryError ? "Degraded" : "Healthy",
+      details: queryError
         ? "Connected to API, but queries to Content Lake failed."
-        : sanityCheck.details
-      : sanityCheck.details,
-  };
+        : `${sanityCheck.details} | ${sanityCheck.writeDetails}`,
+    };
+  }
 
   const websiteStatus: ServiceStatus = {
     status: "healthy",

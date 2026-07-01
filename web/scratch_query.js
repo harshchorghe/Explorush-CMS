@@ -9,28 +9,11 @@ const client = createClient({
 
 async function run() {
   try {
-    const docCount = await client.fetch(`count(*)`);
-    console.log("Total Document Count:", docCount);
+    const referencingDoc = await client.fetch(`*[_id == "5AsM6udhZPSCTKAikSqHtE"][0]`);
+    console.log("Referencing Document:", JSON.stringify(referencingDoc, null, 2));
 
-    const assetData = await client.fetch(`*[_type in ["sanity.imageAsset", "sanity.fileAsset"]]{
-      _type,
-      size
-    }`);
-    console.log(`Found ${assetData.length} assets`);
-    
-    let totalSize = 0;
-    assetData.forEach(asset => {
-      if (asset.size) totalSize += asset.size;
-    });
-    console.log(`Total asset storage size: ${totalSize} bytes (${(totalSize / (1024 * 1024)).toFixed(2)} MB)`);
-    
-    // Let's count specific doc types
-    const types = await client.fetch(`*[]{_type}`);
-    const counts = {};
-    types.forEach(d => {
-      counts[d._type] = (counts[d._type] || 0) + 1;
-    });
-    console.log("Document counts by type:", counts);
+    const referencedDoc = await client.fetch(`*[_id == "c7EiKTPmNzN3JJJW9tKFlr"][0]`);
+    console.log("\nReferenced Document:", JSON.stringify(referencedDoc, null, 2));
 
   } catch (error) {
     console.error("Sanity query failed:", error);
