@@ -59,7 +59,7 @@ export default function ContactUsPage() {
                   <strong>Operator Name:</strong> Harsh Chorghe
                 </div>
                 <div>
-                  <strong> Website:</strong> https://explorush.vercel.app
+                  <strong> Website:</strong> https://explorush.in
                 </div>
               </div>
             </div>
